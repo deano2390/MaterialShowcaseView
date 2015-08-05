@@ -40,6 +40,8 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                 .setDismissText("GOT IT")
                 .setContentText("This is some amazing feature you should know about")
                 .setMaskColour(Color.parseColor("#bb660000"))
+                .setContentTextColor(Color.parseColor("#bb006600"))
+                .setContentTextColor(Color.parseColor("#bb000066"))
                 .build();
     }
 }

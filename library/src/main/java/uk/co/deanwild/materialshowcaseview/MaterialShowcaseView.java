@@ -27,7 +27,10 @@ import android.widget.TextView;
  * Created by deanwild on 04/08/15.
  */
 public class MaterialShowcaseView extends FrameLayout implements View.OnTouchListener, View.OnClickListener {
-    private Activity mActivity;
+
+    private static final String DEFAULT_MASK_COLOUR = "#bb335075";
+    private static final int DEFAULT_RADIUS = 200;
+
     private int mOldHeight;
     private int mOldWidth;
     private Bitmap mBitmap;
@@ -38,7 +41,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private int mYPosition;
     private CharSequence content;
     private CharSequence title;
-    private int mRadius = 200;
+    private int mRadius = DEFAULT_RADIUS;
     private boolean mUseAutoRadius = true;
     private View mContentBox;
     private TextView mContentTextView;
@@ -47,8 +50,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private int mContentBottomMargin;
     private int mContentTopMargin;
     private boolean mDismissOnTouch = false;
-    private CharSequence mContentText;
-    private CharSequence mDismissText;
     private boolean mShouldRedraw = true;
     private boolean mShouldRender = false; // flag to decide when we should actually render
     private int mMaskColour;
@@ -77,7 +78,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     private void init(Context context) {
         setWillNotDraw(false);
-        mActivity = (Activity) context;
 
         // make sure we add a global layout listener so we can adapt to changes
         getViewTreeObserver().addOnGlobalLayoutListener(new UpdateOnGlobalLayout());
@@ -85,14 +85,13 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         // consume touch events
         setOnTouchListener(this);
 
-
         View contentView = LayoutInflater.from(getContext()).inflate(R.layout.showcase_content, this, true);
         mContentBox = contentView.findViewById(R.id.content_box);
         mContentTextView = (TextView) contentView.findViewById(R.id.tv_content);
         mDismissButton = (TextView) contentView.findViewById(R.id.tv_dismiss);
         mDismissButton.setOnClickListener(this);
 
-        mMaskColour = Color.parseColor("#bb335075");
+        mMaskColour = Color.parseColor(DEFAULT_MASK_COLOUR);
     }
 
 
@@ -141,10 +140,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         // Draw the bitmap on our views  canvas.
         canvas.drawBitmap(mBitmap, 0, 0, null);
-
-        applyContentText();
-        applyDismissText();
-
     }
 
     @Override
@@ -231,18 +226,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
     }
 
-    private void applyContentText() {
-        if (mContentTextView != null && !mContentTextView.getText().equals(mContentText)) {
-            mContentTextView.setText(mContentText);
-        }
-    }
-
-    private void applyDismissText(){
-        if (mDismissButton != null && !mDismissButton.getText().equals(mDismissText)) {
-            mDismissButton.setText(mDismissText);
-        }
-    }
-
     @Override
     public void invalidate() {
         mShouldRedraw = true;
@@ -263,13 +246,27 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     }
 
     private void setContentText(CharSequence contentText) {
-        mContentText = contentText;
-        applyContentText();
+        if (mContentTextView != null) {
+            mContentTextView.setText(contentText);
+        }
     }
 
     private void setDismissText(CharSequence dismissText) {
-        mDismissText = dismissText;
-        applyDismissText();
+        if (mDismissButton != null) {
+            mDismissButton.setText(dismissText);
+        }
+    }
+
+    private void setContentTextColor(int textColour) {
+        if (mContentTextView != null) {
+            mContentTextView.setTextColor(textColour);
+        }
+    }
+
+    private void setDismissTextColor(int textColour) {
+        if (mDismissButton != null) {
+            mDismissButton.setTextColor(textColour);
+        }
     }
 
     private void setDismissOnTouch(boolean dismissOnTouch) {
@@ -386,6 +383,17 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             showcaseView.setMaskColour(maskColour);
             return this;
         }
+
+        public Builder setContentTextColor(int textColour) {
+            showcaseView.setContentTextColor(textColour);
+            return this;
+        }
+
+        public Builder setDismissTextColor(int textColour) {
+            showcaseView.setDismissTextColor(textColour);
+            return this;
+        }
+
 
         public MaterialShowcaseView build() {
             showcaseView.setShouldRender(true);
