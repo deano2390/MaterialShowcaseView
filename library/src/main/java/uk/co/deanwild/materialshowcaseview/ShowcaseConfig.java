@@ -20,6 +20,8 @@ public class ShowcaseConfig {
 
     public ShowcaseConfig() {
         mMaskColour = Color.parseColor(ShowcaseConfig.DEFAULT_MASK_COLOUR);
+        mContentTextColor = Color.parseColor("#ffffff");
+        mDismissTextColor = Color.parseColor("#ffffff");
     }
 
     public long getDelay() {

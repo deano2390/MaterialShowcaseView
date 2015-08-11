@@ -37,7 +37,7 @@ public class MaterialShowcaseSequence implements IShowcaseListener {
                 .build();
 
         if(mConfig!=null){
-           // sequenceItem.setConfig(mConfig);
+            sequenceItem.setConfig(mConfig);
         }
 
         mShowcaseQueue.add(sequenceItem);
