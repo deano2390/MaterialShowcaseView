@@ -23,16 +23,14 @@ import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Created by deanwild on 04/08/15.
  */
 public class MaterialShowcaseView extends FrameLayout implements View.OnTouchListener, View.OnClickListener {
-
-    private static final String DEFAULT_MASK_COLOUR = "#bb335075";
-    private static final int DEFAULT_RADIUS = 200;
-    private static final long DEFAULT_FADE_TIME = 300;
-    private static final long DEFAULT_DELAY = 0;
 
     private int mOldHeight;
     private int mOldWidth;
@@ -43,7 +41,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private int mXPosition;
     private int mYPosition;
 
-    private int mRadius = DEFAULT_RADIUS;
+    private int mRadius = ShowcaseConfig.DEFAULT_RADIUS;
     private boolean mUseAutoRadius = true;
     private View mContentBox;
     private TextView mContentTextView;
@@ -57,12 +55,13 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private int mMaskColour;
     private AnimationFactory mAnimationFactory;
     private boolean mShouldAnimate = true;
-    private long mFadeDurationInMillis = DEFAULT_FADE_TIME;
+    private long mFadeDurationInMillis = ShowcaseConfig.DEFAULT_FADE_TIME;
     private Handler mHandler;
-    private long mDelayInMillis = DEFAULT_DELAY;
+    private long mDelayInMillis = ShowcaseConfig.DEFAULT_DELAY;
     private int mBottomMargin = 0;
     private boolean mSingleUse = false; // should display only once
     private PrefsManager mPrefsManager; // used to store state doe single use mode
+    List<IShowcaseListener> mListeners; // external listeners who want to observe when we show and dismiss
 
     public MaterialShowcaseView(Context context) {
         super(context);
@@ -92,20 +91,23 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         // create our animation factory
         mAnimationFactory = new AnimationFactory();
 
+        mListeners = new ArrayList<>();
+
         // make sure we add a global layout listener so we can adapt to changes
         getViewTreeObserver().addOnGlobalLayoutListener(new UpdateOnGlobalLayout());
 
         // consume touch events
         setOnTouchListener(this);
 
+        mMaskColour = Color.parseColor(ShowcaseConfig.DEFAULT_MASK_COLOUR);
+        setVisibility(INVISIBLE);
+
+
         View contentView = LayoutInflater.from(getContext()).inflate(R.layout.showcase_content, this, true);
         mContentBox = contentView.findViewById(R.id.content_box);
         mContentTextView = (TextView) contentView.findViewById(R.id.tv_content);
         mDismissButton = (TextView) contentView.findViewById(R.id.tv_dismiss);
         mDismissButton.setOnClickListener(this);
-
-        mMaskColour = Color.parseColor(DEFAULT_MASK_COLOUR);
-        setVisibility(INVISIBLE);
     }
 
 
@@ -164,6 +166,19 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         return true;
     }
 
+
+    private void notifyOnDisplayed(){
+        for (IShowcaseListener listener : mListeners){
+            listener.onShowcaseDisplayed(this);
+        }
+    }
+
+    private void notifyOnDismissed(){
+        for (IShowcaseListener listener : mListeners){
+            listener.onShowcaseDismissed(this);
+        }
+    }
+
     /**
      * Dismiss button clicked
      *
@@ -211,10 +226,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                 mContentBottomMargin = 0;
                 mGravity = Gravity.TOP;
             }
-
-            applyLayoutParams();
-
         }
+
+        applyLayoutParams();
     }
 
     private void applyLayoutParams() {
@@ -292,12 +306,35 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mMaskColour = maskColour;
     }
 
-    private void setDelay(int delayInMillis) {
+    private void setDelay(long delayInMillis) {
         mDelayInMillis = delayInMillis;
     }
 
-    private void setFadeDuration(int fadeDurationInMillis) {
+    private void setFadeDuration(long fadeDurationInMillis) {
         mFadeDurationInMillis = fadeDurationInMillis;
+    }
+
+    public void addShowcaseListener(IShowcaseListener showcaseListener) {
+        mListeners.add(showcaseListener);
+    }
+
+    public void removeShowcaseListener(MaterialShowcaseSequence showcaseListener) {
+        if(mListeners.contains(showcaseListener)){
+            mListeners.remove(showcaseListener);
+        }
+    }
+
+
+    /**
+     * Set properties based on a config object
+     * @param config
+     */
+    public void setConfig(ShowcaseConfig config) {
+        setDelay(config.getDelay());
+        setFadeDuration(config.getFadeDuration());
+        setContentTextColor(config.getContentTextColor());
+        setDismissTextColor(config.getDismissTextColor());
+        setMaskColour(config.getMaskColor());
     }
 
     /**
@@ -419,12 +456,15 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             return this;
         }
 
-
         public MaterialShowcaseView build() {
-            showcaseView.setShouldRender(true);
+            return showcaseView;
+        }
+
+        public MaterialShowcaseView show() {
             showcaseView.show(activity);
             return showcaseView;
         }
+
     }
 
     private void singleUse(String showcaseID) {
@@ -441,13 +481,16 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             mBitmap.recycle();
             mBitmap = null;
         }
+
+        notifyOnDismissed();
+
     }
 
 
     public void show(final Activity activity) {
 
         /**
-         * if we're in singleUse mode and have already show out bolt then do nothing
+         * if we're in single use mode and have already show our bolt then do nothing
          */
         if (mSingleUse) {
             if (mPrefsManager.hasFired()) {
@@ -457,8 +500,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             }
         }
 
+        ((ViewGroup) activity.getWindow().getDecorView()).addView(this);
 
-        ((ViewGroup) activity.getWindow().getDecorView()).addView(MaterialShowcaseView.this);
+        setShouldRender(true);
 
 
         /**
@@ -479,6 +523,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                     fadeIn();
                 } else {
                     setVisibility(VISIBLE);
+                    notifyOnDisplayed();
                 }
             }
         }, mDelayInMillis);
@@ -503,6 +548,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                     @Override
                     public void onAnimationStart() {
                         setVisibility(View.VISIBLE);
+                        notifyOnDisplayed();
                     }
                 }
         );
@@ -525,6 +571,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     /**
      * Static helper method for resetting single use flag
+     *
      * @param context
      * @param showcaseID
      */

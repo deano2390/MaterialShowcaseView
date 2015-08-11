@@ -16,6 +16,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".SimpleSingleExample"
+            android:label="@string/title_activity_simple_single_example" >
+        </activity>
+        <activity
+            android:name=".CustomExample"
+            android:label="@string/title_activity_custom_example" >
+        </activity>
+        <activity
+            android:name=".SequenceExample"
+            android:label="@string/title_activity_sequence_example" >
+        </activity>
     </application>
 
 </manifest>

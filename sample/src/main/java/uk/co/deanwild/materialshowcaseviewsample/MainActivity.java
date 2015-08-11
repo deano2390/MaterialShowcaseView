@@ -1,45 +1,51 @@
 package uk.co.deanwild.materialshowcaseviewsample;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.Button;
 
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
-
 public class MainActivity extends ActionBarActivity implements View.OnClickListener {
-
-    private Button mButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mButton = (Button) findViewById(R.id.button);
-        mButton.setOnClickListener(this);
-        presentShowcaseView(1000); // one second delay
+        Button button = (Button) findViewById(R.id.btn_simple_example);
+        button.setOnClickListener(this);
+        button = (Button) findViewById(R.id.btn_custom_example);
+        button.setOnClickListener(this);
+        button = (Button) findViewById(R.id.btn_sequence_example);
+        button.setOnClickListener(this);
 
 
     }
 
     @Override
     public void onClick(View v) {
-        MaterialShowcaseView.resetSingleUse(this, "first button");
-        presentShowcaseView(0);
+
+        Intent intent = null;
+
+        switch (v.getId()) {
+            case R.id.btn_simple_example:
+                intent = new Intent(this, SimpleSingleExample.class);
+                break;
+
+            case R.id.btn_custom_example:
+                intent = new Intent(this, CustomExample.class);
+                break;
+
+            case R.id.btn_sequence_example:
+                intent = new Intent(this, SequenceExample.class);
+                break;
+        }
+
+        if(intent!=null){
+            startActivity(intent);
+        }
     }
 
-    private void presentShowcaseView(int withDelay) {
-        new MaterialShowcaseView.Builder(this)
-                .setTarget(mButton)
-                .setDismissText("GOT IT")
-                .setContentText("This is some amazing feature you should know about")
-               // .setMaskColour(Color.parseColor("#bb660000"))
-                //.setContentTextColor(Color.parseColor("#bb006600"))
-                //.setContentTextColor(Color.parseColor("#bb000066"))
-                .setDelay(withDelay)
-                .singleUse("first button")
-                .build();
-    }
+
 }
