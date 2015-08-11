@@ -61,6 +61,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private Handler mHandler;
     private long mDelayInMillis = DEFAULT_DELAY;
     private int mBottomMargin = 0;
+    private boolean mSingleUse = false; // should display only once
+    private PrefsManager mPrefsManager; // used to store state doe single use mode
 
     public MaterialShowcaseView(Context context) {
         super(context);
@@ -294,7 +296,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mDelayInMillis = delayInMillis;
     }
 
-    private void setFadeDuration(int fadeDurationInMillis){
+    private void setFadeDuration(int fadeDurationInMillis) {
         mFadeDurationInMillis = fadeDurationInMillis;
     }
 
@@ -412,12 +414,22 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             return this;
         }
 
+        public Builder singleUse(String showcaseID) {
+            showcaseView.singleUse(showcaseID);
+            return this;
+        }
+
 
         public MaterialShowcaseView build() {
             showcaseView.setShouldRender(true);
             showcaseView.show(activity);
             return showcaseView;
         }
+    }
+
+    private void singleUse(String showcaseID) {
+        mSingleUse = true;
+        mPrefsManager = new PrefsManager(getContext(), showcaseID);
     }
 
     public void removeFromWindow() {
@@ -431,7 +443,20 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
     }
 
+
     public void show(final Activity activity) {
+
+        /**
+         * if we're in singleUse mode and have already show out bolt then do nothing
+         */
+        if (mSingleUse) {
+            if (mPrefsManager.hasFired()) {
+                return;
+            } else {
+                mPrefsManager.setFired();
+            }
+        }
+
 
         ((ViewGroup) activity.getWindow().getDecorView()).addView(MaterialShowcaseView.this);
 
@@ -494,6 +519,18 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         });
     }
 
+    public void resetSingleUse() {
+        if (mSingleUse && mPrefsManager != null) mPrefsManager.resetShowcase();
+    }
+
+    /**
+     * Static helper method for resetting single use flag
+     * @param context
+     * @param showcaseID
+     */
+    public static void resetSingleUse(Context context, String showcaseID) {
+        PrefsManager.resetShowcase(context, showcaseID);
+    }
 
     public static int getSoftButtonsBarSizePort(Activity activity) {
         // getRealMetrics is only available with API 17 and +
