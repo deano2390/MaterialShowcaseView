@@ -13,6 +13,7 @@ import android.graphics.PorterDuffXfermode;
 import android.os.Build;
 import android.os.Handler;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -59,6 +60,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private long mFadeDurationInMillis = DEFAULT_FADE_TIME;
     private Handler mHandler;
     private long mDelayInMillis = DEFAULT_DELAY;
+    private int mBottomMargin = 0;
 
     public MaterialShowcaseView(Context context) {
         super(context);
@@ -433,6 +435,16 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         ((ViewGroup) activity.getWindow().getDecorView()).addView(MaterialShowcaseView.this);
 
+
+        /**
+         * If we're on lollipop the make sure we don't draw over the nav bar
+         */
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mBottomMargin = getSoftButtonsBarSizePort(activity);
+            FrameLayout.LayoutParams contentLP = (LayoutParams) getLayoutParams();
+            contentLP.bottomMargin = mBottomMargin;
+        }
+
         mHandler = new Handler();
         mHandler.postDelayed(new Runnable() {
             @Override
@@ -480,6 +492,23 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                 removeFromWindow();
             }
         });
+    }
+
+
+    public static int getSoftButtonsBarSizePort(Activity activity) {
+        // getRealMetrics is only available with API 17 and +
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            DisplayMetrics metrics = new DisplayMetrics();
+            activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+            int usableHeight = metrics.heightPixels;
+            activity.getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
+            int realHeight = metrics.heightPixels;
+            if (realHeight > usableHeight)
+                return realHeight - usableHeight;
+            else
+                return 0;
+        }
+        return 0;
     }
 
 }
