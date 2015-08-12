@@ -67,7 +67,7 @@ Add the dependency:
 
 /app/build.gradle
 ```groovy
-compile 'com.github.deano2390:MaterialShowcaseView:1.0.0'
+compile 'com.github.deano2390:MaterialShowcaseView:1.0.1'
 ```
 
 
