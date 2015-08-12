@@ -487,14 +487,19 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     }
 
 
-    public void show(final Activity activity) {
+    /**
+     * Reveal the showcaseview. Returns a boolean telling us whether we actually did show anything
+     * @param activity
+     * @return
+     */
+    public boolean show(final Activity activity) {
 
         /**
-         * if we're in single use mode and have already show our bolt then do nothing
+         * if we're in single use mode and have already shot our bolt then do nothing
          */
         if (mSingleUse) {
             if (mPrefsManager.hasFired()) {
-                return;
+                return false;
             } else {
                 mPrefsManager.setFired();
             }
@@ -506,7 +511,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
 
         /**
-         * If we're on lollipop the make sure we don't draw over the nav bar
+         * If we're on lollipop then make sure we don't draw over the nav bar
          */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mBottomMargin = getSoftButtonsBarSizePort(activity);
@@ -528,6 +533,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             }
         }, mDelayInMillis);
 
+        return true;
     }
 
 
