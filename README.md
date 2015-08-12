@@ -53,7 +53,7 @@ This is the basic usage of a single showcase view, you should check out the samp
 Gradle
 --------
 
-![jitpack][https://jitpack.io/#deano2390/MaterialShowcaseView/1.0.1](https://img.shields.io/github/release/deano2390/MaterialShowcaseView.svg?label=JitPack)
+[![jitpack][4]][5]
 
 Add jitpack to your your build.gradle at the end of repositories:
 
@@ -97,3 +97,5 @@ License
 [1]: https://github.com/amlcurran/ShowcaseView
 [2]: http://i.imgur.com/rFHENgz.gif
 [3]: https://code.google.com/p/android-flowtextview/
+[4]: https://img.shields.io/github/release/deano2390/MaterialShowcaseView.svg?label=JitPack
+[5]: https://jitpack.io/#deano2390/MaterialShowcaseView
