@@ -53,6 +53,8 @@ This is the basic usage of a single showcase view, you should check out the samp
 Gradle
 --------
 
+![jitpack](https://img.shields.io/github/release/deano2390/MaterialShowcaseView.svg?label=JitPack)
+
 Add jitpack to your your build.gradle at the end of repositories:
 
 /build.gradle
