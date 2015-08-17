@@ -451,6 +451,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             return this;
         }
 
+        public Builder setListener(IShowcaseListener listener) {
+            showcaseView.addShowcaseListener(listener);
+            return this;
+        }
+
         public Builder singleUse(String showcaseID) {
             showcaseView.singleUse(showcaseID);
             return this;
