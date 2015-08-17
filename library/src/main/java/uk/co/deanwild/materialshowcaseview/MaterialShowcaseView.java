@@ -585,6 +585,14 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         PrefsManager.resetShowcase(context, showcaseID);
     }
 
+    /**
+     * Static helper method for resetting all single use flags
+     * @param context
+     */
+    public static void resetAll(Context context){
+        PrefsManager.resetAll(context);
+    }
+
     public static int getSoftButtonsBarSizePort(Activity activity) {
         // getRealMetrics is only available with API 17 and +
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {

@@ -37,4 +37,9 @@ public class PrefsManager {
         SharedPreferences internal = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         internal.edit().putBoolean(FIRED_KEY + showcaseID, false).apply();
     }
+
+    public static void resetAll(Context context){
+        SharedPreferences internal = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        internal.edit().clear().apply();
+    }
 }
