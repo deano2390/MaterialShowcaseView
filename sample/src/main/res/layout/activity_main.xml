@@ -33,4 +33,12 @@
         android:text="Simple Sequence Example"
         android:layout_margin="10dp"/>
 
+    <Button
+        android:id="@+id/btn_reset_all"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="Reset all flags"
+        android:layout_margin="10dp"/>
+
 </LinearLayout>
