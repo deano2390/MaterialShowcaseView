@@ -72,6 +72,12 @@ Add the dependency:
 compile 'com.github.deano2390:MaterialShowcaseView:1.0.2'
 ```
 
+NOTE: Some people have mentioned that they needed to add the @aar suffix to get it to resolve from JitPack:
+```groovy
+compile 'com.github.deano2390:MaterialShowcaseView:1.0.2@aar'
+```
+
+
 
 License
 -------
