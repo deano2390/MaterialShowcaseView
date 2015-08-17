@@ -16,8 +16,8 @@ This is the basic usage of a single showcase view, you should check out the samp
 
 ```java
 
-		// single example
-		new MaterialShowcaseView.Builder(this)
+	// single example
+	new MaterialShowcaseView.Builder(this)
                 .setTarget(mButtonShow)
                 .setDismissText("GOT IT")
                 .setContentText("This is some amazing feature you should know about")
@@ -28,8 +28,8 @@ This is the basic usage of a single showcase view, you should check out the samp
                 
                 
                 
-    // sequence example            
-    ShowcaseConfig config = new ShowcaseConfig();
+    	// sequence example            
+    	ShowcaseConfig config = new ShowcaseConfig();
         config.setDelay(500); // half second between each showcase view
 
         MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID);
@@ -69,7 +69,7 @@ Add the dependency:
 
 /app/build.gradle
 ```groovy
-compile 'com.github.deano2390:MaterialShowcaseView:1.0.1'
+compile 'com.github.deano2390:MaterialShowcaseView:1.0.2'
 ```
 
 
