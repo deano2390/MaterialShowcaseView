@@ -15,7 +15,7 @@ Gradle
 
 [![jitpack][4]][5]
 
-Add the jitpack repo to your your project's build.gradle at the end of repositories:
+Add the jitpack repo to your your project's build.gradle at the end of repositories  [Why?][#Why Jitpack]:
 
 /build.gradle
 ```groovy
@@ -77,6 +77,11 @@ This is the basic usage of a single showcase view, you should check out the samp
         sequence.start();
                 
 ```
+
+Why Jitpack
+------------
+Publishing libraries to Maven is a chore that takes time and effort. Jitpack.io allows me to release without ever leaving GitHub so I can release easily and more often.
+
 
 License
 -------
