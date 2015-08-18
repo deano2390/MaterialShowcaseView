@@ -27,7 +27,7 @@ allprojects {
 }
 ```
 
-Then add the dependency to module build.gradle:
+Then add the dependency to your module's build.gradle:
 
 /app/build.gradle
 ```groovy
