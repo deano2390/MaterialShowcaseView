@@ -15,7 +15,7 @@ Gradle
 
 [![jitpack][4]][5]
 
-Add the jitpack repo to your your project's build.gradle at the end of repositories  [Why?][#Why Jitpack]:
+Add the jitpack repo to your your project's build.gradle at the end of repositories [Why?](#Why Jitpack)
 
 /build.gradle
 ```groovy
