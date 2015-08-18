@@ -15,7 +15,7 @@ Since Google introduced the Material design philosophy I have seen quite a few a
 
 [![jitpack][4]][5]
 
-Add the jitpack repo to your your project's build.gradle at the end of repositories [Why?](# Why Jitpack)
+Add the jitpack repo to your your project's build.gradle at the end of repositories [Why?](#why-jitpack)
 
 /build.gradle
 ```groovy
