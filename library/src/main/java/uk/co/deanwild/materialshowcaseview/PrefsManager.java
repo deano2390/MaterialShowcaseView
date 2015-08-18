@@ -10,7 +10,7 @@ public class PrefsManager {
     private static final String PREFS_NAME = "material_showcaseview_prefs";
     private static final String FIRED_KEY = "has_fired_";
     private String showcaseID = null;
-    private final Context context;
+    private Context context;
 
     public PrefsManager(Context context, String showcaseID) {
         this.context = context;
@@ -41,5 +41,9 @@ public class PrefsManager {
     public static void resetAll(Context context){
         SharedPreferences internal = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         internal.edit().clear().apply();
+    }
+
+    public void close(){
+        context = null;
     }
 }

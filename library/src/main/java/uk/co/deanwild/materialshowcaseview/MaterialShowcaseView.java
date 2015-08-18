@@ -23,6 +23,7 @@ import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     private int mOldHeight;
     private int mOldWidth;
-    private Bitmap mBitmap;
+    private Bitmap mBitmap;// = new WeakReference<>(null);
     private Canvas mCanvas;
     private Paint mEraser;
     private Target mTarget;
@@ -62,6 +63,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private boolean mSingleUse = false; // should display only once
     private PrefsManager mPrefsManager; // used to store state doe single use mode
     List<IShowcaseListener> mListeners; // external listeners who want to observe when we show and dismiss
+    private UpdateOnGlobalLayout mLayoutListener;
 
     public MaterialShowcaseView(Context context) {
         super(context);
@@ -94,7 +96,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mListeners = new ArrayList<>();
 
         // make sure we add a global layout listener so we can adapt to changes
-        getViewTreeObserver().addOnGlobalLayoutListener(new UpdateOnGlobalLayout());
+        mLayoutListener = new UpdateOnGlobalLayout();
+        getViewTreeObserver().addOnGlobalLayoutListener(mLayoutListener);
 
         // consume touch events
         setOnTouchListener(this);
@@ -131,7 +134,12 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         // build a new canvas if needed i.e first pass or new dimensions
         if (mBitmap == null || mCanvas == null || mOldHeight != height || mOldWidth != width) {
+
+            if(mBitmap!=null) mBitmap.recycle();
+
             mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+
             mCanvas = new Canvas(mBitmap);
         }
 
@@ -482,12 +490,29 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             ((ViewGroup) getParent()).removeView(this);
         }
 
+        notifyOnDismissed();
+
         if (mBitmap != null) {
             mBitmap.recycle();
             mBitmap = null;
         }
 
-        notifyOnDismissed();
+        mEraser = null;
+        mAnimationFactory = null;
+        mCanvas = null;
+        mHandler = null;
+
+        getViewTreeObserver().removeGlobalOnLayoutListener(mLayoutListener);
+        mLayoutListener = null;
+
+        mListeners.clear();
+        mListeners = null;
+
+        if(mPrefsManager!=null)
+            mPrefsManager.close();
+
+        mPrefsManager = null;
+
 
     }
 
