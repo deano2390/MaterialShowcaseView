@@ -10,7 +10,36 @@ Since Google introduced the Material design philosophy I have seen quite a few a
 
 ![Animation][2]
 
-How to use
+# Gradle
+--------
+
+[![jitpack][4]][5]
+
+Add the jitpack repo to your your project's build.gradle at the end of repositories [Why?](#Why Jitpack)
+
+/build.gradle
+```groovy
+allprojects {
+	repositories {
+		jcenter()
+		maven { url "https://jitpack.io" }
+	}
+}
+```
+
+Then add the dependency to your module's build.gradle:
+
+/app/build.gradle
+```groovy
+compile 'com.github.deano2390:MaterialShowcaseView:1.0.3'
+```
+
+NOTE: Some people have mentioned that they needed to add the @aar suffix to get it to resolve from JitPack:
+```groovy
+compile 'com.github.deano2390:MaterialShowcaseView:1.0.3@aar'
+```
+
+# How to use
 --------
 This is the basic usage of a single showcase view, you should check out the sample app for more adbvanced usage.
 
@@ -49,37 +78,12 @@ This is the basic usage of a single showcase view, you should check out the samp
                 
 ```
 
-
-Gradle
---------
-
-[![jitpack][4]][5]
-
-Add jitpack to your your build.gradle at the end of repositories:
-
-/build.gradle
-```groovy
-repositories {
-	    // ...
-	    maven { url "https://jitpack.io" }
-	}
-```
-
-Add the dependency:
-
-/app/build.gradle
-```groovy
-compile 'com.github.deano2390:MaterialShowcaseView:1.0.3'
-```
-
-NOTE: Some people have mentioned that they needed to add the @aar suffix to get it to resolve from JitPack:
-```groovy
-compile 'com.github.deano2390:MaterialShowcaseView:1.0.3@aar'
-```
+# Why Jitpack
+------------
+Publishing libraries to Maven is a chore that takes time and effort. Jitpack.io allows me to release without ever leaving GitHub so I can release easily and more often.
 
 
-
-License
+# License
 -------
 
     Copyright 2015 Dean Wild
