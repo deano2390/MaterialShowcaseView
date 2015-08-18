@@ -10,6 +10,35 @@ Since Google introduced the Material design philosophy I have seen quite a few a
 
 ![Animation][2]
 
+Gradle
+--------
+
+[![jitpack][4]][5]
+
+Add the jitpack repo to your your project's build.gradle at the end of repositories:
+
+/build.gradle
+```groovy
+allprojects {
+	repositories {
+		jcenter()
+		maven { url "https://jitpack.io" }
+	}
+}
+```
+
+Then add the dependency to module build.gradle:
+
+/app/build.gradle
+```groovy
+compile 'com.github.deano2390:MaterialShowcaseView:1.0.3'
+```
+
+NOTE: Some people have mentioned that they needed to add the @aar suffix to get it to resolve from JitPack:
+```groovy
+compile 'com.github.deano2390:MaterialShowcaseView:1.0.3@aar'
+```
+
 How to use
 --------
 This is the basic usage of a single showcase view, you should check out the sample app for more adbvanced usage.
@@ -48,36 +77,6 @@ This is the basic usage of a single showcase view, you should check out the samp
         sequence.start();
                 
 ```
-
-
-Gradle
---------
-
-[![jitpack][4]][5]
-
-Add jitpack to your your build.gradle at the end of repositories:
-
-/build.gradle
-```groovy
-repositories {
-	    // ...
-	    maven { url "https://jitpack.io" }
-	}
-```
-
-Add the dependency:
-
-/app/build.gradle
-```groovy
-compile 'com.github.deano2390:MaterialShowcaseView:1.0.3'
-```
-
-NOTE: Some people have mentioned that they needed to add the @aar suffix to get it to resolve from JitPack:
-```groovy
-compile 'com.github.deano2390:MaterialShowcaseView:1.0.3@aar'
-```
-
-
 
 License
 -------
