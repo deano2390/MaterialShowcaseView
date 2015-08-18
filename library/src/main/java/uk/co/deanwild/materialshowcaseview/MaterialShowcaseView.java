@@ -135,7 +135,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         // build a new canvas if needed i.e first pass or new dimensions
         if (mBitmap == null || mCanvas == null || mOldHeight != height || mOldWidth != width) {
 
-            if(mBitmap!=null) mBitmap.recycle();
+            if (mBitmap != null) mBitmap.recycle();
 
             mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
@@ -175,15 +175,20 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     }
 
 
-    private void notifyOnDisplayed(){
-        for (IShowcaseListener listener : mListeners){
+    private void notifyOnDisplayed() {
+        for (IShowcaseListener listener : mListeners) {
             listener.onShowcaseDisplayed(this);
         }
     }
 
-    private void notifyOnDismissed(){
-        for (IShowcaseListener listener : mListeners){
-            listener.onShowcaseDismissed(this);
+    private void notifyOnDismissed() {
+        if (mListeners != null) {
+            for (IShowcaseListener listener : mListeners) {
+                listener.onShowcaseDismissed(this);
+            }
+
+            mListeners.clear();
+            mListeners = null;
         }
     }
 
@@ -327,7 +332,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     }
 
     public void removeShowcaseListener(MaterialShowcaseSequence showcaseListener) {
-        if(mListeners.contains(showcaseListener)){
+        if (mListeners.contains(showcaseListener)) {
             mListeners.remove(showcaseListener);
         }
     }
@@ -335,6 +340,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     /**
      * Set properties based on a config object
+     *
      * @param config
      */
     public void setConfig(ShowcaseConfig config) {
@@ -505,10 +511,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         getViewTreeObserver().removeGlobalOnLayoutListener(mLayoutListener);
         mLayoutListener = null;
 
-        mListeners.clear();
-        mListeners = null;
-
-        if(mPrefsManager!=null)
+        if (mPrefsManager != null)
             mPrefsManager.close();
 
         mPrefsManager = null;
@@ -519,6 +522,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     /**
      * Reveal the showcaseview. Returns a boolean telling us whether we actually did show anything
+     *
      * @param activity
      * @return
      */
@@ -617,9 +621,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     /**
      * Static helper method for resetting all single use flags
+     *
      * @param context
      */
-    public static void resetAll(Context context){
+    public static void resetAll(Context context) {
         PrefsManager.resetAll(context);
     }
 
