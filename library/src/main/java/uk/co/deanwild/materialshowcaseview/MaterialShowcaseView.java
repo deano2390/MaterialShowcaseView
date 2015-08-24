@@ -51,7 +51,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private int mContentBottomMargin;
     private int mContentTopMargin;
     private boolean mDismissOnTouch = false;
-    private boolean mShouldRedraw = true;
     private boolean mShouldRender = false; // flag to decide when we should actually render
     private int mMaskColour;
     private AnimationFactory mAnimationFactory;
@@ -213,7 +212,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         /**
          * internal listener used by sequence for storing progress within the sequence
          */
-        if(mDetachedListener!=null){
+        if (mDetachedListener != null) {
             mDetachedListener.onShowcaseDetached(this, mWasDismissed);
         }
     }
@@ -239,6 +238,17 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mTarget = target;
 
         if (mTarget != null) {
+
+            /**
+             * If we're on lollipop then make sure we don't draw over the nav bar
+             */
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                mBottomMargin = getSoftButtonsBarSizePort((Activity) getContext());
+                FrameLayout.LayoutParams contentLP = (LayoutParams) getLayoutParams();
+
+                if (contentLP!=null && contentLP.bottomMargin != mBottomMargin)
+                    contentLP.bottomMargin = mBottomMargin;
+            }
 
             // apply the target position
             Point targetPoint = mTarget.getPoint();
@@ -274,17 +284,30 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         if (mContentBox != null && mContentBox.getLayoutParams() != null) {
             FrameLayout.LayoutParams contentLP = (LayoutParams) mContentBox.getLayoutParams();
-            contentLP.bottomMargin = mContentBottomMargin;
-            contentLP.topMargin = mContentTopMargin;
-            contentLP.gravity = mGravity;
-            mContentBox.setLayoutParams(contentLP);
-        }
-    }
 
-    @Override
-    public void invalidate() {
-        mShouldRedraw = true;
-        super.invalidate();
+            boolean layoutParamsChanged = false;
+
+            if (contentLP.bottomMargin != mContentBottomMargin) {
+                contentLP.bottomMargin = mContentBottomMargin;
+                layoutParamsChanged = true;
+            }
+
+            if (contentLP.topMargin != mContentTopMargin) {
+                contentLP.topMargin = mContentTopMargin;
+                layoutParamsChanged = true;
+            }
+
+            if (contentLP.gravity != mGravity) {
+                contentLP.gravity = mGravity;
+                layoutParamsChanged = true;
+            }
+
+            /**
+             * Only apply the layout params if we've actually changed them, otherwise we'll get stuck in a layout loop
+             */
+            if (layoutParamsChanged)
+                mContentBox.setLayoutParams(contentLP);
+        }
     }
 
     /**
@@ -388,10 +411,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         @Override
         public void onGlobalLayout() {
-            if (mShouldRedraw) {
-                mShouldRedraw = false;
-                setTarget(mTarget);
-            }
+            setTarget(mTarget);
         }
     }
 
@@ -570,16 +590,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         ((ViewGroup) activity.getWindow().getDecorView()).addView(this);
 
         setShouldRender(true);
-
-
-        /**
-         * If we're on lollipop then make sure we don't draw over the nav bar
-         */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mBottomMargin = getSoftButtonsBarSizePort(activity);
-            FrameLayout.LayoutParams contentLP = (LayoutParams) getLayoutParams();
-            contentLP.bottomMargin = mBottomMargin;
-        }
 
         mHandler = new Handler();
         mHandler.postDelayed(new Runnable() {
