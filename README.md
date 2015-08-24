@@ -31,12 +31,12 @@ Then add the dependency to your module's build.gradle:
 
 /app/build.gradle
 ```groovy
-compile 'com.github.deano2390:MaterialShowcaseView:1.0.4'
+compile 'com.github.deano2390:MaterialShowcaseView:1.0.5'
 ```
 
 NOTE: Some people have mentioned that they needed to add the @aar suffix to get it to resolve from JitPack:
 ```groovy
-compile 'com.github.deano2390:MaterialShowcaseView:1.0.4@aar'
+compile 'com.github.deano2390:MaterialShowcaseView:1.0.5@aar'
 ```
 
 # How to use
