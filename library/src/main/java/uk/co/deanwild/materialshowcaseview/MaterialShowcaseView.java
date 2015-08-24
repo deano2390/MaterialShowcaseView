@@ -11,7 +11,9 @@ import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -26,6 +28,7 @@ import android.widget.TextView;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 
 /**
@@ -41,6 +44,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private Target mTarget;
     private int mXPosition;
     private int mYPosition;
+    private boolean mWasDismissed = false;
 
     private int mRadius = ShowcaseConfig.DEFAULT_RADIUS;
     private boolean mUseAutoRadius = true;
@@ -164,6 +168,21 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         // Draw the bitmap on our views  canvas.
         canvas.drawBitmap(mBitmap, 0, 0, null);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+
+        /**
+         * If we're being detached from the window without the mWasDismissed flag then we weren't purposefully dismissed
+         * Probably due to an orientation change or user backed out of activity.
+         * Ensure we reset the flag so the showcase display again.
+         */
+        if(!mWasDismissed && mSingleUse && mPrefsManager!=null){
+            mPrefsManager.resetShowcase();
+        }
+
     }
 
     @Override
@@ -572,6 +591,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
 
     public void hide() {
+
+        /**
+         * This flag is used to indicate to onDetachedFromWindow that the showcase view was dismissed purposefully (by the user or programmatically)
+         */
+        mWasDismissed = true;
 
         if (mShouldAnimate) {
             fadeOut();
