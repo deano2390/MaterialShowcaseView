@@ -44,7 +44,7 @@ public class SequenceExample extends ActionBarActivity implements View.OnClickLi
     @Override
     public void onClick(View v) {
 
-        if (v.getId() == R.id.btn_show) {
+        if (v.getId() == R.id.btn_one || v.getId() == R.id.btn_two || v.getId() == R.id.btn_three) {
 
             presentShowcaseSequence();
 
