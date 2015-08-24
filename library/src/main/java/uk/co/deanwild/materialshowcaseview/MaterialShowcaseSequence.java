@@ -1,7 +1,6 @@
 package uk.co.deanwild.materialshowcaseview;
 
 import android.app.Activity;
-import android.content.Context;
 import android.view.View;
 
 import java.util.LinkedList;
@@ -10,13 +9,14 @@ import java.util.Queue;
 /**
  * Created by deanwild on 11/08/15.
  */
-public class MaterialShowcaseSequence implements IShowcaseListener {
+public class MaterialShowcaseSequence implements IDetachedListener {
 
     PrefsManager mPrefsManager;
     Queue<MaterialShowcaseView> mShowcaseQueue;
     private boolean mSingleUse = false;
     Activity mActivity;
     private ShowcaseConfig mConfig;
+    private int mSequencePosition = 0;
 
     public MaterialShowcaseSequence(Activity activity) {
         mActivity = activity;
@@ -36,7 +36,7 @@ public class MaterialShowcaseSequence implements IShowcaseListener {
                 .setContentText(content)
                 .build();
 
-        if(mConfig!=null){
+        if (mConfig != null) {
             sequenceItem.setConfig(mConfig);
         }
 
@@ -55,17 +55,38 @@ public class MaterialShowcaseSequence implements IShowcaseListener {
         return this;
     }
 
+    public boolean hasFired() {
+
+        if (mPrefsManager.getSequenceStatus() == PrefsManager.SEQUENCE_FINISHED) {
+            return true;
+        }
+
+        return false;
+    }
+
     public void start() {
 
         /**
-         * Check if we'e already shot our bolt and bail out if so
-         * Otherwise, notify the prefsManager that we're firing now
+         * Check if we've already shot our bolt and bail out if so         *
          */
         if (mSingleUse) {
-            if (mPrefsManager.hasFired()) {
+            if (hasFired()) {
                 return;
             }
+
+            /**
+             * See if we have started this sequence before, if so then skip to the point we reached before
+             * instead of showing the user everything from the start
+             */
+            mSequencePosition = mPrefsManager.getSequenceStatus();
+
+            if (mSequencePosition > 0) {
+                for (int i = 0; i < mSequencePosition; i++) {
+                    mShowcaseQueue.poll();
+                }
+            }
         }
+
 
         // do start
         if (mShowcaseQueue.size() > 0)
@@ -74,11 +95,11 @@ public class MaterialShowcaseSequence implements IShowcaseListener {
 
     private void showNextItem() {
 
-        if (mShowcaseQueue.size() > 0 && !mActivity.isFinishing()){
+        if (mShowcaseQueue.size() > 0 && !mActivity.isFinishing()) {
             MaterialShowcaseView sequenceItem = mShowcaseQueue.remove();
-            sequenceItem.addShowcaseListener(this);
+            sequenceItem.setDetachedListener(this);
             sequenceItem.show(mActivity);
-        }else{
+        } else {
             /**
              * We've reached the end of the sequence, save the fired state
              */
@@ -88,18 +109,35 @@ public class MaterialShowcaseSequence implements IShowcaseListener {
         }
     }
 
-    @Override
-    public void onShowcaseDisplayed(MaterialShowcaseView showcaseView) {
-        // don't care
-    }
 
     @Override
-    public void onShowcaseDismissed(MaterialShowcaseView showcaseView) {
-        showcaseView.removeShowcaseListener(this);
-        showNextItem();
+    public void onShowcaseDetached(MaterialShowcaseView showcaseView, boolean wasDismissed) {
+
+        showcaseView.setDetachedListener(null);
+
+        /**
+         * We're only interested if the showcase was purposefully dismissed
+         */
+        if (wasDismissed) {
+
+            /**
+             * If so, update the prefsManager so we can potentially resume this sequence in the future
+             */
+            if (mPrefsManager != null) {
+                mSequencePosition++;
+                mPrefsManager.setSequenceStatus(mSequencePosition);
+            }
+
+            showNextItem();
+        }
     }
 
     public void setConfig(ShowcaseConfig config) {
         this.mConfig = config;
     }
+
+
+
+
+
 }

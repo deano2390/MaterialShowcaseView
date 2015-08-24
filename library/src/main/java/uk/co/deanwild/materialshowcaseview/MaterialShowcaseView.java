@@ -11,9 +11,7 @@ import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -25,10 +23,8 @@ import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 
 /**
@@ -68,6 +64,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private PrefsManager mPrefsManager; // used to store state doe single use mode
     List<IShowcaseListener> mListeners; // external listeners who want to observe when we show and dismiss
     private UpdateOnGlobalLayout mLayoutListener;
+    private IDetachedListener mDetachedListener;
 
     public MaterialShowcaseView(Context context) {
         super(context);
@@ -179,9 +176,12 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
          * Probably due to an orientation change or user backed out of activity.
          * Ensure we reset the flag so the showcase display again.
          */
-        if(!mWasDismissed && mSingleUse && mPrefsManager!=null){
+        if (!mWasDismissed && mSingleUse && mPrefsManager != null) {
             mPrefsManager.resetShowcase();
         }
+
+
+        notifyOnDismissed();
 
     }
 
@@ -208,6 +208,13 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
             mListeners.clear();
             mListeners = null;
+        }
+
+        /**
+         * internal listener used by sequence for storing progress within the sequence
+         */
+        if(mDetachedListener!=null){
+            mDetachedListener.onShowcaseDetached(this, mWasDismissed);
         }
     }
 
@@ -354,6 +361,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         if (mListeners.contains(showcaseListener)) {
             mListeners.remove(showcaseListener);
         }
+    }
+
+    void setDetachedListener(IDetachedListener detachedListener) {
+        mDetachedListener = detachedListener;
     }
 
 
@@ -514,8 +525,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         if (getParent() != null && getParent() instanceof ViewGroup) {
             ((ViewGroup) getParent()).removeView(this);
         }
-
-        notifyOnDismissed();
 
         if (mBitmap != null) {
             mBitmap.recycle();
