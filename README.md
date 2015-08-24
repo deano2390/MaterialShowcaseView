@@ -15,7 +15,7 @@ Since Google introduced the Material design philosophy I have seen quite a few a
 
 [![jitpack][4]][5]
 
-Add the jitpack repo to your your project's build.gradle at the end of repositories [Why?](#Why Jitpack)
+Add the jitpack repo to your your project's build.gradle at the end of repositories [Why?](#why-jitpack)
 
 /build.gradle
 ```groovy
@@ -31,12 +31,12 @@ Then add the dependency to your module's build.gradle:
 
 /app/build.gradle
 ```groovy
-compile 'com.github.deano2390:MaterialShowcaseView:1.0.3'
+compile 'com.github.deano2390:MaterialShowcaseView:1.0.4'
 ```
 
 NOTE: Some people have mentioned that they needed to add the @aar suffix to get it to resolve from JitPack:
 ```groovy
-compile 'com.github.deano2390:MaterialShowcaseView:1.0.3@aar'
+compile 'com.github.deano2390:MaterialShowcaseView:1.0.4@aar'
 ```
 
 # How to use
