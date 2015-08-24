@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingBottom="30dp"
-    android:paddingLeft="20dp"
+    android:paddingLeft="15dp"
     android:paddingRight="20dp"
     android:paddingTop="30dp">
 
@@ -15,16 +15,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@android:color/white"
+        android:paddingLeft="5dp"
         android:textSize="20dp" />
 
     <TextView
         android:id="@+id/tv_dismiss"
+        android:background="?android:attr/selectableItemBackground"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:clickable="true"
         android:paddingBottom="10dp"
         android:paddingTop="10dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
         android:textColor="@android:color/white"
         android:textSize="22dp" />
 </LinearLayout>
