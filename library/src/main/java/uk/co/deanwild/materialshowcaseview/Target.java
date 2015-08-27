@@ -1,6 +1,7 @@
 package uk.co.deanwild.materialshowcaseview;
 
 import android.graphics.Point;
+import android.graphics.Rect;
 
 /**
  * Created by deanwild on 04/08/15.
@@ -13,12 +14,13 @@ public interface Target {
         }
 
         @Override
-        public int getRadius() {
-            return 200;
+        public Rect getBounds() {
+            Point p = getPoint();
+            return new Rect(p.x - 190, p.y - 190, p.x + 190, p.y + 190);
         }
     };
 
     Point getPoint();
 
-    int getRadius();
+    Rect getBounds();
 }

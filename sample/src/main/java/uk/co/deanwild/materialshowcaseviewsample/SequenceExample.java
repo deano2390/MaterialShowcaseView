@@ -1,7 +1,7 @@
 package uk.co.deanwild.materialshowcaseviewsample;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -11,7 +11,7 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 
-public class SequenceExample extends ActionBarActivity implements View.OnClickListener {
+public class SequenceExample extends AppCompatActivity implements View.OnClickListener {
 
     private Button mButtonOne;
     private Button mButtonTwo;
@@ -65,14 +65,18 @@ public class SequenceExample extends ActionBarActivity implements View.OnClickLi
 
         sequence.setConfig(config);
 
-        sequence.addSequenceItem(mButtonOne,
-                "This is button one", "GOT IT");
+        sequence.addSequenceItem(mButtonOne, "This is button one", "GOT IT");
 
-        sequence.addSequenceItem(mButtonTwo,
-                "This is button two", "GOT IT");
+        sequence.addSequenceItem(
+                new MaterialShowcaseView.Builder(this)
+                        .setTarget(mButtonTwo)
+                        .setDismissText("GOT IT")
+                        .setContentText("This is button two")
+                        .withRectangleShape(true)
+                        .build()
+        );
 
-        sequence.addSequenceItem(mButtonThree,
-                "This is button three", "GOT IT");
+        sequence.addSequenceItem(mButtonThree, "This is button three", "GOT IT");
 
         sequence.start();
 
