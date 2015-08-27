@@ -10,7 +10,6 @@ public class ShowcaseConfig {
     public static final String DEFAULT_MASK_COLOUR = "#dd335075";
     public static final long DEFAULT_FADE_TIME = 300;
     public static final long DEFAULT_DELAY = 0;
-    public static final int DEFAULT_RADIUS = 200;
 
     private long mDelay = DEFAULT_DELAY;
     private int mMaskColour;

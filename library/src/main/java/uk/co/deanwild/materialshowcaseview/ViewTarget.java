@@ -2,6 +2,7 @@ package uk.co.deanwild.materialshowcaseview;
 
 import android.app.Activity;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.view.View;
 
 /**
@@ -29,21 +30,14 @@ public class ViewTarget implements Target {
     }
 
     @Override
-    public int getRadius() {
-
-        int radius = 200;
-
-        if (mView != null) {
-
-            if (mView.getMeasuredHeight() > mView.getMeasuredWidth()) {
-                radius = mView.getMeasuredHeight() / 2;
-            }else{
-                radius =  mView.getMeasuredWidth() / 2;
-            }
-
-            radius += 10; // add a 10 pixel padding to circle
-        }
-
-        return radius;
+    public Rect getBounds() {
+        int[] location = new int[2];
+        mView.getLocationInWindow(location);
+        return new Rect(
+                location[0],
+                location[1],
+                location[0] + mView.getMeasuredWidth(),
+                location[1] + mView.getMeasuredHeight()
+        );
     }
 }
