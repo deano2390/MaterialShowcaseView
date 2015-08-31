@@ -1,13 +1,11 @@
-package uk.co.deanwild.materialshowcaseview;
+package uk.co.deanwild.materialshowcaseview.target;
 
 import android.app.Activity;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.view.View;
 
-/**
- * Created by deanwild on 04/08/15.
- */
+
 public class ViewTarget implements Target {
 
     private final View mView;

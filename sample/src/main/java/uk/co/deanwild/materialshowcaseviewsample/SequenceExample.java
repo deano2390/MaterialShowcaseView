@@ -63,6 +63,13 @@ public class SequenceExample extends AppCompatActivity implements View.OnClickLi
 
         MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID);
 
+        sequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
+            @Override
+            public void onShow(MaterialShowcaseView itemView, int position) {
+                Toast.makeText(itemView.getContext(), "Item #" + position, Toast.LENGTH_SHORT).show();
+            }
+        });
+
         sequence.setConfig(config);
 
         sequence.addSequenceItem(mButtonOne, "This is button one", "GOT IT");

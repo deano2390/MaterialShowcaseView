@@ -2,20 +2,23 @@ package uk.co.deanwild.materialshowcaseview;
 
 import android.graphics.Color;
 
-/**
- * Created by deanwild on 11/08/15.
- */
+import uk.co.deanwild.materialshowcaseview.shape.CircleShape;
+import uk.co.deanwild.materialshowcaseview.shape.Shape;
+
+
 public class ShowcaseConfig {
 
     public static final String DEFAULT_MASK_COLOUR = "#dd335075";
     public static final long DEFAULT_FADE_TIME = 300;
     public static final long DEFAULT_DELAY = 0;
+    public static final Shape DEFAULT_SHAPE = new CircleShape();
 
     private long mDelay = DEFAULT_DELAY;
     private int mMaskColour;
     private int mContentTextColor;
     private int mDismissTextColor;
     private long mFadeDuration = DEFAULT_FADE_TIME;
+    private Shape mShape = DEFAULT_SHAPE;
 
     public ShowcaseConfig() {
         mMaskColour = Color.parseColor(ShowcaseConfig.DEFAULT_MASK_COLOUR);
@@ -61,5 +64,13 @@ public class ShowcaseConfig {
 
     public void setFadeDuration(long fadeDuration) {
         this.mFadeDuration = fadeDuration;
+    }
+
+    public Shape getShape() {
+        return mShape;
+    }
+
+    public void setShape(Shape shape) {
+        this.mShape = shape;
     }
 }

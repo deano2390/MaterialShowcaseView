@@ -4,7 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
-import uk.co.deanwild.materialshowcaseview.Target;
+import uk.co.deanwild.materialshowcaseview.target.Target;
 
 /**
  * Circular shape for target.
@@ -12,6 +12,10 @@ import uk.co.deanwild.materialshowcaseview.Target;
 public class CircleShape implements Shape {
 
     private int radius = 200;
+    private boolean adjustToTarget = true;
+
+    public CircleShape() {
+    }
 
     public CircleShape(int radius) {
         this.radius = radius;
@@ -25,6 +29,22 @@ public class CircleShape implements Shape {
         this(target.getBounds());
     }
 
+    public void setAdjustToTarget(boolean adjustToTarget) {
+        this.adjustToTarget = adjustToTarget;
+    }
+
+    public boolean isAdjustToTarget() {
+        return adjustToTarget;
+    }
+
+    public int getRadius() {
+        return radius;
+    }
+
+    public void setRadius(int radius) {
+        this.radius = radius;
+    }
+
     @Override
     public void draw(Canvas canvas, Paint paint, int x, int y) {
         canvas.drawCircle(x, y, radius, paint);
@@ -32,7 +52,8 @@ public class CircleShape implements Shape {
 
     @Override
     public void updateTarget(Target target) {
-        radius = getPreferredRadius(target.getBounds());
+        if (adjustToTarget)
+            radius = getPreferredRadius(target.getBounds());
     }
 
     @Override

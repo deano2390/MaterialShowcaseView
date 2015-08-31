@@ -1,11 +1,9 @@
-package uk.co.deanwild.materialshowcaseview;
+package uk.co.deanwild.materialshowcaseview.target;
 
 import android.graphics.Point;
 import android.graphics.Rect;
 
-/**
- * Created by deanwild on 04/08/15.
- */
+
 public interface Target {
     Target NONE = new Target() {
         @Override

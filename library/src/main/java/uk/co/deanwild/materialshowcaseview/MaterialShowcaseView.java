@@ -31,11 +31,10 @@ import java.util.List;
 import uk.co.deanwild.materialshowcaseview.shape.CircleShape;
 import uk.co.deanwild.materialshowcaseview.shape.RectangleShape;
 import uk.co.deanwild.materialshowcaseview.shape.Shape;
+import uk.co.deanwild.materialshowcaseview.target.Target;
+import uk.co.deanwild.materialshowcaseview.target.ViewTarget;
 
 
-/**
- * Created by deanwild on 04/08/15.
- */
 public class MaterialShowcaseView extends FrameLayout implements View.OnTouchListener, View.OnClickListener {
 
     private int mOldHeight;
@@ -411,6 +410,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         setContentTextColor(config.getContentTextColor());
         setDismissTextColor(config.getDismissTextColor());
         setMaskColour(config.getMaskColor());
+        setShape(config.getShape());
     }
 
     private void updateDismissButton() {

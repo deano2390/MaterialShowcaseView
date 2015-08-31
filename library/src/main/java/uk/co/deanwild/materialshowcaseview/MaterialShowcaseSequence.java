@@ -6,9 +6,7 @@ import android.view.View;
 import java.util.LinkedList;
 import java.util.Queue;
 
-/**
- * Created by deanwild on 11/08/15.
- */
+
 public class MaterialShowcaseSequence implements IDetachedListener {
 
     PrefsManager mPrefsManager;
@@ -17,6 +15,9 @@ public class MaterialShowcaseSequence implements IDetachedListener {
     Activity mActivity;
     private ShowcaseConfig mConfig;
     private int mSequencePosition = 0;
+
+    private OnSequenceItemShownListener mOnItemShownListener = null;
+    private OnSequenceItemDismissedListener mOnItemDismissedListener = null;
 
     public MaterialShowcaseSequence(Activity activity) {
         mActivity = activity;
@@ -53,6 +54,14 @@ public class MaterialShowcaseSequence implements IDetachedListener {
         mSingleUse = true;
         mPrefsManager = new PrefsManager(mActivity, sequenceID);
         return this;
+    }
+
+    public void setOnItemShownListener(OnSequenceItemShownListener listener) {
+        this.mOnItemShownListener = listener;
+    }
+
+    public void setOnItemDismissedListener(OnSequenceItemDismissedListener listener) {
+        this.mOnItemDismissedListener = listener;
     }
 
     public boolean hasFired() {
@@ -99,6 +108,9 @@ public class MaterialShowcaseSequence implements IDetachedListener {
             MaterialShowcaseView sequenceItem = mShowcaseQueue.remove();
             sequenceItem.setDetachedListener(this);
             sequenceItem.show(mActivity);
+            if (mOnItemShownListener != null) {
+                mOnItemShownListener.onShow(sequenceItem, mSequencePosition);
+            }
         } else {
             /**
              * We've reached the end of the sequence, save the fired state
@@ -120,6 +132,10 @@ public class MaterialShowcaseSequence implements IDetachedListener {
          */
         if (wasDismissed) {
 
+            if (mOnItemDismissedListener != null) {
+                mOnItemDismissedListener.onDismiss(showcaseView, mSequencePosition);
+            }
+
             /**
              * If so, update the prefsManager so we can potentially resume this sequence in the future
              */
@@ -136,8 +152,12 @@ public class MaterialShowcaseSequence implements IDetachedListener {
         this.mConfig = config;
     }
 
+    public interface OnSequenceItemShownListener {
+        void onShow(MaterialShowcaseView itemView, int position);
+    }
 
-
-
+    public interface OnSequenceItemDismissedListener {
+        void onDismiss(MaterialShowcaseView itemView, int position);
+    }
 
 }

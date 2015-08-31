@@ -3,9 +3,7 @@ package uk.co.deanwild.materialshowcaseview;
 import android.graphics.Point;
 import android.view.View;
 
-/**
- * Created by deanwild on 05/08/15.
- */
+
 public interface IAnimationFactory {
 
     void fadeInView(View target, long duration, AnimationStartListener listener);

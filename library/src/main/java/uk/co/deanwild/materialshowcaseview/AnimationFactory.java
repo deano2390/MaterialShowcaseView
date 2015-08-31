@@ -7,9 +7,7 @@ import android.graphics.Point;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
-/**
- * Created by deanwild on 05/08/15.
- */
+
 public class AnimationFactory implements IAnimationFactory{
 
     private static final String ALPHA = "alpha";
