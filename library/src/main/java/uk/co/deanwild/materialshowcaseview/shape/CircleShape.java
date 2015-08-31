@@ -1,15 +1,17 @@
-package uk.co.deanwild.materialshowcaseview;
+package uk.co.deanwild.materialshowcaseview.shape;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+
+import uk.co.deanwild.materialshowcaseview.Target;
 
 /**
  * Circular shape for target.
  */
 public class CircleShape implements Shape {
 
-    private int radius = 210;
+    private int radius = 200;
 
     public CircleShape(int radius) {
         this.radius = radius;
@@ -33,7 +35,17 @@ public class CircleShape implements Shape {
         radius = getPreferredRadius(target.getBounds());
     }
 
+    @Override
+    public int getWidth() {
+        return radius * 2;
+    }
+
+    @Override
+    public int getHeight() {
+        return radius * 2;
+    }
+
     public static int getPreferredRadius(Rect bounds) {
-        return Math.max(bounds.width(), bounds.height()) / 2 + 10;
+        return Math.max(bounds.width(), bounds.height()) / 2;
     }
 }

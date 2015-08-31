@@ -13,6 +13,7 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -26,6 +27,10 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import uk.co.deanwild.materialshowcaseview.shape.CircleShape;
+import uk.co.deanwild.materialshowcaseview.shape.RectangleShape;
+import uk.co.deanwild.materialshowcaseview.shape.Shape;
 
 
 /**
@@ -239,6 +244,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     public void setTarget(Target target) {
         mTarget = target;
 
+        // update dismiss button state
+        updateDismissButton();
+
         if (mTarget != null) {
 
             /**
@@ -248,15 +256,13 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                 mBottomMargin = getSoftButtonsBarSizePort((Activity) getContext());
                 FrameLayout.LayoutParams contentLP = (LayoutParams) getLayoutParams();
 
-                if (contentLP!=null && contentLP.bottomMargin != mBottomMargin)
+                if (contentLP != null && contentLP.bottomMargin != mBottomMargin)
                     contentLP.bottomMargin = mBottomMargin;
             }
 
             // apply the target position
             Point targetPoint = mTarget.getPoint();
             Rect targetBounds = mTarget.getBounds();
-            if (mShape != null)
-                mShape.updateTarget(mTarget);
             setPosition(targetPoint);
 
             // now figure out whether to put content above or below it
@@ -265,6 +271,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             int yPos = targetPoint.y;
 
             int radius = Math.max(targetBounds.height(), targetBounds.width()) / 2 + 10;
+            if (mShape != null) {
+                mShape.updateTarget(mTarget);
+                radius = mShape.getHeight() / 2 + 10;
+            }
 
             if (yPos > midPoint) {
                 // target is in lower half of screen, we'll sit above it
@@ -334,6 +344,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private void setDismissText(CharSequence dismissText) {
         if (mDismissButton != null) {
             mDismissButton.setText(dismissText);
+
+            updateDismissButton();
         }
     }
 
@@ -399,6 +411,17 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         setContentTextColor(config.getContentTextColor());
         setDismissTextColor(config.getDismissTextColor());
         setMaskColour(config.getMaskColor());
+    }
+
+    private void updateDismissButton() {
+        // hide or show button
+        if (mDismissButton != null) {
+            if (TextUtils.isEmpty(mDismissButton.getText())) {
+                mDismissButton.setVisibility(GONE);
+            } else {
+                mDismissButton.setVisibility(VISIBLE);
+            }
+        }
     }
 
     /**
@@ -534,16 +557,18 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             if (showcaseView.mShape == null) {
                 switch (shapeType) {
                     case RECTANGLE_SHAPE: {
-                        showcaseView.setShape(new RectangleShape(showcaseView.mTarget.getBounds(), activity, fullWidth));
+                        showcaseView.setShape(new RectangleShape(showcaseView.mTarget.getBounds(), fullWidth));
                         break;
                     }
                     case CIRCLE_SHAPE: {
                         showcaseView.mShape = new CircleShape(showcaseView.mTarget);
                         break;
                     }
-                    default: throw new IllegalArgumentException("Usupported shape type: " + shapeType);
+                    default:
+                        throw new IllegalArgumentException("Unsupported shape type: " + shapeType);
                 }
             }
+
             return showcaseView;
         }
 
@@ -622,6 +647,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                 }
             }
         }, mDelayInMillis);
+
+        updateDismissButton();
 
         return true;
     }

@@ -73,8 +73,8 @@ public class CustomExample extends AppCompatActivity implements View.OnClickList
     private void presentShowcaseView(int withDelay) {
         new MaterialShowcaseView.Builder(this)
                 .setTarget(mButtonShow)
-                .setDismissText("GOT IT")
                 .setContentText("This is some amazing feature you should know about")
+                .setDismissOnTouch(true)
                 .setContentTextColor(getResources().getColor(R.color.green))
                 .setMaskColour(getResources().getColor(R.color.purple))
                 .setDelay(withDelay) // optional but starting animations immediately in onCreate can make them choppy

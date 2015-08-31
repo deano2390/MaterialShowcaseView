@@ -30,5 +30,7 @@
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
         android:textColor="@android:color/white"
-        android:textSize="22dp" />
+        android:textSize="22dp"
+        android:visibility="gone" />
+
 </LinearLayout>
