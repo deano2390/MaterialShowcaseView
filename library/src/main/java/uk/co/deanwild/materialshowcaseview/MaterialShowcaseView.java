@@ -586,6 +586,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                     }
                     case NO_SHAPE: {
                         showcaseView.setShape(new NoShape());
+                        break;
                     }
                     default:
                         throw new IllegalArgumentException("Unsupported shape type: " + shapeType);
