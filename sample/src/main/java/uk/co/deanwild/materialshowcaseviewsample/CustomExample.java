@@ -45,8 +45,9 @@ public class CustomExample extends AppCompatActivity implements View.OnClickList
             View view = findViewById(R.id.menu_sample_action);
             new MaterialShowcaseView.Builder(this)
                     .setTarget(view)
+                    .setShapePadding(96)
                     .setDismissText("GOT IT")
-                    .setContentText("Example of how to show a showcase view for menu items in action bar.")
+                    .setContentText("Example of how to setup a MaterialShowcaseView for menu items in action bar.")
                     .setContentTextColor(getResources().getColor(R.color.green))
                     .setMaskColour(getResources().getColor(R.color.purple))
                     .show();

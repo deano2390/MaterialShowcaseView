@@ -12,12 +12,10 @@ import uk.co.deanwild.materialshowcaseview.target.Target;
  */
 public interface Shape {
 
-    void updateTarget(Target target);
-
     /**
      * Draw shape on the canvas with the center at (x, y) using Paint object provided.
      */
-    void draw(Canvas canvas, Paint paint, int x, int y);
+    void draw(Canvas canvas, Paint paint, int x, int y, int padding);
 
     /**
      * Get width of the shape.
@@ -28,5 +26,10 @@ public interface Shape {
      * Get height of the shape.
      */
     int getHeight();
+
+    /**
+     * Update shape bounds if necessary
+     */
+    void updateTarget(Target target);
 
 }

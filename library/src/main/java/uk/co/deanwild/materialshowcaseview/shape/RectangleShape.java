@@ -49,9 +49,14 @@ public class RectangleShape implements Shape {
     }
 
     @Override
-    public void draw(Canvas canvas, Paint paint, int x, int y) {
-        rect.offset(x, y);
-        canvas.drawRect(rect, paint);
+    public void draw(Canvas canvas, Paint paint, int x, int y, int padding) {
+        canvas.drawRect(
+                rect.left + x - padding,
+                rect.top + y - padding,
+                rect.right + x - padding,
+                rect.bottom + y - padding,
+                paint
+        );
         rect.offset(-x, -y);
     }
 

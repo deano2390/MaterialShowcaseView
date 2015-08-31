@@ -29,12 +29,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.deanwild.materialshowcaseview.shape.CircleShape;
+import uk.co.deanwild.materialshowcaseview.shape.NoShape;
 import uk.co.deanwild.materialshowcaseview.shape.RectangleShape;
 import uk.co.deanwild.materialshowcaseview.shape.Shape;
 import uk.co.deanwild.materialshowcaseview.target.Target;
 import uk.co.deanwild.materialshowcaseview.target.ViewTarget;
 
 
+/**
+ * Helper class to show a sequence of showcase views.
+ */
 public class MaterialShowcaseView extends FrameLayout implements View.OnTouchListener, View.OnClickListener {
 
     private int mOldHeight;
@@ -47,6 +51,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private int mXPosition;
     private int mYPosition;
     private boolean mWasDismissed = false;
+    private int mShapePadding = ShowcaseConfig.DEFAULT_SHAPE_PADDING;
 
     private View mContentBox;
     private TextView mContentTextView;
@@ -166,7 +171,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
 
         // draw (erase) shape
-        mShape.draw(mCanvas, mEraser, mXPosition, mYPosition);
+        mShape.draw(mCanvas, mEraser, mXPosition, mYPosition, mShapePadding);
 
         // Draw the bitmap on our views  canvas.
         canvas.drawBitmap(mBitmap, 0, 0, null);
@@ -269,20 +274,20 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             int midPoint = height / 2;
             int yPos = targetPoint.y;
 
-            int radius = Math.max(targetBounds.height(), targetBounds.width()) / 2 + 10;
+            int radius = Math.max(targetBounds.height(), targetBounds.width()) / 2;
             if (mShape != null) {
                 mShape.updateTarget(mTarget);
-                radius = mShape.getHeight() / 2 + 10;
+                radius = mShape.getHeight() / 2;
             }
 
             if (yPos > midPoint) {
                 // target is in lower half of screen, we'll sit above it
                 mContentTopMargin = 0;
-                mContentBottomMargin = (height - yPos) + radius;
+                mContentBottomMargin = (height - yPos) + radius + mShapePadding;
                 mGravity = Gravity.BOTTOM;
             } else {
                 // target is in upper half of screen, we'll sit below it
-                mContentTopMargin = yPos + radius;
+                mContentTopMargin = yPos + radius + mShapePadding;
                 mContentBottomMargin = 0;
                 mGravity = Gravity.TOP;
             }
@@ -360,10 +365,13 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
     }
 
+    private void setShapePadding(int padding) {
+        mShapePadding = padding;
+    }
+
     private void setDismissOnTouch(boolean dismissOnTouch) {
         mDismissOnTouch = dismissOnTouch;
     }
-
 
     private void setShouldRender(boolean shouldRender) {
         mShouldRender = shouldRender;
@@ -411,6 +419,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         setDismissTextColor(config.getDismissTextColor());
         setMaskColour(config.getMaskColor());
         setShape(config.getShape());
+        setShapePadding(config.getShapePadding());
     }
 
     private void updateDismissButton() {
@@ -443,6 +452,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     public static class Builder {
         private static final int CIRCLE_SHAPE = 0;
         private static final int RECTANGLE_SHAPE = 1;
+        private static final int NO_SHAPE = 2;
 
         private boolean fullWidth = false;
         private int shapeType = CIRCLE_SHAPE;
@@ -543,6 +553,16 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             return this;
         }
 
+        public Builder withoutShape() {
+            shapeType = NO_SHAPE;
+            return this;
+        }
+
+        public Builder setShapePadding(int padding) {
+            showcaseView.setShapePadding(padding);
+            return this;
+        }
+
         public Builder withRectangleShape() {
             return withRectangleShape(false);
         }
@@ -561,8 +581,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                         break;
                     }
                     case CIRCLE_SHAPE: {
-                        showcaseView.mShape = new CircleShape(showcaseView.mTarget);
+                        showcaseView.setShape(new CircleShape(showcaseView.mTarget));
                         break;
+                    }
+                    case NO_SHAPE: {
+                        showcaseView.setShape(new NoShape());
                     }
                     default:
                         throw new IllegalArgumentException("Unsupported shape type: " + shapeType);

@@ -12,6 +12,7 @@ public class ShowcaseConfig {
     public static final long DEFAULT_FADE_TIME = 300;
     public static final long DEFAULT_DELAY = 0;
     public static final Shape DEFAULT_SHAPE = new CircleShape();
+    public static final int DEFAULT_SHAPE_PADDING = 10;
 
     private long mDelay = DEFAULT_DELAY;
     private int mMaskColour;
@@ -19,6 +20,7 @@ public class ShowcaseConfig {
     private int mDismissTextColor;
     private long mFadeDuration = DEFAULT_FADE_TIME;
     private Shape mShape = DEFAULT_SHAPE;
+    private int mShapePadding = DEFAULT_SHAPE_PADDING;
 
     public ShowcaseConfig() {
         mMaskColour = Color.parseColor(ShowcaseConfig.DEFAULT_MASK_COLOUR);
@@ -72,5 +74,13 @@ public class ShowcaseConfig {
 
     public void setShape(Shape shape) {
         this.mShape = shape;
+    }
+
+    public void setShapePadding(int padding) {
+        this.mShapePadding = padding;
+    }
+
+    public int getShapePadding() {
+        return mShapePadding;
     }
 }
