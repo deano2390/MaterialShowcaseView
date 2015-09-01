@@ -53,8 +53,8 @@ public class RectangleShape implements Shape {
         canvas.drawRect(
                 rect.left + x - padding,
                 rect.top + y - padding,
-                rect.right + x - padding,
-                rect.bottom + y - padding,
+                rect.right + x + padding,
+                rect.bottom + y + padding,
                 paint
         );
         rect.offset(-x, -y);
