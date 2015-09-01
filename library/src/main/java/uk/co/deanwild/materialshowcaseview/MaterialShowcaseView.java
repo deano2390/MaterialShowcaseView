@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -229,14 +230,18 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     /**
      * Tells us about the "Target" which is the view we want to anchor to.
-     * We figure out where it is on screen and (optionally) how big it is.
-     * We also figure out whether to place our content and dismiss button above or below it.
      *
      * @param target
      */
     public void setTarget(Target target) {
         mTarget = target;
+    }
 
+    /**
+     * We figure out where it is on screen and (optionally) how big it is.
+     * We also figure out whether to place our content and dismiss button above or below it.
+     */
+    private void calculatePosition() {
         if (mTarget != null) {
 
             /**
@@ -246,13 +251,18 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                 mBottomMargin = getSoftButtonsBarSizePort((Activity) getContext());
                 FrameLayout.LayoutParams contentLP = (LayoutParams) getLayoutParams();
 
-                if (contentLP!=null && contentLP.bottomMargin != mBottomMargin)
+                if (contentLP != null && contentLP.bottomMargin != mBottomMargin)
                     contentLP.bottomMargin = mBottomMargin;
             }
 
             // apply the target position
             Point targetPoint = mTarget.getPoint();
             setPosition(targetPoint);
+
+            setShouldRender(mTarget.isTargetVisible());
+
+            if (getVisibility() == VISIBLE)
+                setVisibility(VISIBLE);
 
             // apply auto radius
             if (mUseAutoRadius) {
@@ -411,7 +421,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         @Override
         public void onGlobalLayout() {
-            setTarget(mTarget);
+            calculatePosition();
         }
     }
 
@@ -589,8 +599,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         ((ViewGroup) activity.getWindow().getDecorView()).addView(this);
 
-        setShouldRender(true);
-
         mHandler = new Handler();
         mHandler.postDelayed(new Runnable() {
             @Override
@@ -608,6 +616,21 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         return true;
     }
 
+
+    @Override
+    public void setVisibility(int visibility) {
+        if (visibility == VISIBLE) {
+            if (mTarget.isTargetVisible()) {
+                super.setVisibility(visibility);
+            } else {
+                super.setVisibility(INVISIBLE);
+            }
+
+        } else {
+            super.setVisibility(visibility);
+        }
+
+    }
 
     public void hide() {
 
@@ -686,5 +709,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
         return 0;
     }
+
 
 }

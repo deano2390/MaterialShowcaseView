@@ -9,7 +9,7 @@ import android.view.View;
  */
 public class ViewTarget implements Target {
 
-    private final View mView;
+    public final View mView;
 
     public ViewTarget(View view) {
         mView = view;
@@ -37,13 +37,28 @@ public class ViewTarget implements Target {
 
             if (mView.getMeasuredHeight() > mView.getMeasuredWidth()) {
                 radius = mView.getMeasuredHeight() / 2;
-            }else{
-                radius =  mView.getMeasuredWidth() / 2;
+            } else {
+                radius = mView.getMeasuredWidth() / 2;
             }
 
             radius += 10; // add a 10 pixel padding to circle
         }
 
         return radius;
+    }
+
+    @Override
+    public boolean isTargetVisible() {
+
+        if (mView == null)
+            return false;
+
+        if (mView.getVisibility() != View.VISIBLE)
+            return false;
+
+        if (mView.getApplicationWindowToken() == null)
+            return false;
+
+        return true;
     }
 }

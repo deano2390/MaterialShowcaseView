@@ -16,9 +16,16 @@ public interface Target {
         public int getRadius() {
             return 200;
         }
+
+        @Override
+        public boolean isTargetVisible() {
+            return true;
+        }
     };
 
     Point getPoint();
 
     int getRadius();
+
+    boolean isTargetVisible();
 }

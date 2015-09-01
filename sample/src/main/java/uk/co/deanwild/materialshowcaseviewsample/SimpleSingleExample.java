@@ -51,7 +51,7 @@ public class SimpleSingleExample extends ActionBarActivity implements View.OnCli
                 .setDismissText("GOT IT")
                 .setContentText("This is some amazing feature you should know about")
                 .setDelay(withDelay) // optional but starting animations immediately in onCreate can make them choppy
-                .singleUse(SHOWCASE_ID) // provide a unique ID used to ensure it is only shown once
+                //.singleUse(SHOWCASE_ID) // provide a unique ID used to ensure it is only shown once
                 .show();
     }
 

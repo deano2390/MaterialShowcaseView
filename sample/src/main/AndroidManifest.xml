@@ -28,6 +28,10 @@
             android:name=".SequenceExample"
             android:label="@string/title_activity_sequence_example" >
         </activity>
+        <activity
+            android:name=".FragmentExampleActivity"
+            android:label="@string/title_activity_fragment_example" >
+        </activity>
     </application>
 
 </manifest>
