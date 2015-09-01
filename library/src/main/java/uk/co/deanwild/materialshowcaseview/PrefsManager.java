@@ -47,7 +47,7 @@ public class PrefsManager {
 
     void setSequenceStatus(int status) {
         SharedPreferences internal = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        internal.edit().putInt(STATUS + showcaseID, status).apply();
+        internal.edit().putInt(STATUS + showcaseID, status).commit();
     }
 
 
@@ -57,12 +57,12 @@ public class PrefsManager {
 
     static void resetShowcase(Context context, String showcaseID) {
         SharedPreferences internal = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        internal.edit().putInt(STATUS + showcaseID, SEQUENCE_NEVER_STARTED).apply();
+        internal.edit().putInt(STATUS + showcaseID, SEQUENCE_NEVER_STARTED).commit();
     }
 
     public static void resetAll(Context context) {
         SharedPreferences internal = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        internal.edit().clear().apply();
+        internal.edit().clear().commit();
     }
 
     public void close() {
