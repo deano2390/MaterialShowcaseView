@@ -433,6 +433,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
     }
 
+    public boolean hasFired() {
+        return mPrefsManager.hasFired();
+    }
+
     /**
      * REDRAW LISTENER - this ensures we redraw after activity finishes laying out
      */

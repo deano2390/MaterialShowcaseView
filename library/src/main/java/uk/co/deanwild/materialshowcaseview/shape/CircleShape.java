@@ -47,7 +47,9 @@ public class CircleShape implements Shape {
 
     @Override
     public void draw(Canvas canvas, Paint paint, int x, int y, int padding) {
-        canvas.drawCircle(x, y, radius + padding, paint);
+        if (radius > 0) {
+            canvas.drawCircle(x, y, radius + padding, paint);
+        }
     }
 
     @Override
