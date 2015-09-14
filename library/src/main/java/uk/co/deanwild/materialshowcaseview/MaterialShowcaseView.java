@@ -10,6 +10,7 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -21,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -347,6 +349,57 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
     }
 
+
+    private void setContentGravity(int contentGravity) {
+        if (mContentTextView != null) {
+            mContentTextView.setGravity(contentGravity);
+        }
+    }
+
+    private void setDismissGravity(int dismissGravity) {
+        if (mDismissButton != null) {
+            LinearLayout.LayoutParams layoutParams
+                    = (LinearLayout.LayoutParams) mDismissButton.getLayoutParams();
+            layoutParams.gravity = dismissGravity;
+        }
+    }
+
+    private void setContentPadding(int left, int top, int right, int bottom) {
+        if (mContentTextView != null) {
+            mContentTextView.setPadding(left, top, right, bottom);
+        }
+    }
+
+    private void setDismissPadding(int left, int top, int right, int bottom) {
+        if (mDismissButton != null) {
+            mDismissButton.setPadding(left, top, right, bottom);
+        }
+    }
+
+    private void setContentBackground(int resId) {
+        if (mContentTextView != null) {
+            mContentTextView.setBackgroundResource(resId);
+        }
+    }
+
+    private void setContentBackground(Drawable drawable) {
+        if (mContentTextView != null) {
+            mContentTextView.setBackground(drawable);
+        }
+    }
+
+    private void setDismissBackground(int resId) {
+        if (mDismissButton != null) {
+            mDismissButton.setBackgroundResource(resId);
+        }
+    }
+
+    private void setDismissBackground(Drawable drawable) {
+        if (mDismissButton != null) {
+            mDismissButton.setBackground(drawable);
+        }
+    }
+
     private void setDismissOnTouch(boolean dismissOnTouch) {
         mDismissOnTouch = dismissOnTouch;
     }
@@ -463,6 +516,70 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
          */
         public Builder setContentText(CharSequence text) {
             showcaseView.setContentText(text);
+            return this;
+        }
+
+        /**
+         * Set gravity tittle on the ShowcaseView.
+         */
+        public Builder setContentGravity(int gravity) {
+            showcaseView.setContentGravity(gravity);
+            return this;
+        }
+
+        /**
+         * Set gravity dismiss button on the ShowcaseView.
+         */
+        public Builder setDismissGravity(int gravity) {
+            showcaseView.setDismissGravity(gravity);
+            return this;
+        }
+
+        /**
+         * Set padding tittle on the ShowcaseView.
+         */
+        public Builder setContentPadding(int left, int top, int right, int bottom) {
+            showcaseView.setContentPadding(left, top, right, bottom);
+            return this;
+        }
+
+        /**
+         * Set padding dismiss button on the ShowcaseView.
+         */
+        public Builder setDismissPadding(int left, int top, int right, int bottom) {
+            showcaseView.setDismissPadding(left, top, right, bottom);
+            return this;
+        }
+
+        /**
+         * Set resource background for tittle on the ShowcaseView.
+         */
+        public Builder setContentBackground(int resId) {
+            showcaseView.setContentBackground(resId);
+            return this;
+        }
+
+        /**
+         * Set drawable background for tittle on the ShowcaseView.
+         */
+        public Builder setContentBackground(Drawable drawable) {
+            showcaseView.setContentBackground(drawable);
+            return this;
+        }
+
+        /**
+         * Set resource background for dismiss button on the ShowcaseView.
+         */
+        public Builder setDismissBackground(int resId) {
+            showcaseView.setDismissBackground(resId);
+            return this;
+        }
+
+        /**
+         * Set drawable background for dismiss button on the ShowcaseView.
+         */
+        public Builder setDismissBackground(Drawable drawable) {
+            showcaseView.setDismissBackground(drawable);
             return this;
         }
 
