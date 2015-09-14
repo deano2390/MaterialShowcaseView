@@ -2,6 +2,7 @@ package uk.co.deanwild.materialshowcaseviewsample;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -53,6 +54,8 @@ public class CustomExample extends ActionBarActivity implements View.OnClickList
                 .setDismissText("GOT IT")
                 .setContentText("This is some amazing feature you should know about")
                 .setContentTextColor(getResources().getColor(R.color.green))
+                .setDismissBackground(this.getResources().getDrawable(R.drawable.dismiss_bg))
+                .setDismissGravity(Gravity.CENTER)
                 .setMaskColour(getResources().getColor(R.color.purple))
                 .setDelay(withDelay) // optional but starting animations immediately in onCreate can make them choppy
                 .singleUse(SHOWCASE_ID) // provide a unique ID used to ensure it is only shown once
