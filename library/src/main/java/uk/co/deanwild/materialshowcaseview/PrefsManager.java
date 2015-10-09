@@ -3,9 +3,7 @@ package uk.co.deanwild.materialshowcaseview;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-/**
- * Created by deanwild on 11/08/15.
- */
+
 public class PrefsManager {
 
     public static int SEQUENCE_NEVER_STARTED = 0;

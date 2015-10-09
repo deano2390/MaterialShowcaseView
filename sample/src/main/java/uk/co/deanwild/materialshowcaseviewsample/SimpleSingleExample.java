@@ -1,7 +1,7 @@
 package uk.co.deanwild.materialshowcaseviewsample;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -9,7 +9,7 @@ import android.widget.Toast;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 
 
-public class SimpleSingleExample extends ActionBarActivity implements View.OnClickListener {
+public class SimpleSingleExample extends AppCompatActivity implements View.OnClickListener {
 
     private Button mButtonShow;
     private Button mButtonReset;

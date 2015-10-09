@@ -1,7 +1,7 @@
 package uk.co.deanwild.materialshowcaseviewsample;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,7 +11,7 @@ import android.widget.Toast;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 
 
-public class CustomExample extends ActionBarActivity implements View.OnClickListener {
+public class CustomExample extends AppCompatActivity implements View.OnClickListener {
 
     private Button mButtonShow;
     private Button mButtonReset;
@@ -33,6 +33,30 @@ public class CustomExample extends ActionBarActivity implements View.OnClickList
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_custom_example, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (item.getItemId() == R.id.menu_sample_action) {
+            View view = findViewById(R.id.menu_sample_action);
+            new MaterialShowcaseView.Builder(this)
+                    .setTarget(view)
+                    .setShapePadding(96)
+                    .setDismissText("GOT IT")
+                    .setContentText("Example of how to setup a MaterialShowcaseView for menu items in action bar.")
+                    .setContentTextColor(getResources().getColor(R.color.green))
+                    .setMaskColour(getResources().getColor(R.color.purple))
+                    .show();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onClick(View v) {
 
         if (v.getId() == R.id.btn_show) {
@@ -50,8 +74,8 @@ public class CustomExample extends ActionBarActivity implements View.OnClickList
     private void presentShowcaseView(int withDelay) {
         new MaterialShowcaseView.Builder(this)
                 .setTarget(mButtonShow)
-                .setDismissText("GOT IT")
                 .setContentText("This is some amazing feature you should know about")
+                .setDismissOnTouch(true)
                 .setContentTextColor(getResources().getColor(R.color.green))
                 .setMaskColour(getResources().getColor(R.color.purple))
                 .setDelay(withDelay) // optional but starting animations immediately in onCreate can make them choppy
