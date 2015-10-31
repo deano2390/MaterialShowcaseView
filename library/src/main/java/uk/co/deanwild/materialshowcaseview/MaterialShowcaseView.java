@@ -61,6 +61,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private int mContentTopMargin;
     private boolean mDismissOnTouch = false;
     private boolean mShouldRender = false; // flag to decide when we should actually render
+    private boolean mRenderOverNav = false;
     private int mMaskColour;
     private AnimationFactory mAnimationFactory;
     private boolean mShouldAnimate = true;
@@ -256,7 +257,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             /**
              * If we're on lollipop then make sure we don't draw over the nav bar
              */
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (!mRenderOverNav && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 mBottomMargin = getSoftButtonsBarSizePort((Activity) getContext());
                 FrameLayout.LayoutParams contentLP = (LayoutParams) getLayoutParams();
 
@@ -577,6 +578,12 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             return this;
         }
 
+        public Builder renderOverNavigationBar() {
+            // Note: This only has an effect in Lollipop or above.
+            showcaseView.setRenderOverNavigationBar(true);
+            return this;
+        }
+
         public MaterialShowcaseView build() {
             if (showcaseView.mShape == null) {
                 switch (shapeType) {
@@ -760,4 +767,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         return 0;
     }
 
+    private void setRenderOverNavigationBar(boolean mRenderOverNav) {
+        this.mRenderOverNav = mRenderOverNav;
+    }
 }
