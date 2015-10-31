@@ -21,6 +21,7 @@ public class ShowcaseConfig {
     private long mFadeDuration = DEFAULT_FADE_TIME;
     private Shape mShape = DEFAULT_SHAPE;
     private int mShapePadding = DEFAULT_SHAPE_PADDING;
+    private boolean renderOverNav = false;
 
     public ShowcaseConfig() {
         mMaskColour = Color.parseColor(ShowcaseConfig.DEFAULT_MASK_COLOUR);
@@ -82,5 +83,13 @@ public class ShowcaseConfig {
 
     public int getShapePadding() {
         return mShapePadding;
+    }
+
+    public boolean getRenderOverNavigationBar() {
+        return renderOverNav;
+    }
+
+    public void setRenderOverNavigationBar(boolean renderOverNav) {
+        this.renderOverNav = renderOverNav;
     }
 }
