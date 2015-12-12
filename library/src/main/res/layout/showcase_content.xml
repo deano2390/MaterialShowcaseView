@@ -10,6 +10,13 @@
     android:paddingRight="20dp"
     android:paddingTop="30dp">
 
+    <android.support.v4.widget.NestedScrollView
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:fadeScrollbars="false"
+        android:scrollbars="vertical"
+        android:layout_height="0dp">
+
     <TextView
         android:id="@+id/tv_content"
         android:layout_width="match_parent"
@@ -17,6 +24,8 @@
         android:textColor="@android:color/white"
         android:paddingLeft="5dp"
         android:textSize="20dp" />
+
+    </android.support.v4.widget.NestedScrollView>
 
     <TextView
         android:id="@+id/tv_dismiss"
