@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+	<string name="define_materialshowcaseview"/>
+	<!-- Author section -->
+	<string name="library_materialshowcaseview_author">Dean Wild</string>
+	<string name="library_materialshowcaseview_authorWebsite">https://github.com/deano2390</string>
+	<!-- Library section -->
+	<string name="library_materialshowcaseview_libraryName">MaterialShowcaseView</string>
+	<string name="library_materialshowcaseview_libraryDescription">A Material Design themed ShowcaseView for Android</string>
+	<string name="library_materialshowcaseview_libraryWebsite">https://github.com/deano2390/MaterialShowcaseView</string>
+	<string name="library_materialshowcaseview_libraryVersion">1.0.5</string>
+	<!-- OpenSource section -->
+	<string name="library_materialshowcaseview_isOpenSource">true</string>
+	<string name="library_materialshowcaseview_repositoryLink">https://github.com/deano2390/MaterialShowcaseView</string>
+	<!-- ClassPath for autoDetect section -->
+	<string name="library_materialshowcaseview_classPath">uk.co.deanwild.materialshowcaseview</string>
+	<!-- License section -->
+	<string name="library_materialshowcaseview_licenseId">apache_2_0</string>
+	<!-- Custom variables section -->
+</resources>
