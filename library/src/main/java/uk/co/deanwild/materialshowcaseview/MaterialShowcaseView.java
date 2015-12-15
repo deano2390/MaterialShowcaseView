@@ -446,7 +446,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             this.activity = activity;
 
             showcaseView = new MaterialShowcaseView(activity);
-            showcaseView.setCustomView(layoutId);
             showcaseView.init();
         }
 
