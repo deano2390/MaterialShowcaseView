@@ -18,16 +18,18 @@
     <TextView
         android:id="@+id/tv_dismiss"
         android:background="?attr/selectableItemBackground"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="40dp"
         android:clickable="true"
         android:paddingBottom="10dp"
         android:paddingTop="10dp"
+        android:gravity="center"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
+        android:textStyle="bold"
         android:textColor="@android:color/white"
-        android:textSize="22dp"
+        android:textSize="10dp"
         android:visibility="gone" />
 
 </LinearLayout>

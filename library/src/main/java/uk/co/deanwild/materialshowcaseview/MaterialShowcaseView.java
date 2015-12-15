@@ -67,26 +67,23 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     List<IShowcaseListener> mListeners; // external listeners who want to observe when we show and dismiss
     private UpdateOnGlobalLayout mLayoutListener;
     private IDetachedListener mDetachedListener;
+    private int mLayoutId = R.layout.showcase_content;
 
     public MaterialShowcaseView(Context context) {
         super(context);
-        init();
     }
 
     public MaterialShowcaseView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
     }
 
     public MaterialShowcaseView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public MaterialShowcaseView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        init();
     }
 
 
@@ -114,12 +111,15 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mEraser.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
         mEraser.setFlags(Paint.ANTI_ALIAS_FLAG);
 
-        View contentView = LayoutInflater.from(getContext()).inflate(R.layout.showcase_content, this, true);
+        View contentView = LayoutInflater.from(getContext()).inflate(mLayoutId, this, true);
         mContentBox = contentView.findViewById(R.id.content_box);
         mContentTextView = (TextView) contentView.findViewById(R.id.tv_content);
         mDismissButton = (TextView) contentView.findViewById(R.id.tv_dismiss);
         mDismissButton.setOnClickListener(this);
-        setLayerType(LAYER_TYPE_SOFTWARE, null);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            setLayerType(LAYER_TYPE_SOFTWARE, null);
+        }
     }
 
 
@@ -128,7 +128,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
      * We draw a block of semi transparent colour to fill the whole screen then we draw of transparency
      * to create a circular "viewport" through to the underlying content
      *
-     * @param canvas
+     * @param canvas Canvas
      */
     @Override
     protected void onDraw(Canvas canvas) {
@@ -201,7 +201,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     /**
      * Dismiss button clicked
      *
-     * @param v
+     * @param v View
      */
     @Override
     public void onClick(View v) {
@@ -213,7 +213,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
      * We figure out where it is on screen and (optionally) how big it is.
      * We also figure out whether to place our content and dismiss button above or below it.
      *
-     * @param target
+     * @param target Target
      */
     public void setTarget(Target target) {
         mTarget = target;
@@ -439,6 +439,15 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             this.activity = activity;
 
             showcaseView = new MaterialShowcaseView(activity);
+            showcaseView.init();
+        }
+
+        public Builder(Activity activity, int layoutId) {
+            this.activity = activity;
+
+            showcaseView = new MaterialShowcaseView(activity);
+            showcaseView.setCustomView(layoutId);
+            showcaseView.init();
         }
 
         /**
@@ -548,6 +557,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
 
         public MaterialShowcaseView build() {
+
             if (showcaseView.mShape == null) {
                 switch (shapeType) {
                     case RECTANGLE_SHAPE: {
