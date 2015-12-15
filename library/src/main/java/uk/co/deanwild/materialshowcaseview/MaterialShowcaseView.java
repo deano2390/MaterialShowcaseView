@@ -403,6 +403,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
     }
 
+    private void setCustomView(int layoutId) {
+        mLayoutId = layoutId;
+    }
+
     public boolean hasFired() {
         return mPrefsManager.hasFired();
     }
@@ -446,6 +450,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             this.activity = activity;
 
             showcaseView = new MaterialShowcaseView(activity);
+            showcaseView.setCustomView(layoutId);
             showcaseView.init();
         }
 
