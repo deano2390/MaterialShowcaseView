@@ -1,5 +1,6 @@
 package uk.co.deanwild.materialshowcaseview;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -43,9 +44,14 @@ public class PrefsManager {
 
     }
 
+    @SuppressLint("CommitPrefEdits")
     void setSequenceStatus(int status) {
         SharedPreferences internal = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        internal.edit().putInt(STATUS + showcaseID, status).apply();
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.GINGERBREAD) {
+            internal.edit().putInt(STATUS + showcaseID, status).apply();
+        } else {
+            internal.edit().putInt(STATUS + showcaseID, status).commit();
+        }
     }
 
 
@@ -55,7 +61,13 @@ public class PrefsManager {
 
     static void resetShowcase(Context context, String showcaseID) {
         SharedPreferences internal = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        internal.edit().putInt(STATUS + showcaseID, SEQUENCE_NEVER_STARTED).apply();
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.GINGERBREAD) {
+            internal.edit().putInt(STATUS + showcaseID, SEQUENCE_NEVER_STARTED).apply();
+        } else {
+            internal.edit().putInt(STATUS + showcaseID, SEQUENCE_NEVER_STARTED).commit();
+        }
+
     }
 
     public static void resetAll(Context context) {
