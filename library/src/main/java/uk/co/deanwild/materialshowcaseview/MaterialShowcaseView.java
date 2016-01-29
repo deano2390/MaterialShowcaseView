@@ -60,6 +60,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private int mContentBottomMargin;
     private int mContentTopMargin;
     private boolean mDismissOnTouch = false;
+    private boolean mDismissOnTarget = false;
     private boolean mShouldRender = false; // flag to decide when we should actually render
     private int mMaskColour;
     private AnimationFactory mAnimationFactory;
@@ -94,7 +95,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context);
     }
-
 
     private void init(Context context) {
         setWillNotDraw(false);
@@ -199,6 +199,19 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     public boolean onTouch(View v, MotionEvent event) {
         if (mDismissOnTouch) {
             hide();
+        }
+
+        if (mDismissOnTarget) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    Rect bound = mTarget.getBounds();
+                    float x = event.getX();
+                    float y = event.getY();
+                    if (x >= bound.left && x <= bound.right && y >= bound.top && y <= bound.bottom) {
+                        hide();
+                    }
+                    break;
+            }
         }
         return true;
     }
@@ -373,6 +386,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mDismissOnTouch = dismissOnTouch;
     }
 
+    private void setDismissOnTarget(boolean dissmissOnTarget) {
+        mDismissOnTarget = dissmissOnTarget;
+    }
+
     private void setShouldRender(boolean shouldRender) {
         mShouldRender = shouldRender;
     }
@@ -431,6 +448,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                 mDismissButton.setVisibility(VISIBLE);
             }
         }
+    }
+
+    private void setCustomView(int layoutId) {
+        inflate(getContext(), layoutId, this);
     }
 
     public boolean hasFired() {
@@ -512,6 +533,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             return this;
         }
 
+        public Builder setDismissOnTarget(boolean dismissOnTarget) {
+            showcaseView.setDismissOnTarget(dismissOnTarget);
+            return this;
+        }
+
         public Builder setMaskColour(int maskColour) {
             showcaseView.setMaskColour(maskColour);
             return this;
@@ -574,6 +600,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         public Builder withRectangleShape(boolean fullWidth) {
             this.shapeType = RECTANGLE_SHAPE;
             this.fullWidth = fullWidth;
+            return this;
+        }
+
+        public Builder setCustomView(int layoutId) {
+            showcaseView.setCustomView(layoutId);
             return this;
         }
 
@@ -700,13 +731,13 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         setVisibility(INVISIBLE);
 
         mAnimationFactory.fadeInView(this, mFadeDurationInMillis,
-                new IAnimationFactory.AnimationStartListener() {
-                    @Override
-                    public void onAnimationStart() {
-                        setVisibility(View.VISIBLE);
-                        notifyOnDisplayed();
-                    }
+            new IAnimationFactory.AnimationStartListener() {
+                @Override
+                public void onAnimationStart() {
+                    setVisibility(View.VISIBLE);
+                    notifyOnDisplayed();
                 }
+            }
         );
     }
 
