@@ -75,6 +75,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private UpdateOnGlobalLayout mLayoutListener;
     private IDetachedListener mDetachedListener;
     private boolean mTargetTouchable = false;
+    private boolean mDismissOnTargetTouch = true;
 
     public MaterialShowcaseView(Context context) {
         super(context);
@@ -204,6 +205,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             hide();
         }
         if(mTargetTouchable && mTarget.getBounds().contains((int)event.getX(), (int)event.getY())){
+            if(mDismissOnTargetTouch){
+                hide();
+            }
             return false;
         }
         return true;
@@ -412,6 +416,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mTargetTouchable = targetTouchable;
     }
 
+    private void setDismissOnTargetTouch(boolean dismissOnTargetTouch){
+        mDismissOnTargetTouch = dismissOnTargetTouch;
+    }
+
     public void addShowcaseListener(IShowcaseListener showcaseListener) {
         mListeners.add(showcaseListener);
     }
@@ -551,6 +559,16 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
          */
         public Builder setTargetTouchable(boolean targetTouchable){
             showcaseView.setTargetTouchable(targetTouchable);
+            return this;
+        }
+
+        /**
+         * Set whether or not the showcase should dismiss when the target is touched.
+         *
+         * True by default.
+         */
+        public Builder setDismissOnTargetTouch(boolean dismissOnTargetTouch){
+            showcaseView.setDismissOnTargetTouch(dismissOnTargetTouch);
             return this;
         }
 
