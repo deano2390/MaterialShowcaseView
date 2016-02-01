@@ -346,7 +346,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     }
 
     private void setTitleText(CharSequence contentText) {
-        if (mTitleTextView != null) {
+        if (mTitleTextView != null && !contextText.equals("")) {
             mContentTextView.setAlpha(0.5F);
             mTitleTextView.setText(contentText);
         }
