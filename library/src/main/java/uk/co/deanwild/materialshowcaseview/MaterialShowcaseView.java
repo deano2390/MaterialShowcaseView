@@ -30,6 +30,7 @@ import java.util.List;
 
 import uk.co.deanwild.materialshowcaseview.shape.CircleShape;
 import uk.co.deanwild.materialshowcaseview.shape.NoShape;
+import uk.co.deanwild.materialshowcaseview.shape.OvalShape;
 import uk.co.deanwild.materialshowcaseview.shape.RectangleShape;
 import uk.co.deanwild.materialshowcaseview.shape.Shape;
 import uk.co.deanwild.materialshowcaseview.target.Target;
@@ -457,6 +458,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         private static final int CIRCLE_SHAPE = 0;
         private static final int RECTANGLE_SHAPE = 1;
         private static final int NO_SHAPE = 2;
+        private static final int OVAL_SHAPE = 3;
 
         private boolean fullWidth = false;
         private int shapeType = CIRCLE_SHAPE;
@@ -557,6 +559,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             return this;
         }
 
+        public Builder withOvalShape() {
+            shapeType = OVAL_SHAPE;
+            return this;
+        }
+
         public Builder withoutShape() {
             shapeType = NO_SHAPE;
             return this;
@@ -591,6 +598,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                     case NO_SHAPE: {
                         showcaseView.setShape(new NoShape());
                         break;
+                    }
+                    case OVAL_SHAPE: {
+                        showcaseView.setShape(new OvalShape(showcaseView.mTarget));
                     }
                     default:
                         throw new IllegalArgumentException("Unsupported shape type: " + shapeType);
