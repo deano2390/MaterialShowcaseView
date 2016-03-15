@@ -41,7 +41,7 @@ compile 'com.github.deano2390:MaterialShowcaseView:1.0.6@aar'
 
 # How to use
 --------
-This is the basic usage of a single showcase view, you should check out the sample app for more adbvanced usage.
+This is the basic usage of a single showcase view, you should check out the sample app for more advanced usage.
 
 ```java
 
