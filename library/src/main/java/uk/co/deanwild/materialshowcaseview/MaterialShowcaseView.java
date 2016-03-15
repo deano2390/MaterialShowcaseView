@@ -54,6 +54,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private int mShapePadding = ShowcaseConfig.DEFAULT_SHAPE_PADDING;
 
     private View mContentBox;
+    private TextView mTitleTextView;
     private TextView mContentTextView;
     private TextView mDismissButton;
     private int mGravity;
@@ -73,6 +74,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     List<IShowcaseListener> mListeners; // external listeners who want to observe when we show and dismiss
     private UpdateOnGlobalLayout mLayoutListener;
     private IDetachedListener mDetachedListener;
+    private boolean mTargetTouchable = false;
+    private boolean mDismissOnTargetTouch = true;
 
     public MaterialShowcaseView(Context context) {
         super(context);
@@ -117,6 +120,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         View contentView = LayoutInflater.from(getContext()).inflate(R.layout.showcase_content, this, true);
         mContentBox = contentView.findViewById(R.id.content_box);
+        mTitleTextView = (TextView) contentView.findViewById(R.id.tv_title);
         mContentTextView = (TextView) contentView.findViewById(R.id.tv_content);
         mDismissButton = (TextView) contentView.findViewById(R.id.tv_dismiss);
         mDismissButton.setOnClickListener(this);
@@ -199,6 +203,12 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     public boolean onTouch(View v, MotionEvent event) {
         if (mDismissOnTouch) {
             hide();
+        }
+        if(mTargetTouchable && mTarget.getBounds().contains((int)event.getX(), (int)event.getY())){
+            if(mDismissOnTargetTouch){
+                hide();
+            }
+            return false;
         }
         return true;
     }
@@ -342,6 +352,13 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mYPosition = y;
     }
 
+    private void setTitleText(CharSequence contentText) {
+        if (mTitleTextView != null && !contentText.equals("")) {
+            mContentTextView.setAlpha(0.5F);
+            mTitleTextView.setText(contentText);
+        }
+    }
+
     private void setContentText(CharSequence contentText) {
         if (mContentTextView != null) {
             mContentTextView.setText(contentText);
@@ -353,6 +370,12 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             mDismissButton.setText(dismissText);
 
             updateDismissButton();
+        }
+    }
+
+    private void setTitleTextColor(int textColour) {
+        if (mTitleTextView != null) {
+            mTitleTextView.setTextColor(textColour);
         }
     }
 
@@ -390,6 +413,14 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     private void setFadeDuration(long fadeDurationInMillis) {
         mFadeDurationInMillis = fadeDurationInMillis;
+    }
+
+    private void setTargetTouchable(boolean targetTouchable){
+        mTargetTouchable = targetTouchable;
+    }
+
+    private void setDismissOnTargetTouch(boolean dismissOnTargetTouch){
+        mDismissOnTargetTouch = dismissOnTargetTouch;
     }
 
     public void addShowcaseListener(IShowcaseListener showcaseListener) {
@@ -498,7 +529,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
 
         /**
-         * Set the title text shown on the ShowcaseView.
+         * Set the content text shown on the ShowcaseView.
          */
         public Builder setContentText(int resId) {
             return setContentText(activity.getString(resId));
@@ -512,6 +543,40 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             return this;
         }
 
+        /**
+         * Set the title text shown on the ShowcaseView.
+         */
+        public Builder setTitleText(int resId) {
+            return setTitleText(activity.getString(resId));
+        }
+
+        /**
+         * Set the descriptive text shown on the ShowcaseView as the title.
+         */
+        public Builder setTitleText(CharSequence text) {
+            showcaseView.setTitleText(text);
+            return this;
+        }
+
+        /**
+         * Set whether or not the target view can be touched while the showcase is visible.
+         *
+         * False by default.
+         */
+        public Builder setTargetTouchable(boolean targetTouchable){
+            showcaseView.setTargetTouchable(targetTouchable);
+            return this;
+        }
+
+        /**
+         * Set whether or not the showcase should dismiss when the target is touched.
+         *
+         * True by default.
+         */
+        public Builder setDismissOnTargetTouch(boolean dismissOnTargetTouch){
+            showcaseView.setDismissOnTargetTouch(dismissOnTargetTouch);
+            return this;
+        }
 
         public Builder setDismissOnTouch(boolean dismissOnTouch) {
             showcaseView.setDismissOnTouch(dismissOnTouch);
@@ -520,6 +585,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         public Builder setMaskColour(int maskColour) {
             showcaseView.setMaskColour(maskColour);
+            return this;
+        }
+
+        public Builder setTitleTextColor(int textColour) {
+            showcaseView.setTitleTextColor(textColour);
             return this;
         }
 

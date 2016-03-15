@@ -48,6 +48,7 @@ public class SimpleSingleExample extends AppCompatActivity implements View.OnCli
     private void presentShowcaseView(int withDelay) {
         new MaterialShowcaseView.Builder(this)
                 .setTarget(mButtonShow)
+                .setTitleText("Hello")
                 .setDismissText("GOT IT")
                 .setContentText("This is some amazing feature you should know about")
                 .setDelay(withDelay) // optional but starting animations immediately in onCreate can make them choppy
