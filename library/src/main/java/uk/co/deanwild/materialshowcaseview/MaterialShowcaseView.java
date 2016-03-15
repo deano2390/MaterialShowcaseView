@@ -205,9 +205,12 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
 
     private void notifyOnDisplayed() {
-        for (IShowcaseListener listener : mListeners) {
-            listener.onShowcaseDisplayed(this);
-        }
+
+		if(mListeners != null){
+			for (IShowcaseListener listener : mListeners) {
+				listener.onShowcaseDisplayed(this);
+			}
+		}
     }
 
     private void notifyOnDismissed() {
@@ -390,13 +393,16 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     }
 
     public void addShowcaseListener(IShowcaseListener showcaseListener) {
-        mListeners.add(showcaseListener);
+
+		if(mListeners != null)
+			mListeners.add(showcaseListener);
     }
 
     public void removeShowcaseListener(MaterialShowcaseSequence showcaseListener) {
-        if (mListeners.contains(showcaseListener)) {
-            mListeners.remove(showcaseListener);
-        }
+
+		if ((mListeners != null) && mListeners.contains(showcaseListener)) {
+			mListeners.remove(showcaseListener);
+		}
     }
 
     void setDetachedListener(IDetachedListener detachedListener) {
