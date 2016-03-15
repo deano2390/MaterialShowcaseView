@@ -1,12 +1,13 @@
 package uk.co.deanwild.materialshowcaseview;
 
-import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
+
 import android.graphics.Point;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
+import com.nineoldandroids.animation.Animator;
+import com.nineoldandroids.animation.AnimatorSet;
+import com.nineoldandroids.animation.ObjectAnimator;
 
 public class AnimationFactory implements IAnimationFactory{
 
@@ -67,6 +68,8 @@ public class AnimationFactory implements IAnimationFactory{
         });
         oa.start();
     }
+
+
 
     @Override
     public void animateTargetToPoint(MaterialShowcaseView showcaseView, Point point) {
