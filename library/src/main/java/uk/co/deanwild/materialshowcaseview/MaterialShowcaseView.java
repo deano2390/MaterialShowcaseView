@@ -143,8 +143,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         if (!mShouldRender) return;
 
         // get current dimensions
-        int width = getMeasuredWidth();
-        int height = getMeasuredHeight();
+        final int width = getMeasuredWidth();
+        final int height = getMeasuredHeight();
+
+		// don't bother drawing if there is nothing to draw on
+		if(width <= 0 || height <= 0) return;
 
         // build a new canvas if needed i.e first pass or new dimensions
         if (mBitmap == null || mCanvas == null || mOldHeight != height || mOldWidth != width) {
@@ -152,7 +155,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             if (mBitmap != null) mBitmap.recycle();
 
             mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-
 
             mCanvas = new Canvas(mBitmap);
         }
