@@ -375,21 +375,33 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
     }
 
-    private void setTitleTextColor(int textColour) {
+    private void setTitleTextColor(int textColor) {
         if (mTitleTextView != null) {
-            mTitleTextView.setTextColor(textColour);
+            mTitleTextView.setTextColor(textColor);
         }
     }
 
-    private void setContentTextColor(int textColour) {
+    private void setContentTextColor(int textColor) {
         if (mContentTextView != null) {
-            mContentTextView.setTextColor(textColour);
+            mContentTextView.setTextColor(textColor);
         }
     }
 
-    private void setDismissTextColor(int textColour) {
+    private void setDismissTextColor(int textColor) {
         if (mDismissButton != null) {
-            mDismissButton.setTextColor(textColour);
+            mDismissButton.setTextColor(textColor);
+        }
+    }
+
+    private void setTitleTextSize(float textSize) {
+        if (mTitleTextView != null) {
+            mTitleTextView.setTextSize(textSize);
+        }
+    }
+
+    private void setContentTextSize(float textSize) {
+        if (mContentTextView != null) {
+            mContentTextView.setTextSize(textSize);
         }
     }
 
@@ -591,18 +603,28 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             return this;
         }
 
-        public Builder setTitleTextColor(int textColour) {
-            showcaseView.setTitleTextColor(textColour);
+        public Builder setTitleTextColor(int textColor) {
+            showcaseView.setTitleTextColor(textColor);
             return this;
         }
 
-        public Builder setContentTextColor(int textColour) {
-            showcaseView.setContentTextColor(textColour);
+        public Builder setContentTextColor(int textColor) {
+            showcaseView.setContentTextColor(textColor);
             return this;
         }
 
-        public Builder setDismissTextColor(int textColour) {
-            showcaseView.setDismissTextColor(textColour);
+        public Builder setDismissTextColor(int textColor) {
+            showcaseView.setDismissTextColor(textColor);
+            return this;
+        }
+
+        public Builder setTitleTextSize(float textSize) {
+            showcaseView.setTitleTextSize(textSize);
+            return this;
+        }
+
+        public Builder setContentTextSize(float textSize) {
+            showcaseView.setContentTextSize(textSize);
             return this;
         }
 
