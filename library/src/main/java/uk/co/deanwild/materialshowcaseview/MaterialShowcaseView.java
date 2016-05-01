@@ -226,6 +226,28 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 		}
     }
 
+    /**
+     * Notify when {@link #singleUse(String)} is enabled and showcase has been fired before
+     * @see #singleUse(String)
+     */
+    private void notifyOnSkipped() {
+
+		if(mListeners != null){
+			for (IShowcaseListener listener : mListeners) {
+				listener.onShowcaseSkipped(this);
+			}
+            mListeners.clear();
+            mListeners = null;
+		}
+
+        /**
+         * internal listener used by sequence for storing progress within the sequence
+         */
+        if (mDetachedListener != null) {
+            mDetachedListener.onShowcaseDetached(this, mWasDismissed);
+        }
+    }
+
     private void notifyOnDismissed() {
         if (mListeners != null) {
             for (IShowcaseListener listener : mListeners) {
@@ -738,6 +760,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
          */
         if (mSingleUse) {
             if (mPrefsManager.hasFired()) {
+                notifyOnSkipped();
                 return false;
             } else {
                 mPrefsManager.setFired();
