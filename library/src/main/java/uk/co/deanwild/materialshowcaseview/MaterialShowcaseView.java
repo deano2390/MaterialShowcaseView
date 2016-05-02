@@ -704,6 +704,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                         throw new IllegalArgumentException("Unsupported shape type: " + shapeType);
                 }
             }
+            if(showcaseView.mTitleTextView != null && showcaseView.mTitleTextView.getText().equals(""))
+                showcaseView.mTitleTextView.setVisibility(GONE);
 
             return showcaseView;
         }
