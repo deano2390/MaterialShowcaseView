@@ -19,6 +19,8 @@ public class MaterialShowcaseSequence implements IDetachedListener {
     private OnSequenceItemShownListener mOnItemShownListener = null;
     private OnSequenceItemDismissedListener mOnItemDismissedListener = null;
 
+    private MaterialShowcaseView mCurrentShownShowcase;
+
     public MaterialShowcaseSequence(Activity activity) {
         mActivity = activity;
         mShowcaseQueue = new LinkedList<>();
@@ -29,6 +31,27 @@ public class MaterialShowcaseSequence implements IDetachedListener {
         this.singleUse(sequenceID);
     }
 
+    public MaterialShowcaseSequence addSequenceItem(int contentResId, int dismissTextResId) {
+        addSequenceItem(mActivity.getString(contentResId), mActivity.getString(dismissTextResId));
+        return this;
+    }
+
+    public MaterialShowcaseSequence addSequenceItem(String content, String dismissText) {
+        addSequenceItem(null, content, dismissText);
+        return this;
+    }
+
+    public MaterialShowcaseSequence addSequenceItem(int targetViewId, int contentResId, int dismissTextResId) {
+        addSequenceItem(mActivity.findViewById(targetViewId), mActivity.getString(contentResId), mActivity.getString(dismissTextResId));
+        return this;
+    }
+
+    public MaterialShowcaseSequence addSequenceItem(int targetViewId, int titleResId, int contentResId, int dismissTextResId) {
+        addSequenceItem(mActivity.findViewById(targetViewId), mActivity.getString(titleResId),
+                mActivity.getString(contentResId), mActivity.getString(dismissTextResId));
+        return this;
+    }
+
     public MaterialShowcaseSequence addSequenceItem(View targetView, String content, String dismissText) {
         addSequenceItem(targetView, "", content, dismissText);
         return this;
@@ -36,12 +59,17 @@ public class MaterialShowcaseSequence implements IDetachedListener {
 
     public MaterialShowcaseSequence addSequenceItem(View targetView, String title, String content, String dismissText) {
 
-        MaterialShowcaseView sequenceItem = new MaterialShowcaseView.Builder(mActivity)
-                .setTarget(targetView)
+        MaterialShowcaseView.Builder builder = new MaterialShowcaseView.Builder(mActivity)
                 .setTitleText(title)
                 .setDismissText(dismissText)
-                .setContentText(content)
-                .build();
+                .setContentText(content);
+
+        if (targetView != null)
+            builder.setTarget(targetView);
+        else
+            builder.withoutShape();
+
+        MaterialShowcaseView sequenceItem = builder.build();
 
         if (mConfig != null) {
             sequenceItem.setConfig(mConfig);
@@ -71,12 +99,7 @@ public class MaterialShowcaseSequence implements IDetachedListener {
     }
 
     public boolean hasFired() {
-
-        if (mPrefsManager.getSequenceStatus() == PrefsManager.SEQUENCE_FINISHED) {
-            return true;
-        }
-
-        return false;
+        return mPrefsManager.getSequenceStatus() == PrefsManager.SEQUENCE_FINISHED;
     }
 
     public void start() {
@@ -111,11 +134,11 @@ public class MaterialShowcaseSequence implements IDetachedListener {
     private void showNextItem() {
 
         if (mShowcaseQueue.size() > 0 && !mActivity.isFinishing()) {
-            MaterialShowcaseView sequenceItem = mShowcaseQueue.remove();
-            sequenceItem.setDetachedListener(this);
-            sequenceItem.show(mActivity);
+            mCurrentShownShowcase = mShowcaseQueue.remove();
+            mCurrentShownShowcase.setDetachedListener(this);
+            mCurrentShownShowcase.show(mActivity);
             if (mOnItemShownListener != null) {
-                mOnItemShownListener.onShow(sequenceItem, mSequencePosition);
+                mOnItemShownListener.onShow(mCurrentShownShowcase, mSequencePosition);
             }
         } else {
             /**
@@ -127,10 +150,27 @@ public class MaterialShowcaseSequence implements IDetachedListener {
         }
     }
 
+    // Note: This is not meant to be a pause method, it will act like if user has finished this sequence
+    public void cancel() {
+
+        /**
+         * Act like we've reached the end of the sequence
+         */
+        while (mShowcaseQueue.poll() != null)
+            mSequencePosition++;
+
+        if (mPrefsManager != null)
+            mPrefsManager.setSequenceStatus(mSequencePosition);
+
+        if (mCurrentShownShowcase != null)
+            mCurrentShownShowcase.hide();
+    }
+
 
     @Override
     public void onShowcaseDetached(MaterialShowcaseView showcaseView, boolean wasDismissed) {
 
+        mCurrentShownShowcase = null;
         showcaseView.setDetachedListener(null);
 
         /**
