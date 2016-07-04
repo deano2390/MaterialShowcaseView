@@ -492,7 +492,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     /**
      * BUILDER CLASS
-     * Gives us a builder utility class with a fluent API for eaily configuring showcase views
+     * Gives us a builder utility class with a fluent API for easily configuring showcase views
      */
     public static class Builder {
         private static final int CIRCLE_SHAPE = 0;
@@ -513,10 +513,18 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
 
         /**
-         * Set the title text shown on the ShowcaseView.
+         * Set the target view.
          */
         public Builder setTarget(View target) {
             showcaseView.setTarget(new ViewTarget(target));
+            return this;
+        }
+
+        /**
+         * Set a custom target.
+         */
+        public Builder setTarget(Target target) {
+            showcaseView.setTarget(target);
             return this;
         }
 
