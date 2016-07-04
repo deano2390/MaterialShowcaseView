@@ -3,7 +3,6 @@ package uk.co.deanwild.materialshowcaseview;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -41,10 +40,6 @@ import uk.co.deanwild.materialshowcaseview.target.ViewTarget;
  */
 public class MaterialShowcaseView extends FrameLayout implements View.OnTouchListener, View.OnClickListener {
 
-    private int mOldHeight;
-    private int mOldWidth;
-    private Bitmap mBitmap;// = new WeakReference<>(null);
-    private Canvas mCanvas;
     private Paint mEraser;
     private Target mTarget;
     private Shape mShape;
@@ -80,27 +75,27 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     public MaterialShowcaseView(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
     public MaterialShowcaseView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init();
     }
 
     public MaterialShowcaseView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context);
+        init();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public MaterialShowcaseView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        init(context);
+        init();
     }
 
 
-    private void init(Context context) {
+    private void init() {
         setWillNotDraw(false);
 
         // create our animation factory
@@ -118,22 +113,25 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mMaskColour = Color.parseColor(ShowcaseConfig.DEFAULT_MASK_COLOUR);
         setVisibility(INVISIBLE);
 
+        // prepare eraser paint
+        mEraser = new Paint();
+        mEraser.setColor(0xFFFFFFFF);
+        mEraser.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        mEraser.setFlags(Paint.ANTI_ALIAS_FLAG);
 
         View contentView = LayoutInflater.from(getContext()).inflate(R.layout.showcase_content, this, true);
         mContentBox = contentView.findViewById(R.id.content_box);
-        mTitleTextView = (TextView) contentView.findViewById(R.id.tv_title);
         mContentTextView = (TextView) contentView.findViewById(R.id.tv_content);
         mDismissButton = (TextView) contentView.findViewById(R.id.tv_dismiss);
         mDismissButton.setOnClickListener(this);
+        setLayerType(LAYER_TYPE_SOFTWARE, null);
     }
 
 
     /**
-     * Interesting drawing stuff.
-     * We draw a block of semi transparent colour to fill the whole screen then we draw of transparency
-     * to create a circular "viewport" through to the underlying content
-     *
-     * @param canvas
+     * Interesting drawing stuff. We draw a block of semi transparent colour to fill the whole
+     * screen then we draw of transparency to create a circular "viewport" through to the underlying
+     * content
      */
     @Override
     protected void onDraw(Canvas canvas) {
@@ -142,46 +140,14 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         // don't bother drawing if we're not ready
         if (!mShouldRender) return;
 
-        // get current dimensions
-        final int width = getMeasuredWidth();
-        final int height = getMeasuredHeight();
-
-		// don't bother drawing if there is nothing to draw on
-		if(width <= 0 || height <= 0) return;
-
-        // build a new canvas if needed i.e first pass or new dimensions
-        if (mBitmap == null || mCanvas == null || mOldHeight != height || mOldWidth != width) {
-
-            if (mBitmap != null) mBitmap.recycle();
-
-            mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-
-            mCanvas = new Canvas(mBitmap);
-        }
-
-        // save our 'old' dimensions
-        mOldWidth = width;
-        mOldHeight = height;
-
         // clear canvas
-        mCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 
         // draw solid background
-        mCanvas.drawColor(mMaskColour);
-
-        // Prepare eraser Paint if needed
-        if (mEraser == null) {
-            mEraser = new Paint();
-            mEraser.setColor(0xFFFFFFFF);
-            mEraser.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-            mEraser.setFlags(Paint.ANTI_ALIAS_FLAG);
-        }
+        canvas.drawColor(mMaskColour);
 
         // draw (erase) shape
-        mShape.draw(mCanvas, mEraser, mXPosition, mYPosition, mShapePadding);
-
-        // Draw the bitmap on our views  canvas.
-        canvas.drawBitmap(mBitmap, 0, 0, null);
+        mShape.draw(canvas, mEraser, mXPosition, mYPosition, mShapePadding);
     }
 
     @Override
@@ -220,10 +186,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private void notifyOnDisplayed() {
 
 		if(mListeners != null){
-			for (IShowcaseListener listener : mListeners) {
-				listener.onShowcaseDisplayed(this);
-			}
-		}
+        for (IShowcaseListener listener : mListeners) {
+            listener.onShowcaseDisplayed(this);
+        }
+    }
     }
 
     private void notifyOnDismissed() {
@@ -246,8 +212,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     /**
      * Dismiss button clicked
-     *
-     * @param v
      */
     @Override
     public void onClick(View v) {
@@ -255,11 +219,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     }
 
     /**
-     * Tells us about the "Target" which is the view we want to anchor to.
-     * We figure out where it is on screen and (optionally) how big it is.
-     * We also figure out whether to place our content and dismiss button above or below it.
-     *
-     * @param target
+     * Tells us about the "Target" which is the view we want to anchor to. We figure out where it is
+     * on screen and (optionally) how big it is. We also figure out whether to place our content and
+     * dismiss button above or below it.
      */
     public void setTarget(Target target) {
         mTarget = target;
@@ -272,12 +234,12 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             /**
              * If we're on lollipop then make sure we don't draw over the nav bar
              */
-            if (!mRenderOverNav && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                mBottomMargin = getSoftButtonsBarSizePort((Activity) getContext());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                int bottomMargin = getSoftButtonsBarSizePort((Activity) getContext());
                 FrameLayout.LayoutParams contentLP = (LayoutParams) getLayoutParams();
 
-                if (contentLP != null && contentLP.bottomMargin != mBottomMargin)
-                    contentLP.bottomMargin = mBottomMargin;
+                if (contentLP != null && contentLP.bottomMargin != bottomMargin)
+                    contentLP.bottomMargin = bottomMargin;
             }
 
             // apply the target position
@@ -418,25 +380,25 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mFadeDurationInMillis = fadeDurationInMillis;
     }
 
-    private void setTargetTouchable(boolean targetTouchable){
+    private void setTargetTouchable(boolean targetTouchable) {
         mTargetTouchable = targetTouchable;
     }
 
-    private void setDismissOnTargetTouch(boolean dismissOnTargetTouch){
+    private void setDismissOnTargetTouch(boolean dismissOnTargetTouch) {
         mDismissOnTargetTouch = dismissOnTargetTouch;
     }
 
     public void addShowcaseListener(IShowcaseListener showcaseListener) {
 
-		if(mListeners != null)
-			mListeners.add(showcaseListener);
+        if (mListeners != null)
+            mListeners.add(showcaseListener);
     }
 
     public void removeShowcaseListener(MaterialShowcaseSequence showcaseListener) {
 
-		if ((mListeners != null) && mListeners.contains(showcaseListener)) {
-			mListeners.remove(showcaseListener);
-		}
+        if ((mListeners != null) && mListeners.contains(showcaseListener)) {
+            mListeners.remove(showcaseListener);
+        }
     }
 
     void setDetachedListener(IDetachedListener detachedListener) {
@@ -449,8 +411,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     /**
      * Set properties based on a config object
-     *
-     * @param config
      */
     public void setConfig(ShowcaseConfig config) {
         setDelay(config.getDelay());
@@ -491,8 +451,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
 
     /**
-     * BUILDER CLASS
-     * Gives us a builder utility class with a fluent API for easily configuring showcase views
+     * BUILDER CLASS Gives us a builder utility class with a fluent API for easily configuring
+     * showcase views
      */
     public static class Builder {
         private static final int CIRCLE_SHAPE = 0;
@@ -527,6 +487,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             showcaseView.setTarget(target);
             return this;
         }
+
 
         /**
          * Set the title text shown on the ShowcaseView.
@@ -575,7 +536,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
          *
          * False by default.
          */
-        public Builder setTargetTouchable(boolean targetTouchable){
+        public Builder setTargetTouchable(boolean targetTouchable) {
             showcaseView.setTargetTouchable(targetTouchable);
             return this;
         }
@@ -585,7 +546,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
          *
          * True by default.
          */
-        public Builder setDismissOnTargetTouch(boolean dismissOnTargetTouch){
+        public Builder setDismissOnTargetTouch(boolean dismissOnTargetTouch) {
             showcaseView.setDismissOnTargetTouch(dismissOnTargetTouch);
             return this;
         }
@@ -711,14 +672,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             ((ViewGroup) getParent()).removeView(this);
         }
 
-        if (mBitmap != null) {
-            mBitmap.recycle();
-            mBitmap = null;
-        }
-
         mEraser = null;
         mAnimationFactory = null;
-        mCanvas = null;
         mHandler = null;
 
         getViewTreeObserver().removeGlobalOnLayoutListener(mLayoutListener);
@@ -735,9 +690,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     /**
      * Reveal the showcaseview. Returns a boolean telling us whether we actually did show anything
-     *
-     * @param activity
-     * @return
      */
     public boolean show(final Activity activity) {
 
@@ -821,9 +773,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     /**
      * Static helper method for resetting single use flag
-     *
-     * @param context
-     * @param showcaseID
      */
     public static void resetSingleUse(Context context, String showcaseID) {
         PrefsManager.resetShowcase(context, showcaseID);
@@ -831,8 +780,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     /**
      * Static helper method for resetting all single use flags
-     *
-     * @param context
      */
     public static void resetAll(Context context) {
         PrefsManager.resetAll(context);
