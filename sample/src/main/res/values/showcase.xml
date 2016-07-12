@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Simple Activity Adapter Example-->
+    <string-array name="showcase_simple_activity_adapter_example_titles">
+        <item></item>
+        <item></item>
+        <item></item>
+    </string-array>
+    <string-array name="showcase_simple_activity_adapter_example_views">
+        <item>@id/btn_one</item>
+        <item>@id/btn_two</item>
+        <item>@id/btn_three</item>
+    </string-array>
+    <string-array name="showcase_simple_activity_adapter_example_contents">
+        <item>This is button one</item>
+        <item>This is button two</item>
+        <item>This is button three</item>
+    </string-array>
+    <string-array name="showcase_simple_activity_adapter_example_buttons">
+        <item>GOT IT</item>
+        <item>GOT IT</item>
+        <item>GOT IT</item>
+    </string-array>
+    <string-array name="showcase_simple_activity_adapter_example_shapes">
+        <item>circle</item>
+        <item>rectangle</item>
+        <item>rectangle</item>
+    </string-array>
+    <array name="showcase_simple_activity_adapter_example">
+        <item>@array/showcase_simple_activity_adapter_example_views</item>
+        <item>@array/showcase_simple_activity_adapter_example_titles</item>
+        <item>@array/showcase_simple_activity_adapter_example_contents</item>
+        <item>@array/showcase_simple_activity_adapter_example_buttons</item>
+        <item>@array/showcase_simple_activity_adapter_example_shapes</item>
+    </array>
+    <!--Simple Activity Adapter Example-->
+</resources>

@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.btn_sequence_example:
-                intent = new Intent(this, SequenceExample.class);
+                intent = new Intent(this, ActivityAdapterExample.class);
                 break;
 
             case R.id.btn_reset_all:

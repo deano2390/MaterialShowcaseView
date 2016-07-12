@@ -78,6 +78,96 @@ This is the basic usage of a single showcase view, you should check out the samp
                 
 ```
 
+This is the advance usage of MaterialShowCase using Adapters, this will encapsulate everything for you.
+
+**In your Activity**
+```java
+
+	    @Override
+        protected void onStart() {
+            super.onStart();
+            // With Pool Management to run 1 Sequence or 1 View at a time.
+            // Material Show Case Initialization
+            MaterialShowCaseAdapter.initialize(this, CustomAdapter.class);
+            // Simple Material Show Case Initialization
+            MaterialShowCaseAdapter.initialize(this, R.array.showcase_simple_activity_adapter_example, "SimpleActivityAdapterExample");
+        }
+
+```
+
+**If you're using custom adapter**
+```java
+
+	public class CustomAdapter extends MaterialShowCaseAdapter {
+
+        public CustomAdapter(Activity activity) {
+            super(
+                    activity,
+                    MaterialShowCaseAdapter.SHOW_CASE_DELAY, // DELAY
+                    "ActivityAdapterExample" // ID
+            );
+        }
+
+        @Override // Setup of all show cases views
+        public void setup() {
+            super.addToQueue(R.id.btn_one, "", "This is button one","GOT IT", MaterialShowCaseViewShape.CIRCLE);
+            super.addToQueue(R.id.btn_two, "", "This is button two","GOT IT", MaterialShowCaseViewShape.RECTANGLE);
+            super.addToQueue(R.id.btn_three, "", "This is button three","GOT IT", MaterialShowCaseViewShape.RECTANGLE);
+        }
+
+        @Override // Behavior
+        public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {
+            super.onDismiss(materialShowcaseView, i);
+            switch (currentQueueItemId){
+                case 1:
+                    Toast.makeText(activity, "You GOT Button One, nice!", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    }
+
+```
+
+**If you're using simple adapter, use a resource array**, you can use this for simple show cases.
+```xml
+
+    <!--Simple Activity Adapter Example-->
+        <string-array name="showcase_simple_activity_adapter_example_titles">
+            <item></item>
+            <item></item>
+            <item></item>
+        </string-array>
+        <string-array name="showcase_simple_activity_adapter_example_views">
+            <item>@id/btn_one</item>
+            <item>@id/btn_two</item>
+            <item>@id/btn_three</item>
+        </string-array>
+        <string-array name="showcase_simple_activity_adapter_example_contents">
+            <item>This is button one</item>
+            <item>This is button two</item>
+            <item>This is button three</item>
+        </string-array>
+        <string-array name="showcase_simple_activity_adapter_example_buttons">
+            <item>GOT IT</item>
+            <item>GOT IT</item>
+            <item>GOT IT</item>
+        </string-array>
+        <string-array name="showcase_simple_activity_adapter_example_shapes">
+            <item>circle</item>
+            <item>rectangle</item>
+            <item>rectangle</item>
+        </string-array>
+        <array name="showcase_simple_activity_adapter_example">
+            <item>@array/showcase_simple_activity_adapter_example_views</item>
+            <item>@array/showcase_simple_activity_adapter_example_titles</item>
+            <item>@array/showcase_simple_activity_adapter_example_contents</item>
+            <item>@array/showcase_simple_activity_adapter_example_buttons</item>
+            <item>@array/showcase_simple_activity_adapter_example_shapes</item>
+        </array>
+    <!--Simple Activity Adapter Example-->
+
+```
+
 # Why Jitpack
 ------------
 Publishing libraries to Maven is a chore that takes time and effort. Jitpack.io allows me to release without ever leaving GitHub so I can release easily and more often.
