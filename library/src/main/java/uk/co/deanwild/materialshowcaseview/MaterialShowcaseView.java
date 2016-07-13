@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -394,6 +395,26 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
     }
 
+    private void setDismissTextGravity(int dismissTextGravity){
+        if (mDismissButton != null) {
+            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) this.mDismissButton.getLayoutParams();
+            layoutParams.gravity = dismissTextGravity;
+            this.mDismissButton.setLayoutParams(layoutParams);
+        }
+    }
+
+    private void setContentTextGravity(int contentTextGravity){
+        if(mContentTextView != null ) {
+            this.mContentTextView.setGravity(contentTextGravity);
+        }
+    }
+
+    private void setTitleTextGravity(int titleTextGravity){
+        if(mTitleTextView != null ) {
+            this.mTitleTextView.setGravity(titleTextGravity);
+        }
+    }
+
     private void setShapePadding(int padding) {
         mShapePadding = padding;
     }
@@ -560,6 +581,21 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         public Builder setTitleText(CharSequence text) {
             showcaseView.setTitleText(text);
             return this;
+        }
+
+        private Builder setDismissTextGravity(int dismissTextGravity){
+            showcaseView.setDismissTextGravity(dismissTextGravity);
+            return this ;
+        }
+
+        private Builder setContentTextGravity(int mGravity){
+            showcaseView.setContentTextGravity(mGravity);
+            return this ;
+        }
+
+        private Builder setTitleTextGravity(int mGravity){
+            showcaseView.setTitleTextGravity(mGravity);
+            return this ;
         }
 
         /**

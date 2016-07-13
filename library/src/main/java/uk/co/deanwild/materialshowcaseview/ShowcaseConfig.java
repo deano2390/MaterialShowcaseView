@@ -1,6 +1,7 @@
 package uk.co.deanwild.materialshowcaseview;
 
 import android.graphics.Color;
+import android.view.Gravity;
 
 import uk.co.deanwild.materialshowcaseview.shape.CircleShape;
 import uk.co.deanwild.materialshowcaseview.shape.Shape;
@@ -13,6 +14,7 @@ public class ShowcaseConfig {
     public static final long DEFAULT_DELAY = 0;
     public static final Shape DEFAULT_SHAPE = new CircleShape();
     public static final int DEFAULT_SHAPE_PADDING = 10;
+    public static final int DEFAULT_TEXT_GRAVITY = Gravity.LEFT;
 
     private long mDelay = DEFAULT_DELAY;
     private int mMaskColour;
@@ -22,6 +24,9 @@ public class ShowcaseConfig {
     private Shape mShape = DEFAULT_SHAPE;
     private int mShapePadding = DEFAULT_SHAPE_PADDING;
     private boolean renderOverNav = false;
+    private int dismissTextGravity = DEFAULT_TEXT_GRAVITY ;
+    private int titleTextGravity = DEFAULT_TEXT_GRAVITY ;
+    private int contentTextGravity = DEFAULT_TEXT_GRAVITY ;
 
     public ShowcaseConfig() {
         mMaskColour = Color.parseColor(ShowcaseConfig.DEFAULT_MASK_COLOUR);
@@ -91,5 +96,29 @@ public class ShowcaseConfig {
 
     public void setRenderOverNavigationBar(boolean renderOverNav) {
         this.renderOverNav = renderOverNav;
+    }
+
+    public void setDismissTextGravity(int dismissTextGravity) {
+        this.dismissTextGravity = dismissTextGravity;
+    }
+
+    public void setTitleTextGravity(int titleTextGravity) {
+        this.titleTextGravity = titleTextGravity;
+    }
+
+    public void setContentTextGravity(int contentTextGravity) {
+        this.contentTextGravity = contentTextGravity;
+    }
+
+    public int getDismissTextGravity() {
+        return dismissTextGravity;
+    }
+
+    public int getTitleTextGravity() {
+        return titleTextGravity;
+    }
+
+    public int getContentTextGravity() {
+        return contentTextGravity;
     }
 }
