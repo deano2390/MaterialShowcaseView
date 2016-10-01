@@ -11,6 +11,7 @@ import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -376,6 +377,14 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
     }
 
+    private void setDismissStyle(Typeface dismissStyle) {
+        if (mDismissButton != null) {
+            mDismissButton.setTypeface(dismissStyle);
+
+            updateDismissButton();
+        }
+    }
+
     private void setTitleTextColor(int textColour) {
         if (mTitleTextView != null) {
             mTitleTextView.setTextColor(textColour);
@@ -457,6 +466,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         setFadeDuration(config.getFadeDuration());
         setContentTextColor(config.getContentTextColor());
         setDismissTextColor(config.getDismissTextColor());
+        setDismissStyle(config.getDismissTextStyle());
+
         setMaskColour(config.getMaskColor());
         setShape(config.getShape());
         setShapePadding(config.getShapePadding());
@@ -529,6 +540,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         public Builder setDismissText(CharSequence dismissText) {
             showcaseView.setDismissText(dismissText);
+            return this;
+        }
+
+        public Builder setDismissStyle(Typeface dismissStyle) {
+            showcaseView.setDismissStyle(dismissStyle);
             return this;
         }
 

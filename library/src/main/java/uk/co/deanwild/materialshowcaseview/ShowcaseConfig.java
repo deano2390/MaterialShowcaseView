@@ -1,6 +1,7 @@
 package uk.co.deanwild.materialshowcaseview;
 
 import android.graphics.Color;
+import android.graphics.Typeface;
 
 import uk.co.deanwild.materialshowcaseview.shape.CircleShape;
 import uk.co.deanwild.materialshowcaseview.shape.Shape;
@@ -16,6 +17,8 @@ public class ShowcaseConfig {
 
     private long mDelay = DEFAULT_DELAY;
     private int mMaskColour;
+    private Typeface mDismissTextStyle = Typeface.DEFAULT_BOLD;
+
     private int mContentTextColor;
     private int mDismissTextColor;
     private long mFadeDuration = DEFAULT_FADE_TIME;
@@ -59,6 +62,14 @@ public class ShowcaseConfig {
 
     public void setDismissTextColor(int dismissTextColor) {
         this.mDismissTextColor = dismissTextColor;
+    }
+
+    public Typeface getDismissTextStyle() {
+        return mDismissTextStyle;
+    }
+
+    public void setDismissTextStyle(Typeface dismissTextStyle) {
+        this.mDismissTextStyle = dismissTextStyle;
     }
 
     public long getFadeDuration() {
