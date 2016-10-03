@@ -41,18 +41,25 @@ import uk.co.deanwild.materialshowcaseview.target.ViewTarget;
  */
 public class MaterialShowcaseView extends FrameLayout implements View.OnTouchListener, View.OnClickListener {
 
-    private int mOldHeight;
-    private int mOldWidth;
-    private Bitmap mBitmap;// = new WeakReference<>(null);
-    private Canvas mCanvas;
-    private Paint mEraser;
-    private Target mTarget;
-    private Shape mShape;
-    private int mXPosition;
-    private int mYPosition;
-    private boolean mWasDismissed = false;
-    private int mShapePadding = ShowcaseConfig.DEFAULT_SHAPE_PADDING;
+    protected int mOldHeight;
+    protected int mOldWidth;
+    protected Bitmap mBitmap;// = new WeakReference<>(null);
+    protected Canvas mCanvas;
+    protected Paint mEraser;
+    protected Target mTarget;
+    protected Shape mShape;
+    protected int mXPosition;
+    protected int mYPosition;
+    protected int mShapePadding = ShowcaseConfig.DEFAULT_SHAPE_PADDING;
+    protected boolean mDismissOnTouch = false;
+    protected boolean mShouldRender = false; // flag to decide when we should actually render
+    protected int mMaskColour;
+    protected boolean mSingleUse = false; // should display only once
+    protected PrefsManager mPrefsManager; // used to store state doe single use mode
+    protected boolean mTargetTouchable = false;
+    protected boolean mDismissOnTargetTouch = true;
 
+    private boolean mWasDismissed = false;
     private View mContentBox;
     private TextView mTitleTextView;
     private TextView mContentTextView;
@@ -60,23 +67,16 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private int mGravity;
     private int mContentBottomMargin;
     private int mContentTopMargin;
-    private boolean mDismissOnTouch = false;
-    private boolean mShouldRender = false; // flag to decide when we should actually render
     private boolean mRenderOverNav = false;
-    private int mMaskColour;
     private AnimationFactory mAnimationFactory;
     private boolean mShouldAnimate = true;
     private long mFadeDurationInMillis = ShowcaseConfig.DEFAULT_FADE_TIME;
     private Handler mHandler;
     private long mDelayInMillis = ShowcaseConfig.DEFAULT_DELAY;
     private int mBottomMargin = 0;
-    private boolean mSingleUse = false; // should display only once
-    private PrefsManager mPrefsManager; // used to store state doe single use mode
-    List<IShowcaseListener> mListeners; // external listeners who want to observe when we show and dismiss
+    private List<IShowcaseListener> mListeners; // external listeners who want to observe when we show and dismiss
     private UpdateOnGlobalLayout mLayoutListener;
     private IDetachedListener mDetachedListener;
-    private boolean mTargetTouchable = false;
-    private boolean mDismissOnTargetTouch = true;
 
     public MaterialShowcaseView(Context context) {
         super(context);
@@ -119,7 +119,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         setVisibility(INVISIBLE);
 
 
-        View contentView = LayoutInflater.from(getContext()).inflate(R.layout.showcase_content, this, true);
+        View contentView = LayoutInflater.from(getContext()).inflate(getLayoutFile(), this, true);
         mContentBox = contentView.findViewById(R.id.content_box);
         mTitleTextView = (TextView) contentView.findViewById(R.id.tv_title);
         mContentTextView = (TextView) contentView.findViewById(R.id.tv_content);
@@ -127,7 +127,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mDismissButton.setOnClickListener(this);
     }
 
-
+    public int getLayoutFile() {
+        return R.layout.showcase_content;
+    }
     /**
      * Interesting drawing stuff.
      * We draw a block of semi transparent colour to fill the whole screen then we draw of transparency
@@ -211,6 +213,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             if(mDismissOnTargetTouch){
                 hide();
             }
+
             return false;
         }
         return true;
@@ -502,13 +505,16 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         private boolean fullWidth = false;
         private int shapeType = CIRCLE_SHAPE;
 
-        final MaterialShowcaseView showcaseView;
+        protected MaterialShowcaseView showcaseView;
 
         private final Activity activity;
 
         public Builder(Activity activity) {
             this.activity = activity;
+            init(activity);
 
+        }
+        protected void init(Activity activity) {
             showcaseView = new MaterialShowcaseView(activity);
         }
 
