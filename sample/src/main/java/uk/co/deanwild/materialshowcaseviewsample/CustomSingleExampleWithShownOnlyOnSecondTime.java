@@ -32,10 +32,6 @@ public class CustomSingleExampleWithShownOnlyOnSecondTime extends AppCompatActiv
         ViewTimesPerfManager manager = new ViewTimesPerfManager(getApplicationContext(), SHOWCASE_ID);
         manager.setHasSeen();
 
-        if (!manager.hasSeenFirstTime()) {
-            return;
-        }
-
         View.OnClickListener targetListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -1,27 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/content_box"
+    android:id="@+id/contentwrapper"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="@drawable/content_box_background">
 
     <TextView
-        android:id="@+id/tv_title"
+        android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@android:color/white"
         android:textSize="22sp" />
 
-    <TextView
-        android:id="@+id/tv_content"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"/>
-
-    <TextView
-        android:id="@+id/tv_dismiss"
+    <Button
+        android:id="@+id/dismiss"
         android:background="@drawable/dismiss_button_background"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
