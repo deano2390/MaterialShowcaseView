@@ -46,17 +46,8 @@ public class MaterialShowcaseWithCustomView extends MaterialShowcaseView {
 
 
     @Override
-    protected void drawHighlightView(Canvas canvas, Paint eraser, Shape shape, int xPosition,
-                                     int yPosition, int shapePadding) {
-        if (eraser == null) {
-            eraser = new Paint();
-            eraser.setFlags(Paint.ANTI_ALIAS_FLAG);
-        }
-
-        //Erase the background for the target area
-        eraser.setXfermode(CLEAR_PORTER_DUFF_XFER_MODE);
-        shape.draw(canvas, eraser, xPosition, yPosition, shapePadding);
-
+    protected void drawBoarder(Canvas canvas, Paint eraser, Shape shape, int xPosition,
+         int yPosition, int shapePadding) {
         //Draw the outer circle
         eraser.setColor(ContextCompat.getColor(getContext(), R.color.babu));
         eraser.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.OVERLAY));
@@ -66,7 +57,6 @@ public class MaterialShowcaseWithCustomView extends MaterialShowcaseView {
         eraser.setColor(ContextCompat.getColor(getContext(), R.color.transparent));
         eraser.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
         shape.draw(canvas, eraser, xPosition, yPosition, shapePadding - targetBoarderWidth);
-
     }
 
     @Override
