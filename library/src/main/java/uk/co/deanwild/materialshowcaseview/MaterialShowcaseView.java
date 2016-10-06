@@ -188,25 +188,26 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         // draw solid background
         mCanvas.drawColor(mMaskColour);
 
-        drawHighlightView(mCanvas, mEraser, mShape, mXPosition, mYPosition, mShapePadding);
+        // Prepare eraser Paint if needed
+        if (mEraser == null) {
+            mEraser = new Paint();
+            mEraser.setColor(0xFFFFFFFF);
+            mEraser.setXfermode(CLEAR_PORTER_DUFF_XFER_MODE);
+            mEraser.setFlags(Paint.ANTI_ALIAS_FLAG);
+        }
+
+        // draw (erase) shape
+        mShape.draw(mCanvas, mEraser, mXPosition, mYPosition, mShapePadding);
+
+        //draw boarder for the highlighted area
+        drawBoarder(mCanvas, mEraser, mShape, mXPosition, mYPosition, mShapePadding);
 
         // Draw the bitmap on our views  canvas.
         canvas.drawBitmap(mBitmap, 0, 0, null);
     }
 
-    protected void drawHighlightView(Canvas canvas, Paint eraser, Shape shape, int xPosition,
-                                     int yPosition, int shapePadding) {
-        // Prepare eraser Paint if needed
-        if (eraser == null) {
-            eraser = new Paint();
-            eraser.setColor(0xFFFFFFFF);
-            eraser.setXfermode(CLEAR_PORTER_DUFF_XFER_MODE);
-            eraser.setFlags(Paint.ANTI_ALIAS_FLAG);
-        }
-
-        // draw (erase) shape
-        shape.draw(canvas, eraser, xPosition, yPosition, shapePadding);
-    }
+    protected void drawBoarder(Canvas canvas, Paint eraser, Shape shape, int xPosition,
+       int yPosition, int shapePadding) { }
 
     @Override
     protected void onDetachedFromWindow() {
