@@ -488,10 +488,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                 mDismissButton.setVisibility(VISIBLE);
             }
         }
-
-        if (isSequence) {
-            mSkipButton.setVisibility(VISIBLE);
-        }
     }
 
     public boolean hasFired() {
