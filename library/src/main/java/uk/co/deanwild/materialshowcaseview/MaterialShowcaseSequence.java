@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 
-public class MaterialShowcaseSequence implements IDetachedListener {
+public class MaterialShowcaseSequence implements IInitedListener, IDetachedListener {
 
     PrefsManager mPrefsManager;
     Queue<MaterialShowcaseView> mShowcaseQueue;
@@ -16,6 +16,7 @@ public class MaterialShowcaseSequence implements IDetachedListener {
     private ShowcaseConfig mConfig;
     private int mSequencePosition = 0;
 
+    private OnSequenceItemInitedListener mOnItemInitedListener = null;
     private OnSequenceItemShownListener mOnItemShownListener = null;
     private OnSequenceItemDismissedListener mOnItemDismissedListener = null;
 
@@ -27,6 +28,12 @@ public class MaterialShowcaseSequence implements IDetachedListener {
     public MaterialShowcaseSequence(Activity activity, String sequenceID) {
         this(activity);
         this.singleUse(sequenceID);
+    }
+
+    // added
+    public MaterialShowcaseSequence addSequenceItem(View targetView, String content) {
+        addSequenceItem(targetView, content, null);
+        return this;
     }
 
     public MaterialShowcaseSequence addSequenceItem(View targetView, String content, String dismissText) {
@@ -60,6 +67,10 @@ public class MaterialShowcaseSequence implements IDetachedListener {
         mSingleUse = true;
         mPrefsManager = new PrefsManager(mActivity, sequenceID);
         return this;
+    }
+
+    public void setOnItemInitedListener(OnSequenceItemInitedListener listener) {
+        this.mOnItemInitedListener = listener;
     }
 
     public void setOnItemShownListener(OnSequenceItemShownListener listener) {
@@ -112,6 +123,7 @@ public class MaterialShowcaseSequence implements IDetachedListener {
 
         if (mShowcaseQueue.size() > 0 && !mActivity.isFinishing()) {
             MaterialShowcaseView sequenceItem = mShowcaseQueue.remove();
+            sequenceItem.setInitedListener(this);
             sequenceItem.setDetachedListener(this);
             sequenceItem.show(mActivity);
             if (mOnItemShownListener != null) {
@@ -127,6 +139,13 @@ public class MaterialShowcaseSequence implements IDetachedListener {
         }
     }
 
+    @Override
+    public void onShowcaseInited(MaterialShowcaseView showcaseView) {
+        showcaseView.setInitedListener(null);
+        if (mOnItemInitedListener != null) {
+            mOnItemInitedListener.onInited(showcaseView, mSequencePosition);
+        }
+    }
 
     @Override
     public void onShowcaseDetached(MaterialShowcaseView showcaseView, boolean wasDismissed) {
@@ -164,6 +183,10 @@ public class MaterialShowcaseSequence implements IDetachedListener {
 
     public interface OnSequenceItemDismissedListener {
         void onDismiss(MaterialShowcaseView itemView, int position);
+    }
+
+    public interface OnSequenceItemInitedListener {
+        void onInited(MaterialShowcaseView itemView, int position);
     }
 
 }

@@ -24,7 +24,7 @@ public class PrefsManager {
     /***
      * METHODS FOR INDIVIDUAL SHOWCASE VIEWS
      */
-    boolean hasFired() {
+    public boolean hasFired() {
         int status = getSequenceStatus();
         return (status == SEQUENCE_FINISHED);
     }
