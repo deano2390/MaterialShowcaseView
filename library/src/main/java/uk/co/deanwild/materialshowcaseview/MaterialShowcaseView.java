@@ -64,8 +64,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private boolean mShouldRender = false; // flag to decide when we should actually render
     private boolean mRenderOverNav = false;
     private int mMaskColour;
-    private AnimationFactory mAnimationFactory;
+    private IAnimationFactory mAnimationFactory;
     private boolean mShouldAnimate = true;
+    private boolean mUseFadeAnimation = false;
     private long mFadeDurationInMillis = ShowcaseConfig.DEFAULT_FADE_TIME;
     private Handler mHandler;
     private long mDelayInMillis = ShowcaseConfig.DEFAULT_DELAY;
@@ -102,9 +103,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     private void init(Context context) {
         setWillNotDraw(false);
-
-        // create our animation factory
-        mAnimationFactory = new AnimationFactory();
 
         mListeners = new ArrayList<>();
 
@@ -146,8 +144,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         final int width = getMeasuredWidth();
         final int height = getMeasuredHeight();
 
-		// don't bother drawing if there is nothing to draw on
-		if(width <= 0 || height <= 0) return;
+        // don't bother drawing if there is nothing to draw on
+        if(width <= 0 || height <= 0) return;
 
         // build a new canvas if needed i.e first pass or new dimensions
         if (mBitmap == null || mCanvas == null || mOldHeight != height || mOldWidth != width) {
@@ -219,11 +217,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     private void notifyOnDisplayed() {
 
-		if(mListeners != null){
-			for (IShowcaseListener listener : mListeners) {
-				listener.onShowcaseDisplayed(this);
-			}
-		}
+        if(mListeners != null){
+            for (IShowcaseListener listener : mListeners) {
+                listener.onShowcaseDisplayed(this);
+            }
+        }
     }
 
     private void notifyOnDismissed() {
@@ -426,17 +424,21 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mDismissOnTargetTouch = dismissOnTargetTouch;
     }
 
+    private void setUseFadeAnimation(boolean useFadeAnimation) {
+        mUseFadeAnimation = useFadeAnimation;
+    }
+
     public void addShowcaseListener(IShowcaseListener showcaseListener) {
 
-		if(mListeners != null)
-			mListeners.add(showcaseListener);
+        if(mListeners != null)
+            mListeners.add(showcaseListener);
     }
 
     public void removeShowcaseListener(MaterialShowcaseSequence showcaseListener) {
 
-		if ((mListeners != null) && mListeners.contains(showcaseListener)) {
-			mListeners.remove(showcaseListener);
-		}
+        if ((mListeners != null) && mListeners.contains(showcaseListener)) {
+            mListeners.remove(showcaseListener);
+        }
     }
 
     void setDetachedListener(IDetachedListener detachedListener) {
@@ -445,6 +447,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     public void setShape(Shape mShape) {
         this.mShape = mShape;
+    }
+
+    public void setAnimationFactory(IAnimationFactory animationFactory) {
+        this.mAnimationFactory = animationFactory;
     }
 
     /**
@@ -663,6 +669,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             return this;
         }
 
+        public Builder useFadeAnimation() {
+            showcaseView.setUseFadeAnimation(true);
+            return this;
+        }
+
         public MaterialShowcaseView build() {
             if (showcaseView.mShape == null) {
                 switch (shapeType) {
@@ -680,6 +691,16 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                     }
                     default:
                         throw new IllegalArgumentException("Unsupported shape type: " + shapeType);
+                }
+            }
+
+            if (showcaseView.mAnimationFactory == null) {
+                // create our animation factory
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !showcaseView.mUseFadeAnimation) {
+                    showcaseView.setAnimationFactory(new CircularRevealAnimationFactory());
+                }
+                else {
+                    showcaseView.setAnimationFactory(new FadeAnimationFactory());
                 }
             }
 
@@ -754,7 +775,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             public void run() {
 
                 if (mShouldAnimate) {
-                    fadeIn();
+                    animateIn();
                 } else {
                     setVisibility(VISIBLE);
                     notifyOnDisplayed();
@@ -776,16 +797,16 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mWasDismissed = true;
 
         if (mShouldAnimate) {
-            fadeOut();
+            animateOut();
         } else {
             removeFromWindow();
         }
     }
 
-    public void fadeIn() {
+    public void animateIn() {
         setVisibility(INVISIBLE);
 
-        mAnimationFactory.fadeInView(this, mFadeDurationInMillis,
+        mAnimationFactory.animateInView(this, mTarget.getPoint(), mFadeDurationInMillis,
                 new IAnimationFactory.AnimationStartListener() {
                     @Override
                     public void onAnimationStart() {
@@ -796,9 +817,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         );
     }
 
-    public void fadeOut() {
+    public void animateOut() {
 
-        mAnimationFactory.fadeOutView(this, mFadeDurationInMillis, new IAnimationFactory.AnimationEndListener() {
+        mAnimationFactory.animateOutView(this, mTarget.getPoint(), mFadeDurationInMillis, new IAnimationFactory.AnimationEndListener() {
             @Override
             public void onAnimationEnd() {
                 setVisibility(INVISIBLE);
