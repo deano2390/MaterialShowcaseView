@@ -82,6 +82,12 @@ This is the basic usage of a single showcase view, you should check out the samp
 ------------
 Publishing libraries to Maven is a chore that takes time and effort. Jitpack.io allows me to release without ever leaving GitHub so I can release easily and more often.
 
+# Apps using MaterialShowcaseView
+---------------------------------
+
+  * [Say It! - English Learning](https://play.google.com/store/apps/details?id=com.cesarsk.say_it) : An Android App aimed to improve your English Pronunciation. 
+    * [Github Page](https://github.com/cesarsk/say_it)
+
 
 # License
 -------
