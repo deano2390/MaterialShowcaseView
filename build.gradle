@@ -8,7 +8,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.android.tools.build:gradle:2.2.3'
         // This does not break the build when Android Studio is missing the JRebel for Android plugin.
         classpath 'com.zeroturnaround.jrebel.android:jr-android-gradle:0.8.+'
 
