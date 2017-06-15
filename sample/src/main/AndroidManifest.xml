@@ -28,6 +28,10 @@
             android:name=".SequenceExample"
             android:label="@string/title_activity_sequence_example" >
         </activity>
+        <activity
+            android:name=".CustomSingleExampleWithShownOnlyOnSecondTime"
+            android:label="@string/title_activity_custom_single_example" >
+        </activity>
     </application>
 
 </manifest>

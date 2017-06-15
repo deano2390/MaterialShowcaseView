@@ -22,6 +22,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -40,6 +41,8 @@ import uk.co.deanwild.materialshowcaseview.target.ViewTarget;
  * Helper class to show a sequence of showcase views.
  */
 public class MaterialShowcaseView extends FrameLayout implements View.OnTouchListener, View.OnClickListener {
+    protected static final PorterDuffXfermode CLEAR_PORTER_DUFF_XFER_MODE =
+            new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
 
     private int mOldHeight;
     private int mOldWidth;
@@ -50,33 +53,33 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private Shape mShape;
     private int mXPosition;
     private int mYPosition;
-    private boolean mWasDismissed = false;
     private int mShapePadding = ShowcaseConfig.DEFAULT_SHAPE_PADDING;
-
+    private boolean mDismissOnTouch = false;
+    private boolean mShouldRender = false; // flag to decide when we should actually render
+    private int mMaskColour;
+    private boolean mSingleUse = false; // should display only once
+    private PrefsManager mPrefsManager; // used to store state doe single use mode
+    private boolean mTargetTouchable = false;
+    private boolean mDismissOnTargetTouch = true;
+    private boolean mWasDismissed = false;
     private View mContentBox;
     private TextView mTitleTextView;
     private TextView mContentTextView;
-    private TextView mDismissButton;
+    private View mDismissButton;
     private int mGravity;
     private int mContentBottomMargin;
     private int mContentTopMargin;
-    private boolean mDismissOnTouch = false;
-    private boolean mShouldRender = false; // flag to decide when we should actually render
     private boolean mRenderOverNav = false;
-    private int mMaskColour;
     private AnimationFactory mAnimationFactory;
     private boolean mShouldAnimate = true;
     private long mFadeDurationInMillis = ShowcaseConfig.DEFAULT_FADE_TIME;
     private Handler mHandler;
     private long mDelayInMillis = ShowcaseConfig.DEFAULT_DELAY;
     private int mBottomMargin = 0;
-    private boolean mSingleUse = false; // should display only once
-    private PrefsManager mPrefsManager; // used to store state doe single use mode
-    List<IShowcaseListener> mListeners; // external listeners who want to observe when we show and dismiss
+    private List<IShowcaseListener> mListeners; // external listeners who want to observe when we show and dismiss
     private UpdateOnGlobalLayout mLayoutListener;
     private IDetachedListener mDetachedListener;
-    private boolean mTargetTouchable = false;
-    private boolean mDismissOnTargetTouch = true;
+    private View contentView;
 
     public MaterialShowcaseView(Context context) {
         super(context);
@@ -118,16 +121,32 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mMaskColour = Color.parseColor(ShowcaseConfig.DEFAULT_MASK_COLOUR);
         setVisibility(INVISIBLE);
 
-
-        View contentView = LayoutInflater.from(getContext()).inflate(R.layout.showcase_content, this, true);
-        mContentBox = contentView.findViewById(R.id.content_box);
-        mTitleTextView = (TextView) contentView.findViewById(R.id.tv_title);
-        mContentTextView = (TextView) contentView.findViewById(R.id.tv_content);
-        mDismissButton = (TextView) contentView.findViewById(R.id.tv_dismiss);
+        contentView = LayoutInflater.from(getContext()).inflate(getLayoutFile(), this, true);
+        mContentBox = contentView.findViewById(getContentBoxViewId());
+        mTitleTextView = (TextView) contentView.findViewById(getTitleViewId());
+        mDismissButton = contentView.findViewById(getButtonViewId());
         mDismissButton.setOnClickListener(this);
     }
 
+    protected int getContentBoxViewId() {
+        return R.id.content_box;
+    }
 
+    protected int getTitleViewId() {
+        return R.id.tv_title;
+    }
+
+    protected int getContentViewId() {
+        return R.id.tv_content;
+    }
+
+    protected int getButtonViewId() {
+        return R.id.tv_dismiss;
+    }
+
+    public int getLayoutFile() {
+        return R.layout.showcase_content;
+    }
     /**
      * Interesting drawing stuff.
      * We draw a block of semi transparent colour to fill the whole screen then we draw of transparency
@@ -146,8 +165,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         final int width = getMeasuredWidth();
         final int height = getMeasuredHeight();
 
-		// don't bother drawing if there is nothing to draw on
-		if(width <= 0 || height <= 0) return;
+        // don't bother drawing if there is nothing to draw on
+        if(width <= 0 || height <= 0) return;
 
         // build a new canvas if needed i.e first pass or new dimensions
         if (mBitmap == null || mCanvas == null || mOldHeight != height || mOldWidth != width) {
@@ -173,16 +192,22 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         if (mEraser == null) {
             mEraser = new Paint();
             mEraser.setColor(0xFFFFFFFF);
-            mEraser.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+            mEraser.setXfermode(CLEAR_PORTER_DUFF_XFER_MODE);
             mEraser.setFlags(Paint.ANTI_ALIAS_FLAG);
         }
 
         // draw (erase) shape
         mShape.draw(mCanvas, mEraser, mXPosition, mYPosition, mShapePadding);
 
+        //draw boarder for the highlighted area
+        drawBoarder(mCanvas, mEraser, mShape, mXPosition, mYPosition, mShapePadding);
+
         // Draw the bitmap on our views  canvas.
         canvas.drawBitmap(mBitmap, 0, 0, null);
     }
+
+    protected void drawBoarder(Canvas canvas, Paint eraser, Shape shape, int xPosition,
+       int yPosition, int shapePadding) { }
 
     @Override
     protected void onDetachedFromWindow() {
@@ -207,23 +232,27 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         if (mDismissOnTouch) {
             hide();
         }
-        if(mTargetTouchable && mTarget.getBounds().contains((int)event.getX(), (int)event.getY())){
+        if(isTouchOnTargetView(event)){
             if(mDismissOnTargetTouch){
                 hide();
             }
+
             return false;
         }
         return true;
     }
 
+    protected boolean isTouchOnTargetView(MotionEvent event) {
+        return mTargetTouchable && mTarget.getBounds().contains((int)event.getX(), (int)event.getY());
+    }
 
     private void notifyOnDisplayed() {
 
-		if(mListeners != null){
-			for (IShowcaseListener listener : mListeners) {
-				listener.onShowcaseDisplayed(this);
-			}
-		}
+        if(mListeners != null){
+            for (IShowcaseListener listener : mListeners) {
+                listener.onShowcaseDisplayed(this);
+            }
+        }
     }
 
     private void notifyOnDismissed() {
@@ -357,23 +386,33 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     private void setTitleText(CharSequence contentText) {
         if (mTitleTextView != null && !contentText.equals("")) {
-            mContentTextView.setAlpha(0.5F);
+            if (mContentTextView != null) {
+                mContentTextView.setAlpha(0.5F);
+            }
             mTitleTextView.setText(contentText);
         }
     }
 
     private void setContentText(CharSequence contentText) {
+        int contentViewId = getContentViewId();
+        mContentTextView = (TextView) contentView.findViewById(contentViewId);
         if (mContentTextView != null) {
             mContentTextView.setText(contentText);
         }
     }
 
     private void setDismissText(CharSequence dismissText) {
-        if (mDismissButton != null) {
-            mDismissButton.setText(dismissText);
-
-            updateDismissButton();
+        if (mDismissButton == null) {
+            return;
         }
+        if (mDismissButton instanceof TextView) {
+            ((TextView) mDismissButton).setText(dismissText);
+        } else if (mDismissButton instanceof Button) {
+            ((Button) mDismissButton).setText(dismissText);
+        } else {
+            return;
+        }
+        updateDismissButton();
     }
 
     private void setTitleTextColor(int textColour) {
@@ -389,8 +428,13 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     }
 
     private void setDismissTextColor(int textColour) {
-        if (mDismissButton != null) {
-            mDismissButton.setTextColor(textColour);
+        if (mDismissButton == null) {
+            return;
+        }
+        if (mDismissButton instanceof TextView) {
+            ((TextView)mDismissButton).setTextColor(textColour);
+        } else if (mDismissButton instanceof Button) {
+            ((TextView) mDismissButton).setTextColor(textColour);
         }
     }
 
@@ -428,15 +472,15 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     public void addShowcaseListener(IShowcaseListener showcaseListener) {
 
-		if(mListeners != null)
-			mListeners.add(showcaseListener);
+        if(mListeners != null)
+            mListeners.add(showcaseListener);
     }
 
     public void removeShowcaseListener(MaterialShowcaseSequence showcaseListener) {
 
-		if ((mListeners != null) && mListeners.contains(showcaseListener)) {
-			mListeners.remove(showcaseListener);
-		}
+        if ((mListeners != null) && mListeners.contains(showcaseListener)) {
+            mListeners.remove(showcaseListener);
+        }
     }
 
     void setDetachedListener(IDetachedListener detachedListener) {
@@ -466,7 +510,13 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private void updateDismissButton() {
         // hide or show button
         if (mDismissButton != null) {
-            if (TextUtils.isEmpty(mDismissButton.getText())) {
+            CharSequence text = null;
+            if (mDismissButton instanceof TextView) {
+                text = ((TextView) mDismissButton).getText();
+            } else if (mDismissButton instanceof Button) {
+                text = ((Button) mDismissButton).getText();
+            }
+            if (TextUtils.isEmpty(text)) {
                 mDismissButton.setVisibility(GONE);
             } else {
                 mDismissButton.setVisibility(VISIBLE);
@@ -502,13 +552,16 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         private boolean fullWidth = false;
         private int shapeType = CIRCLE_SHAPE;
 
-        final MaterialShowcaseView showcaseView;
+        protected MaterialShowcaseView showcaseView;
 
         private final Activity activity;
 
         public Builder(Activity activity) {
             this.activity = activity;
+            init(activity);
 
+        }
+        protected void init(Activity activity) {
             showcaseView = new MaterialShowcaseView(activity);
         }
 
