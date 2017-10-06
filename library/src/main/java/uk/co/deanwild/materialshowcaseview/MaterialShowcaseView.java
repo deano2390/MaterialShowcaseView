@@ -76,6 +76,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private PrefsManager mPrefsManager; // used to store state doe single use mode
     List<IShowcaseListener> mListeners; // external listeners who want to observe when we show and dismiss
     private UpdateOnGlobalLayout mLayoutListener;
+    private IInitedListener mInitedListener;
     private IDetachedListener mDetachedListener;
     private boolean mTargetTouchable = false;
     private boolean mDismissOnTargetTouch = true;
@@ -126,6 +127,14 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mDismissButton.setOnClickListener(this);
     }
 
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        if (mInitedListener != null) {
+            mInitedListener.onShowcaseInited(this);
+        }
+
+    }
 
     /**
      * Interesting drawing stuff.
@@ -137,7 +146,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
         // don't bother drawing if we're not ready
         if (!mShouldRender) return;
 
@@ -448,6 +456,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         if ((mListeners != null) && mListeners.contains(showcaseListener)) {
             mListeners.remove(showcaseListener);
         }
+    }
+
+    void setInitedListener(IInitedListener initedListener) {
+        mInitedListener = initedListener;
     }
 
     void setDetachedListener(IDetachedListener detachedListener) {
