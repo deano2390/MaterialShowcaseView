@@ -52,6 +52,11 @@ public class MaterialShowcaseSequence implements IDetachedListener {
     }
 
     public MaterialShowcaseSequence addSequenceItem(MaterialShowcaseView sequenceItem) {
+
+        if (mConfig != null) {
+            sequenceItem.setConfig(mConfig);
+        }
+
         mShowcaseQueue.add(sequenceItem);
         return this;
     }
