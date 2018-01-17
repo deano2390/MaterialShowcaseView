@@ -18,6 +18,7 @@ public class MaterialShowcaseSequence implements IDetachedListener {
 
     private OnSequenceItemShownListener mOnItemShownListener = null;
     private OnSequenceItemDismissedListener mOnItemDismissedListener = null;
+    private MaterialShowcaseView mCurrentView;
 
     public MaterialShowcaseSequence(Activity activity) {
         mActivity = activity;
@@ -55,6 +56,14 @@ public class MaterialShowcaseSequence implements IDetachedListener {
         mShowcaseQueue.add(sequenceItem);
         return this;
     }
+
+    public void clearSequence()
+    {
+        mCurrentView.hide();
+        mShowcaseQueue.clear();
+    }
+
+
 
     public MaterialShowcaseSequence singleUse(String sequenceID) {
         mSingleUse = true;
