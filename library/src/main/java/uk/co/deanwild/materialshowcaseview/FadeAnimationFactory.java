@@ -3,12 +3,15 @@ package uk.co.deanwild.materialshowcaseview;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.annotation.TargetApi;
 import android.graphics.Point;
+import android.os.Build;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
 
-public class AnimationFactory implements IAnimationFactory{
+public class FadeAnimationFactory implements IAnimationFactory{
 
     private static final String ALPHA = "alpha";
     private static final float INVISIBLE = 0f;
@@ -16,12 +19,12 @@ public class AnimationFactory implements IAnimationFactory{
 
     private final AccelerateDecelerateInterpolator interpolator;
 
-    public AnimationFactory() {
+    public FadeAnimationFactory() {
         interpolator = new AccelerateDecelerateInterpolator();
     }
 
     @Override
-    public void fadeInView(View target, long duration, final AnimationStartListener listener) {
+    public void animateInView(View target, Point point, long duration, final AnimationStartListener listener) {
         ObjectAnimator oa = ObjectAnimator.ofFloat(target, ALPHA, INVISIBLE, VISIBLE);
         oa.setDuration(duration).addListener(new Animator.AnimatorListener() {
             @Override
@@ -45,7 +48,7 @@ public class AnimationFactory implements IAnimationFactory{
     }
 
     @Override
-    public void fadeOutView(View target, long duration, final AnimationEndListener listener) {
+    public void animateOutView(View target, Point point, long duration, final AnimationEndListener listener) {
         ObjectAnimator oa = ObjectAnimator.ofFloat(target, ALPHA, INVISIBLE);
         oa.setDuration(duration).addListener(new Animator.AnimatorListener() {
             @Override
