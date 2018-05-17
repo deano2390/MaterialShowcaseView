@@ -32,6 +32,7 @@ import java.util.List;
 import uk.co.deanwild.materialshowcaseview.shape.CircleShape;
 import uk.co.deanwild.materialshowcaseview.shape.NoShape;
 import uk.co.deanwild.materialshowcaseview.shape.RectangleShape;
+import uk.co.deanwild.materialshowcaseview.shape.RoundedRectangleShape;
 import uk.co.deanwild.materialshowcaseview.shape.Shape;
 import uk.co.deanwild.materialshowcaseview.target.Target;
 import uk.co.deanwild.materialshowcaseview.target.ViewTarget;
@@ -514,9 +515,12 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     public static class Builder {
         private static final int CIRCLE_SHAPE = 0;
         private static final int RECTANGLE_SHAPE = 1;
-        private static final int NO_SHAPE = 2;
+        private static final int ROUNDED_RECTANGLE_SHAPE = 2;
+        private static final int NO_SHAPE = 3;
 
         private boolean fullWidth = false;
+        private int xRadius = 0;
+        private int yRadius = 0;
         private int shapeType = CIRCLE_SHAPE;
 
         final MaterialShowcaseView showcaseView;
@@ -679,6 +683,13 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             return this;
         }
 
+        public Builder withRoundedRectangleShape(int xRadius, int yRadius) {
+            this.shapeType = ROUNDED_RECTANGLE_SHAPE;
+            this.xRadius = xRadius;
+            this.yRadius = yRadius;
+            return this;
+        }
+
         public Builder renderOverNavigationBar() {
             // Note: This only has an effect in Lollipop or above.
             showcaseView.setRenderOverNavigationBar(true);
@@ -693,6 +704,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         public MaterialShowcaseView build() {
             if (showcaseView.mShape == null) {
                 switch (shapeType) {
+                    case ROUNDED_RECTANGLE_SHAPE: {
+                        showcaseView.setShape(new RoundedRectangleShape(showcaseView.mTarget.getBounds(), xRadius, yRadius));
+                        break;
+                    }
                     case RECTANGLE_SHAPE: {
                         showcaseView.setShape(new RectangleShape(showcaseView.mTarget.getBounds(), fullWidth));
                         break;
