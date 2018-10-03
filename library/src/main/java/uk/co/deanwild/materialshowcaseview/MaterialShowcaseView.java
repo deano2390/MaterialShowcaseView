@@ -59,6 +59,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private TextView mTitleTextView;
     private TextView mContentTextView;
     private TextView mDismissButton;
+    private boolean mHasCustomGravity;
     private TextView mSkipButton;
     private int mGravity;
     private int mContentBottomMargin;
@@ -268,6 +269,21 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     }
 
     /**
+     * Overrides the automatic handling of gravity and sets it to a specific one. Due to this,
+     * margins are also reset to zero.
+     *
+     * @param gravity
+     */
+    public void setGravity(int gravity) {
+        mHasCustomGravity = Gravity.NO_GRAVITY != gravity;
+        if (mHasCustomGravity) {
+            mGravity = gravity;
+            mContentTopMargin = mContentBottomMargin = 0;
+        }
+        applyLayoutParams();
+    }
+
+    /**
      * Tells us about the "Target" which is the view we want to anchor to.
      * We figure out where it is on screen and (optionally) how big it is.
      * We also figure out whether to place our content and dismiss button above or below it.
@@ -309,16 +325,19 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                 radius = mShape.getHeight() / 2;
             }
 
-            if (yPos > midPoint) {
-                // target is in lower half of screen, we'll sit above it
-                mContentTopMargin = 0;
-                mContentBottomMargin = (height - yPos) + radius + mShapePadding;
-                mGravity = Gravity.BOTTOM;
-            } else {
-                // target is in upper half of screen, we'll sit below it
-                mContentTopMargin = yPos + radius + mShapePadding;
-                mContentBottomMargin = 0;
-                mGravity = Gravity.TOP;
+            // If there's no custom gravity in place, we'll do automatic gravity calculation.
+            if (!mHasCustomGravity) {
+                if (yPos > midPoint) {
+                    // target is in lower half of screen, we'll sit above it
+                    mContentTopMargin = 0;
+                    mContentBottomMargin = (height - yPos) + radius + mShapePadding;
+                    mGravity = Gravity.BOTTOM;
+                } else {
+                    // target is in upper half of screen, we'll sit below it
+                    mContentTopMargin = yPos + radius + mShapePadding;
+                    mContentBottomMargin = 0;
+                    mGravity = Gravity.TOP;
+                }
             }
         }
 
@@ -545,6 +564,14 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             this.activity = activity;
 
             showcaseView = new MaterialShowcaseView(activity);
+        }
+
+        /**
+         * Enforces a user-specified gravity instead of relying on the library to do that.
+         */
+        public Builder setGravity(int gravity) {
+          showcaseView.setGravity(gravity);
+          return this;
         }
 
         /**
