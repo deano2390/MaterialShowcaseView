@@ -1,5 +1,8 @@
+*Looking for collaborators to help maintain this library, drop me a line at me@deanwild.co.uk if you want to help.*
+
 # MaterialShowcaseView
 A Material Design themed ShowcaseView for Android
+
 
 This library is heavily inspired by the original [ShowcaseView library][1].
 
