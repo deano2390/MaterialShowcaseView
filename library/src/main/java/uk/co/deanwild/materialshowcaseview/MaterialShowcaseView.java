@@ -11,6 +11,7 @@ import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -30,6 +31,7 @@ import java.util.List;
 
 import uk.co.deanwild.materialshowcaseview.shape.CircleShape;
 import uk.co.deanwild.materialshowcaseview.shape.NoShape;
+import uk.co.deanwild.materialshowcaseview.shape.OvalShape;
 import uk.co.deanwild.materialshowcaseview.shape.RectangleShape;
 import uk.co.deanwild.materialshowcaseview.shape.Shape;
 import uk.co.deanwild.materialshowcaseview.target.Target;
@@ -50,7 +52,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private Shape mShape;
     private int mXPosition;
     private int mYPosition;
-    private boolean mWasDismissed = false;
+    private boolean mWasDismissed = false, mWasSkipped = false;
     private int mShapePadding = ShowcaseConfig.DEFAULT_SHAPE_PADDING;
 
     private View mContentBox;
@@ -58,6 +60,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private TextView mContentTextView;
     private TextView mDismissButton;
     private boolean mHasCustomGravity;
+    private TextView mSkipButton;
     private int mGravity;
     private int mContentBottomMargin;
     private int mContentTopMargin;
@@ -65,8 +68,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private boolean mShouldRender = false; // flag to decide when we should actually render
     private boolean mRenderOverNav = false;
     private int mMaskColour;
-    private AnimationFactory mAnimationFactory;
+    private IAnimationFactory mAnimationFactory;
     private boolean mShouldAnimate = true;
+    private boolean mUseFadeAnimation = false;
     private long mFadeDurationInMillis = ShowcaseConfig.DEFAULT_FADE_TIME;
     private Handler mHandler;
     private long mDelayInMillis = ShowcaseConfig.DEFAULT_DELAY;
@@ -78,6 +82,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private IDetachedListener mDetachedListener;
     private boolean mTargetTouchable = false;
     private boolean mDismissOnTargetTouch = true;
+
+    private boolean isSequence = false;
 
     public MaterialShowcaseView(Context context) {
         super(context);
@@ -104,9 +110,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private void init(Context context) {
         setWillNotDraw(false);
 
-        // create our animation factory
-        mAnimationFactory = new AnimationFactory();
-
         mListeners = new ArrayList<>();
 
         // make sure we add a global layout listener so we can adapt to changes
@@ -126,6 +129,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mContentTextView = (TextView) contentView.findViewById(R.id.tv_content);
         mDismissButton = (TextView) contentView.findViewById(R.id.tv_dismiss);
         mDismissButton.setOnClickListener(this);
+
+        mSkipButton = (TextView) contentView.findViewById(R.id.tv_skip);
+        mSkipButton.setOnClickListener(this);
+
     }
 
 
@@ -147,8 +154,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         final int width = getMeasuredWidth();
         final int height = getMeasuredHeight();
 
-		// don't bother drawing if there is nothing to draw on
-		if(width <= 0 || height <= 0) return;
+        // don't bother drawing if there is nothing to draw on
+        if (width <= 0 || height <= 0) return;
 
         // build a new canvas if needed i.e first pass or new dimensions
         if (mBitmap == null || mCanvas == null || mOldHeight != height || mOldWidth != width) {
@@ -208,8 +215,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         if (mDismissOnTouch) {
             hide();
         }
-        if(mTargetTouchable && mTarget.getBounds().contains((int)event.getX(), (int)event.getY())){
-            if(mDismissOnTargetTouch){
+        if (mTargetTouchable && mTarget.getBounds().contains((int) event.getX(), (int) event.getY())) {
+            if (mDismissOnTargetTouch) {
                 hide();
             }
             return false;
@@ -220,11 +227,12 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     private void notifyOnDisplayed() {
 
-		if(mListeners != null){
-			for (IShowcaseListener listener : mListeners) {
-				listener.onShowcaseDisplayed(this);
-			}
-		}
+
+        if (mListeners != null) {
+            for (IShowcaseListener listener : mListeners) {
+                listener.onShowcaseDisplayed(this);
+            }
+        }
     }
 
     private void notifyOnDismissed() {
@@ -241,7 +249,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
          * internal listener used by sequence for storing progress within the sequence
          */
         if (mDetachedListener != null) {
-            mDetachedListener.onShowcaseDetached(this, mWasDismissed);
+            mDetachedListener.onShowcaseDetached(this, mWasDismissed, mWasSkipped);
         }
     }
 
@@ -252,7 +260,12 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
      */
     @Override
     public void onClick(View v) {
-        hide();
+        if(v.getId() == R.id.tv_dismiss){
+            hide();
+        }else{
+            skip();
+        }
+
     }
 
     /**
@@ -387,9 +400,21 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
     }
 
+    private void setIsSequence(Boolean isSequenceB) {
+        isSequence = isSequenceB;
+    }
+
     private void setDismissText(CharSequence dismissText) {
         if (mDismissButton != null) {
             mDismissButton.setText(dismissText);
+
+            updateDismissButton();
+        }
+    }
+
+    private void setDismissStyle(Typeface dismissStyle) {
+        if (mDismissButton != null) {
+            mDismissButton.setTypeface(dismissStyle);
 
             updateDismissButton();
         }
@@ -437,25 +462,28 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mFadeDurationInMillis = fadeDurationInMillis;
     }
 
-    private void setTargetTouchable(boolean targetTouchable){
+    private void setTargetTouchable(boolean targetTouchable) {
         mTargetTouchable = targetTouchable;
     }
 
-    private void setDismissOnTargetTouch(boolean dismissOnTargetTouch){
+    private void setDismissOnTargetTouch(boolean dismissOnTargetTouch) {
         mDismissOnTargetTouch = dismissOnTargetTouch;
     }
 
-    public void addShowcaseListener(IShowcaseListener showcaseListener) {
+    private void setUseFadeAnimation(boolean useFadeAnimation) {
+        mUseFadeAnimation = useFadeAnimation;
+    }
 
-		if(mListeners != null)
-			mListeners.add(showcaseListener);
+    public void addShowcaseListener(IShowcaseListener showcaseListener) {
+        if (mListeners != null)
+            mListeners.add(showcaseListener);
     }
 
     public void removeShowcaseListener(MaterialShowcaseSequence showcaseListener) {
 
-		if ((mListeners != null) && mListeners.contains(showcaseListener)) {
-			mListeners.remove(showcaseListener);
-		}
+        if ((mListeners != null) && mListeners.contains(showcaseListener)) {
+            mListeners.remove(showcaseListener);
+        }
     }
 
     void setDetachedListener(IDetachedListener detachedListener) {
@@ -464,6 +492,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     public void setShape(Shape mShape) {
         this.mShape = mShape;
+    }
+
+    public void setAnimationFactory(IAnimationFactory animationFactory) {
+        this.mAnimationFactory = animationFactory;
     }
 
     /**
@@ -476,6 +508,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         setFadeDuration(config.getFadeDuration());
         setContentTextColor(config.getContentTextColor());
         setDismissTextColor(config.getDismissTextColor());
+        setDismissStyle(config.getDismissTextStyle());
+
         setMaskColour(config.getMaskColor());
         setShape(config.getShape());
         setShapePadding(config.getShapePadding());
@@ -517,6 +551,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         private static final int CIRCLE_SHAPE = 0;
         private static final int RECTANGLE_SHAPE = 1;
         private static final int NO_SHAPE = 2;
+        private static final int OVAL_SHAPE = 3;
 
         private boolean fullWidth = false;
         private int shapeType = CIRCLE_SHAPE;
@@ -547,6 +582,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             return this;
         }
 
+        public Builder setSequence(Boolean isSequence) {
+            showcaseView.setIsSequence(isSequence);
+            return this;
+        }
+
         /**
          * Set the title text shown on the ShowcaseView.
          */
@@ -556,6 +596,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         public Builder setDismissText(CharSequence dismissText) {
             showcaseView.setDismissText(dismissText);
+            return this;
+        }
+
+        public Builder setDismissStyle(Typeface dismissStyle) {
+            showcaseView.setDismissStyle(dismissStyle);
             return this;
         }
 
@@ -591,20 +636,20 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         /**
          * Set whether or not the target view can be touched while the showcase is visible.
-         *
+         * <p>
          * False by default.
          */
-        public Builder setTargetTouchable(boolean targetTouchable){
+        public Builder setTargetTouchable(boolean targetTouchable) {
             showcaseView.setTargetTouchable(targetTouchable);
             return this;
         }
 
         /**
          * Set whether or not the showcase should dismiss when the target is touched.
-         *
+         * <p>
          * True by default.
          */
-        public Builder setDismissOnTargetTouch(boolean dismissOnTargetTouch){
+        public Builder setDismissOnTargetTouch(boolean dismissOnTargetTouch) {
             showcaseView.setDismissOnTargetTouch(dismissOnTargetTouch);
             return this;
         }
@@ -664,6 +709,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             return this;
         }
 
+        public Builder withOvalShape() {
+            shapeType = OVAL_SHAPE;
+            return this;
+        }
+
         public Builder withoutShape() {
             shapeType = NO_SHAPE;
             return this;
@@ -690,6 +740,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             return this;
         }
 
+        public Builder useFadeAnimation() {
+            showcaseView.setUseFadeAnimation(true);
+            return this;
+        }
+
         public MaterialShowcaseView build() {
             if (showcaseView.mShape == null) {
                 switch (shapeType) {
@@ -705,8 +760,21 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                         showcaseView.setShape(new NoShape());
                         break;
                     }
+                    case OVAL_SHAPE: {
+                        showcaseView.setShape(new OvalShape(showcaseView.mTarget));
+                    }
                     default:
                         throw new IllegalArgumentException("Unsupported shape type: " + shapeType);
+                }
+            }
+
+            if (showcaseView.mAnimationFactory == null) {
+                // create our animation factory
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !showcaseView.mUseFadeAnimation) {
+                    showcaseView.setAnimationFactory(new CircularRevealAnimationFactory());
+                }
+                else {
+                    showcaseView.setAnimationFactory(new FadeAnimationFactory());
                 }
             }
 
@@ -781,7 +849,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             public void run() {
 
                 if (mShouldAnimate) {
-                    fadeIn();
+                    animateIn();
                 } else {
                     setVisibility(VISIBLE);
                     notifyOnDisplayed();
@@ -803,6 +871,21 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mWasDismissed = true;
 
         if (mShouldAnimate) {
+            animateOut();
+        } else {
+            removeFromWindow();
+        }
+    }
+
+
+    public void skip() {
+
+        /**
+         * This flag is used to indicate to onDetachedFromWindow that the showcase view was skipped purposefully (by the user or programmatically)
+         */
+        mWasSkipped = true;
+
+        if (mShouldAnimate) {
             fadeOut();
         } else {
             removeFromWindow();
@@ -811,8 +894,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     public void fadeIn() {
         setVisibility(INVISIBLE);
-
-        mAnimationFactory.fadeInView(this, mFadeDurationInMillis,
+        mAnimationFactory.animateInView(this, mTarget.getPoint(), mFadeDurationInMillis,
                 new IAnimationFactory.AnimationStartListener() {
                     @Override
                     public void onAnimationStart() {
@@ -823,9 +905,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         );
     }
 
-    public void fadeOut() {
+    public void animateOut() {
 
-        mAnimationFactory.fadeOutView(this, mFadeDurationInMillis, new IAnimationFactory.AnimationEndListener() {
+        mAnimationFactory.animateOutView(this, mTarget.getPoint(), mFadeDurationInMillis, new IAnimationFactory.AnimationEndListener() {
             @Override
             public void onAnimationEnd() {
                 setVisibility(INVISIBLE);
