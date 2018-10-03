@@ -39,4 +39,20 @@
         android:textSize="22dp"
         android:visibility="gone" />
 
+    <TextView
+        android:id="@+id/tv_skip"
+        android:background="?android:attr/selectableItemBackground"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:clickable="true"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:text="TERMINAR"
+        android:textColor="@android:color/white"
+        android:textSize="18dp"
+        android:visibility="visible" />
+
 </LinearLayout>
