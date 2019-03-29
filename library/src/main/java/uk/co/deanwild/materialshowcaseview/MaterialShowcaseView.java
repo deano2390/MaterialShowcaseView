@@ -849,7 +849,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             public void run() {
 
                 if (mShouldAnimate) {
-                    animateIn();
+                    fadeIn();
                 } else {
                     setVisibility(VISIBLE);
                     notifyOnDisplayed();
@@ -886,7 +886,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mWasSkipped = true;
 
         if (mShouldAnimate) {
-            fadeOut();
+            animateOut();
         } else {
             removeFromWindow();
         }
