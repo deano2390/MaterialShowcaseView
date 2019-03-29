@@ -16,13 +16,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Button button = (Button) findViewById(R.id.btn_simple_example);
+        Button button = findViewById(R.id.btn_simple_example);
         button.setOnClickListener(this);
-        button = (Button) findViewById(R.id.btn_custom_example);
+        button = findViewById(R.id.btn_custom_example);
         button.setOnClickListener(this);
-        button = (Button) findViewById(R.id.btn_sequence_example);
+        button = findViewById(R.id.btn_sequence_example);
         button.setOnClickListener(this);
-        button = (Button) findViewById(R.id.btn_reset_all);
+        button = findViewById(R.id.btn_reset_all);
         button.setOnClickListener(this);
 
     }

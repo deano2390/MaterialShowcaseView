@@ -6,4 +6,5 @@
     <string name="title_activity_simple_single_example">SimpleSingleExample</string>
     <string name="title_activity_custom_example">CustomExample</string>
     <string name="title_activity_sequence_example">SequenceExample</string>
+    <string name="title_activity_tooltip_example">ToolTipExample</string>
 </resources>

@@ -28,6 +28,11 @@
             android:name=".SequenceExample"
             android:label="@string/title_activity_sequence_example" >
         </activity>
+
+        <activity
+            android:name=".TooltipExample"
+            android:label="@string/title_activity_sequence_example" >
+        </activity>
     </application>
 
 </manifest>
