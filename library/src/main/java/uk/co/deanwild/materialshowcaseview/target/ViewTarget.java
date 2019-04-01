@@ -22,8 +22,9 @@ public class ViewTarget implements Target {
     public Point getPoint() {
         int[] location = new int[2];
         mView.getLocationInWindow(location);
-        int x = location[0] + mView.getWidth() / 2;
-        int y = location[1] + mView.getHeight() / 2;
+        View decor = ((Activity) mView.getContext()).getWindow().getDecorView();
+        int x = location[0] - decor.getPaddingLeft() + mView.getWidth() / 2;
+        int y = location[1] - decor.getPaddingTop() + mView.getHeight() / 2;
         return new Point(x, y);
     }
 
