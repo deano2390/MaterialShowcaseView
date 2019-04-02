@@ -878,8 +878,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
             showcaseView.mShape.setPadding(showcaseView.mShapePadding);
 
-           // showcaseView.setPadding(10,10,10,10);
-
             return showcaseView;
         }
 

@@ -302,14 +302,15 @@ public class ShowcaseTooltip {
 
         private int paddingTop = 20;
         private int paddingBottom = 30;
-        private int paddingRight = 30;
-        private int paddingLeft = 30;
+        private int paddingRight = 60;
+        private int paddingLeft = 60;
 
         private Rect viewRect;
         private int distanceWithView = 0;
 
         public TooltipView(Context context) {
             super(context);
+
             setWillNotDraw(false);
 
             this.childView = new TextView(context);
@@ -535,9 +536,9 @@ public class ShowcaseTooltip {
             bottomLeftDiameter = bottomLeftDiameter < 0 ? 0 : bottomLeftDiameter;
             bottomRightDiameter = bottomRightDiameter < 0 ? 0 : bottomRightDiameter;
 
-            final float spacingLeft = this.position == Position.RIGHT ? arrowHeight : 0;
+            float spacingLeft = 30;
             final float spacingTop = this.position == Position.BOTTOM ? arrowHeight : 0;
-            final float spacingRight = this.position == Position.LEFT ? arrowHeight : 0;
+            float spacingRight = 30;
             final float spacingBottom = this.position == Position.TOP ? arrowHeight : 0;
 
             final float left = spacingLeft + myRect.left;
