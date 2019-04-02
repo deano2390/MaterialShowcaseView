@@ -10,6 +10,7 @@ import uk.co.deanwild.materialshowcaseview.target.Target;
 public class OvalShape implements Shape {
     private int radius;
     private boolean adjustToTarget;
+    private int padding;
 
     public OvalShape() {
         this.radius = 200;
@@ -50,7 +51,7 @@ public class OvalShape implements Shape {
         this.radius = radius;
     }
 
-    public void draw(Canvas canvas, Paint paint, int x, int y, int padding) {
+    public void draw(Canvas canvas, Paint paint, int x, int y) {
         if (this.radius > 0) {
             float rad = (float) (this.radius + padding);
             RectF rectF = new RectF(x - rad, y - rad / 2, x + rad, y + rad / 2);
@@ -64,6 +65,16 @@ public class OvalShape implements Shape {
             this.radius = getPreferredRadius(target.getBounds());
         }
 
+    }
+
+    @Override
+    public int getTotalRadius() {
+        return radius + padding;
+    }
+
+    @Override
+    public void setPadding(int padding) {
+        this.padding = padding;
     }
 
     public int getWidth() {

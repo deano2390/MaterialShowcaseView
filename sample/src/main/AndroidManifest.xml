@@ -31,6 +31,7 @@
 
         <activity
             android:name=".TooltipExample"
+            android:theme="@style/ToolTipTheme"
             android:label="@string/title_activity_sequence_example" >
         </activity>
     </application>

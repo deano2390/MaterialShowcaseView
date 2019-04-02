@@ -16,7 +16,17 @@ public class NoShape implements Shape {
     }
 
     @Override
-    public void draw(Canvas canvas, Paint paint, int x, int y, int padding) {
+    public int getTotalRadius() {
+        return 0;
+    }
+
+    @Override
+    public void setPadding(int padding) {
+        // do nothing
+    }
+
+    @Override
+    public void draw(Canvas canvas, Paint paint, int x, int y) {
         // do nothing
     }
 

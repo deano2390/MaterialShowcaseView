@@ -16,7 +16,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -85,6 +84,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     private boolean isSequence = false;
 
+    private CharSequence tooltipText;
+    private ViewTooltip toolTip;
+    private boolean toolTipShown;
+
     public MaterialShowcaseView(Context context) {
         super(context);
         init(context);
@@ -132,7 +135,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         mSkipButton = contentView.findViewById(R.id.tv_skip);
         mSkipButton.setOnClickListener(this);
-
     }
 
 
@@ -186,7 +188,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
 
         // draw (erase) shape
-        mShape.draw(mCanvas, mEraser, mXPosition, mYPosition, mShapePadding);
+        mShape.draw(mCanvas, mEraser, mXPosition, mYPosition);
 
         // Draw the bitmap on our views  canvas.
         canvas.drawBitmap(mBitmap, 0, 0, null);
@@ -260,9 +262,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
      */
     @Override
     public void onClick(View v) {
-        if(v.getId() == R.id.tv_dismiss){
+        if (v.getId() == R.id.tv_dismiss) {
             hide();
-        }else if(v.getId() == R.id.tv_skip){
+        } else if (v.getId() == R.id.tv_skip) {
             skip();
         }
     }
@@ -374,6 +376,31 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
              */
             if (layoutParamsChanged)
                 mContentBox.setLayoutParams(contentLP);
+
+            updateToolTip();
+        }
+    }
+
+    void updateToolTip() {
+        /**
+         * Adjust tooltip gravity if needed
+         */
+        if (toolTip != null) {
+
+            if (!toolTipShown) {
+                toolTipShown = true;
+
+                int shapeDiameter = mShape.getTotalRadius() * 2;
+                int toolTipDistance = (shapeDiameter - mTarget.getBounds().height()) / 2;
+
+                toolTip.show(toolTipDistance);
+            }
+
+            if (mGravity == Gravity.BOTTOM) {
+                toolTip.position(ViewTooltip.Position.TOP);
+            } else {
+                toolTip.position(ViewTooltip.Position.BOTTOM);
+            }
         }
     }
 
@@ -403,6 +430,12 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
     }
 
+
+    private void setToolTipText(CharSequence tooltipText) {
+        this.tooltipText = tooltipText;
+    }
+
+
     private void setIsSequence(Boolean isSequenceB) {
         isSequence = isSequenceB;
     }
@@ -420,7 +453,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             updateSkipButton();
         }
     }
-    
+
     private void setDismissStyle(Typeface dismissStyle) {
         if (mDismissButton != null) {
             mDismissButton.setTypeface(dismissStyle);
@@ -596,8 +629,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
          * Enforces a user-specified gravity instead of relying on the library to do that.
          */
         public Builder setGravity(int gravity) {
-          showcaseView.setGravity(gravity);
-          return this;
+            showcaseView.setGravity(gravity);
+            return this;
         }
 
         /**
@@ -646,7 +679,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         public Builder setSkipStyle(Typeface skipStyle) {
             showcaseView.setSkipStyle(skipStyle);
             return this;
-        }        
+        }
 
         /**
          * Set the content text shown on the ShowcaseView.
@@ -677,6 +710,16 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             showcaseView.setTitleText(text);
             return this;
         }
+
+
+        /**
+         * Tooltip mode config options
+         */
+        public Builder setToolTipText(CharSequence text) {
+            showcaseView.setToolTipText(text);
+            return this;
+        }
+
 
         /**
          * Set whether or not the target view can be touched while the showcase is visible.
@@ -814,13 +857,14 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
             if (showcaseView.mAnimationFactory == null) {
                 // create our animation factory
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !showcaseView.mUseFadeAnimation) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !showcaseView.mUseFadeAnimation) {
                     showcaseView.setAnimationFactory(new CircularRevealAnimationFactory());
-                }
-                else {
+                } else {
                     showcaseView.setAnimationFactory(new FadeAnimationFactory());
                 }
             }
+
+            showcaseView.mShape.setPadding(showcaseView.mShapePadding);
 
             return showcaseView;
         }
@@ -885,6 +929,23 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         ((ViewGroup) activity.getWindow().getDecorView()).addView(this);
 
         setShouldRender(true);
+
+
+        if (tooltipText != null) {
+
+            if (!(mTarget instanceof ViewTarget)) {
+                throw new RuntimeException("The target must be of type: " + ViewTarget.class.getCanonicalName());
+            }
+
+            ViewTarget viewTarget = (ViewTarget) mTarget;
+
+            toolTip = ViewTooltip
+                    .on(activity, this, viewTarget.getView())
+                    .corner(30)
+                    .autoHide(false, 0)
+                    .text(tooltipText.toString());
+        }
+
 
         mHandler = new Handler();
         mHandler.postDelayed(new Runnable() {

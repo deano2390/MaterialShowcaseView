@@ -5,4 +5,8 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="ToolTipTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorAccent">#ef3b6b</item>
+    </style>
+
 </resources>
