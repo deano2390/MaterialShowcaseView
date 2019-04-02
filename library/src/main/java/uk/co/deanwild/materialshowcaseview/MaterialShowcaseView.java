@@ -85,8 +85,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     private boolean isSequence = false;
 
-    private CharSequence tooltipText;
-    private ViewTooltip toolTip;
+    private ShowcaseTooltip toolTip;
     private boolean toolTipShown;
 
     public MaterialShowcaseView(Context context) {
@@ -399,9 +398,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             }
 
             if (mGravity == Gravity.BOTTOM) {
-                toolTip.position(ViewTooltip.Position.TOP);
+                toolTip.position(ShowcaseTooltip.Position.TOP);
             } else {
-                toolTip.position(ViewTooltip.Position.BOTTOM);
+                toolTip.position(ShowcaseTooltip.Position.BOTTOM);
             }
         }
     }
@@ -433,8 +432,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     }
 
 
-    private void setToolTipText(CharSequence tooltipText) {
-        this.tooltipText = tooltipText;
+    private void setToolTip(ShowcaseTooltip toolTip) {
+        this.toolTip = toolTip;
     }
 
 
@@ -720,9 +719,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         /**
          * Tooltip mode config options
+         *
+         * @param toolTip
          */
-        public Builder setToolTipText(CharSequence text) {
-            showcaseView.setToolTipText(text);
+        public Builder setToolTip(ShowcaseTooltip toolTip) {
+            showcaseView.setToolTip(toolTip);
             return this;
         }
 
@@ -877,6 +878,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
             showcaseView.mShape.setPadding(showcaseView.mShapePadding);
 
+           // showcaseView.setPadding(10,10,10,10);
+
             return showcaseView;
         }
 
@@ -942,7 +945,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         setShouldRender(true);
 
 
-        if (tooltipText != null) {
+        if (toolTip != null) {
 
             if (!(mTarget instanceof ViewTarget)) {
                 throw new RuntimeException("The target must be of type: " + ViewTarget.class.getCanonicalName());
@@ -950,11 +953,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
             ViewTarget viewTarget = (ViewTarget) mTarget;
 
-            toolTip = ViewTooltip
-                    .on(activity, this, viewTarget.getView())
-                    .corner(30)
-                    .autoHide(false, 0)
-                    .text(tooltipText.toString());
+            toolTip.configureTarget(this, viewTarget.getView());
+
         }
 
 

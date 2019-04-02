@@ -32,42 +32,25 @@ import java.util.Arrays;
  * Created by florentchampigny on 02/06/2017.
  */
 
-public class ViewTooltip {
+public class ShowcaseTooltip {
 
     private View rootView;
-    private final View view;
-    private final TooltipView tooltip_view;
+    private View view;
+    private TooltipView tooltip_view;
 
-    private ViewTooltip(MyContext myContext, View view) {
-        this.view = view;
+
+    private ShowcaseTooltip(Context context){
+        MyContext myContext = new MyContext(getActivityContext(context));
         this.tooltip_view = new TooltipView(myContext.getContext());
-
     }
 
-    private ViewTooltip(MyContext myContext, View rootView, View view) {
+    public static ShowcaseTooltip build(Context context) {
+        return new ShowcaseTooltip(context);
+    }
+
+    public void configureTarget(ViewGroup rootView, View view) {
         this.rootView = rootView;
         this.view = view;
-        this.tooltip_view = new TooltipView(myContext.getContext());
-    }
-
-    private ViewTooltip(View view) {
-        this(new MyContext(getActivityContext(view.getContext())), view);
-    }
-
-    public static ViewTooltip on(final View view) {
-        return new ViewTooltip(new MyContext(getActivityContext(view.getContext())), view);
-    }
-
-    public static ViewTooltip on(Fragment fragment, final View view) {
-        return new ViewTooltip(new MyContext(fragment), view);
-    }
-
-    public static ViewTooltip on(Activity activity, final View view) {
-        return new ViewTooltip(new MyContext(getActivityContext(activity)), view);
-    }
-
-    public static ViewTooltip on(Activity activity, final View rootView, final View view) {
-        return new ViewTooltip(new MyContext(getActivityContext(activity)), rootView, view);
     }
 
     private static Activity getActivityContext(Context context) {
@@ -80,42 +63,42 @@ public class ViewTooltip {
         return null;
     }
 
-    public ViewTooltip position(Position position) {
+    public ShowcaseTooltip position(Position position) {
         this.tooltip_view.setPosition(position);
         return this;
     }
 
-    public ViewTooltip customView(View customView) {
+    public ShowcaseTooltip customView(View customView) {
         this.tooltip_view.setCustomView(customView);
         return this;
     }
 
-    public ViewTooltip customView(int viewId) {
+    public ShowcaseTooltip customView(int viewId) {
         this.tooltip_view.setCustomView(((Activity) view.getContext()).findViewById(viewId));
         return this;
     }
 
-    public ViewTooltip arrowWidth(int arrowWidth) {
+    public ShowcaseTooltip arrowWidth(int arrowWidth) {
         this.tooltip_view.setArrowWidth(arrowWidth);
         return this;
     }
 
-    public ViewTooltip arrowHeight(int arrowHeight) {
+    public ShowcaseTooltip arrowHeight(int arrowHeight) {
         this.tooltip_view.setArrowHeight(arrowHeight);
         return this;
     }
 
-    public ViewTooltip arrowSourceMargin(int arrowSourceMargin) {
+    public ShowcaseTooltip arrowSourceMargin(int arrowSourceMargin) {
         this.tooltip_view.setArrowSourceMargin(arrowSourceMargin);
         return this;
     }
 
-    public ViewTooltip arrowTargetMargin(int arrowTargetMargin) {
+    public ShowcaseTooltip arrowTargetMargin(int arrowTargetMargin) {
         this.tooltip_view.setArrowTargetMargin(arrowTargetMargin);
         return this;
     }
 
-    public ViewTooltip align(ALIGN align) {
+    public ShowcaseTooltip align(ALIGN align) {
         this.tooltip_view.setAlign(align);
         return this;
     }
@@ -172,36 +155,22 @@ public class ViewTooltip {
         return tooltip_view;
     }
 
-    public void close() {
-        tooltip_view.close();
-    }
-
-    public ViewTooltip duration(long duration) {
-        this.tooltip_view.setDuration(duration);
-        return this;
-    }
-
-    public ViewTooltip color(int color) {
+    public ShowcaseTooltip color(int color) {
         this.tooltip_view.setColor(color);
         return this;
     }
 
-    public ViewTooltip color(Paint paint) {
+    public ShowcaseTooltip color(Paint paint) {
         this.tooltip_view.setPaint(paint);
         return this;
     }
 
-    public ViewTooltip onDisplay(ListenerDisplay listener) {
+    public ShowcaseTooltip onDisplay(ListenerDisplay listener) {
         this.tooltip_view.setListenerDisplay(listener);
         return this;
     }
 
-    public ViewTooltip onHide(ListenerHide listener) {
-        this.tooltip_view.setListenerHide(listener);
-        return this;
-    }
-
-    public ViewTooltip padding(int left, int top, int right, int bottom) {
+    public ShowcaseTooltip padding(int left, int top, int right, int bottom) {
         this.tooltip_view.paddingTop = top;
         this.tooltip_view.paddingBottom = bottom;
         this.tooltip_view.paddingLeft = left;
@@ -209,63 +178,52 @@ public class ViewTooltip {
         return this;
     }
 
-    public ViewTooltip animation(TooltipAnimation tooltipAnimation) {
+    public ShowcaseTooltip animation(TooltipAnimation tooltipAnimation) {
         this.tooltip_view.setTooltipAnimation(tooltipAnimation);
         return this;
     }
 
-    public ViewTooltip text(String text) {
+    public ShowcaseTooltip text(String text) {
         this.tooltip_view.setText(text);
         return this;
     }
 
-    public ViewTooltip text(int text) {
+    public ShowcaseTooltip text(int text) {
         this.tooltip_view.setText(text);
         return this;
     }
 
-    public ViewTooltip corner(int corner) {
+    public ShowcaseTooltip corner(int corner) {
         this.tooltip_view.setCorner(corner);
         return this;
     }
 
-    public ViewTooltip textColor(int textColor) {
+    public ShowcaseTooltip textColor(int textColor) {
         this.tooltip_view.setTextColor(textColor);
         return this;
     }
 
-    public ViewTooltip textTypeFace(Typeface typeface) {
+    public ShowcaseTooltip textTypeFace(Typeface typeface) {
         this.tooltip_view.setTextTypeFace(typeface);
         return this;
     }
 
-    public ViewTooltip textSize(int unit, float textSize) {
+    public ShowcaseTooltip textSize(int unit, float textSize) {
         this.tooltip_view.setTextSize(unit, textSize);
         return this;
     }
 
-    public ViewTooltip setTextGravity(int textGravity) {
+    public ShowcaseTooltip setTextGravity(int textGravity) {
         this.tooltip_view.setTextGravity(textGravity);
         return this;
     }
 
-    public ViewTooltip clickToHide(boolean clickToHide) {
-        this.tooltip_view.setClickToHide(clickToHide);
-        return this;
-    }
-
-    public ViewTooltip autoHide(boolean autoHide, long duration) {
-        this.tooltip_view.setAutoHide(autoHide);
-        this.tooltip_view.setDuration(duration);
-        return this;
-    }
-
-    public ViewTooltip distanceWithView(int distance) {
+    public ShowcaseTooltip distanceWithView(int distance) {
         this.tooltip_view.setDistanceWithView(distance);
         return this;
     }
 
-    public ViewTooltip border(int color, float width) {
+    public ShowcaseTooltip border(int color, float width) {
         Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         borderPaint.setColor(color);
         borderPaint.setStyle(Paint.Style.STROKE);
@@ -295,10 +253,6 @@ public class ViewTooltip {
 
     public interface ListenerDisplay {
         void onDisplay(View view);
-    }
-
-    public interface ListenerHide {
-        void onHide(View view);
     }
 
     public static class FadeTooltipAnimation implements TooltipAnimation {
@@ -338,13 +292,8 @@ public class ViewTooltip {
         private Paint borderPaint;
         private Position position = Position.BOTTOM;
         private ALIGN align = ALIGN.CENTER;
-        private boolean clickToHide;
-        private boolean autoHide = true;
-        private long duration = 4000;
 
         private ListenerDisplay listenerDisplay;
-
-        private ListenerHide listenerHide;
 
         private TooltipAnimation tooltipAnimation = new FadeTooltipAnimation();
 
@@ -497,10 +446,6 @@ public class ViewTooltip {
             postInvalidate();
         }
 
-        public void setClickToHide(boolean clickToHide) {
-            this.clickToHide = clickToHide;
-        }
-
         public void setCorner(int corner) {
             this.corner = corner;
         }
@@ -528,10 +473,6 @@ public class ViewTooltip {
             this.listenerDisplay = listener;
         }
 
-        public void setListenerHide(ListenerHide listener) {
-            this.listenerHide = listener;
-        }
-
         public void setTooltipAnimation(TooltipAnimation tooltipAnimation) {
             this.tooltipAnimation = tooltipAnimation;
         }
@@ -546,59 +487,6 @@ public class ViewTooltip {
                     }
                 }
             });
-        }
-
-        protected void startExitAnimation(final Animator.AnimatorListener animatorListener) {
-            tooltipAnimation.animateExit(this, new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    super.onAnimationEnd(animation);
-                    animatorListener.onAnimationEnd(animation);
-                    if (listenerHide != null) {
-                        listenerHide.onHide(TooltipView.this);
-                    }
-                }
-            });
-        }
-
-        protected void handleAutoRemove() {
-            if (clickToHide) {
-                setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (clickToHide) {
-                            remove();
-                        }
-                    }
-                });
-            }
-
-            if (autoHide) {
-                postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        remove();
-                    }
-                }, duration);
-            }
-        }
-
-        public void remove() {
-            startExitAnimation(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    super.onAnimationEnd(animation);
-                    removeNow();
-                }
-            });
-        }
-
-        public void setDuration(long duration) {
-            this.duration = duration;
-        }
-
-        public void setAutoHide(boolean autoHide) {
-            this.autoHide = autoHide;
         }
 
         public void setupPosition(Rect rect) {
@@ -771,11 +659,8 @@ public class ViewTooltip {
 
         private void onSetup(Rect myRect) {
             setupPosition(myRect);
-
             bubblePath = drawBubble(new RectF(0, 0, getWidth(), getHeight()), corner, corner, corner, corner);
             startEnterAnimation();
-
-            handleAutoRemove();
         }
 
         public void setup(final Rect viewRect, int screenWidth) {
@@ -795,10 +680,6 @@ public class ViewTooltip {
                     }
                 });
             }
-        }
-
-        public void close() {
-            remove();
         }
 
         public void removeNow() {
