@@ -29,7 +29,8 @@ import android.widget.TextView;
 import java.util.Arrays;
 
 /**
- * Created by florentchampigny on 02/06/2017.
+ * Base on original code by florentchampigny
+ * https://github.com/florent37/ViewTooltip
  */
 
 public class ShowcaseTooltip {
