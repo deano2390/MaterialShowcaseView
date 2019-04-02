@@ -14,6 +14,7 @@ public class ShowcaseConfig {
     public static final long DEFAULT_DELAY = 0;
     public static final Shape DEFAULT_SHAPE = new CircleShape();
     public static final int DEFAULT_SHAPE_PADDING = 10;
+    public static final int DEFAULT_TOOLTIP_MARGIN = 10;
 
     private long mDelay = DEFAULT_DELAY;
     private int mMaskColour;

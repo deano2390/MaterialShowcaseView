@@ -53,6 +53,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private int mYPosition;
     private boolean mWasDismissed = false, mWasSkipped = false;
     private int mShapePadding = ShowcaseConfig.DEFAULT_SHAPE_PADDING;
+    private int tooltipMargin = ShowcaseConfig.DEFAULT_TOOLTIP_MARGIN;
 
     private View mContentBox;
     private TextView mTitleTextView;
@@ -392,6 +393,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
                 int shapeDiameter = mShape.getTotalRadius() * 2;
                 int toolTipDistance = (shapeDiameter - mTarget.getBounds().height()) / 2;
+                toolTipDistance += tooltipMargin;
 
                 toolTip.show(toolTipDistance);
             }
@@ -488,6 +490,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     private void setShapePadding(int padding) {
         mShapePadding = padding;
+    }
+
+    private void setTooltipMargin(int margin) {
+        tooltipMargin = margin;
     }
 
     private void setDismissOnTouch(boolean dismissOnTouch) {
@@ -808,6 +814,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         public Builder setShapePadding(int padding) {
             showcaseView.setShapePadding(padding);
+            return this;
+        }
+
+        public Builder setTooltipMargin(int margin) {
+            showcaseView.setTooltipMargin(margin);
             return this;
         }
 
