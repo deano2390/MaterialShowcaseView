@@ -16,17 +16,17 @@ public class TooltipExample extends AppCompatActivity implements View.OnClickLis
     private Button mButtonShow;
     private Button mButtonReset;
 
-    private static final String SHOWCASE_ID = "custom example";
+    private static final String SHOWCASE_ID = "tooltip example";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_custom_example);
-        mButtonShow = (Button) findViewById(R.id.btn_show);
+        mButtonShow = findViewById(R.id.btn_show);
         mButtonShow.setOnClickListener(this);
 
-        mButtonReset = (Button) findViewById(R.id.btn_reset);
+        mButtonReset = findViewById(R.id.btn_reset);
         mButtonReset.setOnClickListener(this);
 
         presentShowcaseView(1000); // one second delay
@@ -75,6 +75,7 @@ public class TooltipExample extends AppCompatActivity implements View.OnClickLis
         new MaterialShowcaseView.Builder(this)
                 .setTarget(mButtonShow)
                 .setContentText("This is some amazing feature you should know about")
+                .setDismissText("GOT IT")
                 .setDismissOnTouch(true)
                 .setContentTextColor(getResources().getColor(R.color.green))
                 .setMaskColour(getResources().getColor(R.color.purple))

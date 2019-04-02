@@ -125,12 +125,12 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         View contentView = LayoutInflater.from(getContext()).inflate(R.layout.showcase_content, this, true);
         mContentBox = contentView.findViewById(R.id.content_box);
-        mTitleTextView = (TextView) contentView.findViewById(R.id.tv_title);
-        mContentTextView = (TextView) contentView.findViewById(R.id.tv_content);
-        mDismissButton = (TextView) contentView.findViewById(R.id.tv_dismiss);
+        mTitleTextView = contentView.findViewById(R.id.tv_title);
+        mContentTextView = contentView.findViewById(R.id.tv_content);
+        mDismissButton = contentView.findViewById(R.id.tv_dismiss);
         mDismissButton.setOnClickListener(this);
 
-        mSkipButton = (TextView) contentView.findViewById(R.id.tv_skip);
+        mSkipButton = contentView.findViewById(R.id.tv_skip);
         mSkipButton.setOnClickListener(this);
 
     }
@@ -262,10 +262,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     public void onClick(View v) {
         if(v.getId() == R.id.tv_dismiss){
             hide();
-        }else{
+        }else if(v.getId() == R.id.tv_skip){
             skip();
         }
-
     }
 
     /**
@@ -411,16 +410,28 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private void setDismissText(CharSequence dismissText) {
         if (mDismissButton != null) {
             mDismissButton.setText(dismissText);
-
             updateDismissButton();
         }
     }
 
+    private void setSkipText(CharSequence skipText) {
+        if (mSkipButton != null) {
+            mSkipButton.setText(skipText);
+            updateSkipButton();
+        }
+    }
+    
     private void setDismissStyle(Typeface dismissStyle) {
         if (mDismissButton != null) {
             mDismissButton.setTypeface(dismissStyle);
-
             updateDismissButton();
+        }
+    }
+
+    private void setSkipStyle(Typeface skipStyle) {
+        if (mSkipButton != null) {
+            mSkipButton.setTypeface(skipStyle);
+            updateSkipButton();
         }
     }
 
@@ -520,13 +531,24 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         setRenderOverNavigationBar(config.getRenderOverNavigationBar());
     }
 
-    private void updateDismissButton() {
+    void updateDismissButton() {
         // hide or show button
         if (mDismissButton != null) {
             if (TextUtils.isEmpty(mDismissButton.getText())) {
                 mDismissButton.setVisibility(GONE);
             } else {
                 mDismissButton.setVisibility(VISIBLE);
+            }
+        }
+    }
+
+    void updateSkipButton() {
+        // hide or show button
+        if (mSkipButton != null) {
+            if (TextUtils.isEmpty(mSkipButton.getText())) {
+                mSkipButton.setVisibility(GONE);
+            } else {
+                mSkipButton.setVisibility(VISIBLE);
             }
         }
     }
@@ -592,7 +614,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
 
         /**
-         * Set the title text shown on the ShowcaseView.
+         * Set the dismiss button properties
          */
         public Builder setDismissText(int resId) {
             return setDismissText(activity.getString(resId));
@@ -607,6 +629,24 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             showcaseView.setDismissStyle(dismissStyle);
             return this;
         }
+
+
+        /**
+         * Set the skip button properties
+         */
+        public Builder setSkipText(int resId) {
+            return setSkipText(activity.getString(resId));
+        }
+
+        public Builder setSkipText(CharSequence skipText) {
+            showcaseView.setSkipText(skipText);
+            return this;
+        }
+
+        public Builder setSkipStyle(Typeface skipStyle) {
+            showcaseView.setSkipStyle(skipStyle);
+            return this;
+        }        
 
         /**
          * Set the content text shown on the ShowcaseView.
@@ -789,7 +829,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             build().show(activity);
             return showcaseView;
         }
-
     }
 
     private void singleUse(String showcaseID) {

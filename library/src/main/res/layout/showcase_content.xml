@@ -50,7 +50,6 @@
         android:paddingTop="10dp"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
-        android:text="TERMINAR"
         android:textColor="@android:color/white"
         android:textSize="18dp"
         android:visibility="visible" />
