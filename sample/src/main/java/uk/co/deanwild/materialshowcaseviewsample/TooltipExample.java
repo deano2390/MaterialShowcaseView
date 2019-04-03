@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -18,6 +19,7 @@ public class TooltipExample extends Activity implements View.OnClickListener {
     private Button mButtonShow;
     private Button mButtonReset;
     private FloatingActionButton fab;
+    private Toolbar toolbar;
 
     private static final String SHOWCASE_ID = "tooltip example";
 
@@ -34,6 +36,8 @@ public class TooltipExample extends Activity implements View.OnClickListener {
 
         fab = findViewById(R.id.fab);
         fab.setOnClickListener(this);
+
+        toolbar = findViewById(R.id.toolbar);
 
         presentShowcaseView(); // one second delay
     }
@@ -71,6 +75,7 @@ public class TooltipExample extends Activity implements View.OnClickListener {
                 new MaterialShowcaseView.Builder(this)
                         .setTarget(mButtonShow)
                         .setToolTip(toolTip1)
+                        .withRectangleShape()
                         .setTooltipMargin(30)
                         .setShapePadding(50)
                         .setDismissOnTouch(true)

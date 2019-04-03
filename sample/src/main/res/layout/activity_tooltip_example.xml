@@ -2,13 +2,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="uk.co.deanwild.materialshowcaseviewsample.CustomExample">
 
 
-    <FrameLayout
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:background="#00c2eb"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#00c2eb">
+        android:layout_height="?attr/actionBarSize"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
 
         <Button
@@ -20,7 +25,9 @@
             android:backgroundTint="@android:color/white"
             android:text="Show" />
 
-    </FrameLayout>
+    </android.support.v7.widget.Toolbar>
+
+
 
     <Button
         android:id="@+id/btn_reset"
