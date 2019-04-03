@@ -42,6 +42,11 @@ import uk.co.deanwild.materialshowcaseview.target.ViewTarget;
  */
 public class MaterialShowcaseView extends FrameLayout implements View.OnTouchListener, View.OnClickListener {
 
+    public static final int DEFAULT_SHAPE_PADDING = 10;
+    public static final int DEFAULT_TOOLTIP_MARGIN = 10;
+    long DEFAULT_DELAY = 0;
+    long DEFAULT_FADE_TIME = 300;
+
     private int mOldHeight;
     private int mOldWidth;
     private Bitmap mBitmap;// = new WeakReference<>(null);
@@ -52,8 +57,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private int mXPosition;
     private int mYPosition;
     private boolean mWasDismissed = false, mWasSkipped = false;
-    private int mShapePadding = ShowcaseConfig.DEFAULT_SHAPE_PADDING;
-    private int tooltipMargin = ShowcaseConfig.DEFAULT_TOOLTIP_MARGIN;
+    private int mShapePadding = DEFAULT_SHAPE_PADDING;
+    private int tooltipMargin = DEFAULT_TOOLTIP_MARGIN;
 
     private View mContentBox;
     private TextView mTitleTextView;
@@ -71,9 +76,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private IAnimationFactory mAnimationFactory;
     private boolean mShouldAnimate = true;
     private boolean mUseFadeAnimation = false;
-    private long mFadeDurationInMillis = ShowcaseConfig.DEFAULT_FADE_TIME;
+    private long mFadeDurationInMillis = DEFAULT_FADE_TIME;
     private Handler mHandler;
-    private long mDelayInMillis = ShowcaseConfig.DEFAULT_DELAY;
+    private long mDelayInMillis = DEFAULT_DELAY;
     private int mBottomMargin = 0;
     private boolean mSingleUse = false; // should display only once
     private PrefsManager mPrefsManager; // used to store state doe single use mode
@@ -557,16 +562,43 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
      * @param config
      */
     public void setConfig(ShowcaseConfig config) {
-        setDelay(config.getDelay());
-        setFadeDuration(config.getFadeDuration());
-        setContentTextColor(config.getContentTextColor());
-        setDismissTextColor(config.getDismissTextColor());
-        setDismissStyle(config.getDismissTextStyle());
 
-        setMaskColour(config.getMaskColor());
-        setShape(config.getShape());
-        setShapePadding(config.getShapePadding());
-        setRenderOverNavigationBar(config.getRenderOverNavigationBar());
+        if(config.getDelay() > -1){
+            setDelay(config.getDelay());
+        }
+
+        if(config.getFadeDuration() > 0){
+            setFadeDuration(config.getFadeDuration());
+        }
+
+
+        if(config.getContentTextColor() > 0){
+            setContentTextColor(config.getContentTextColor());
+        }
+
+        if(config.getDismissTextColor() > 0){
+            setDismissTextColor(config.getDismissTextColor());
+        }
+
+        if(config.getDismissTextStyle() != null){
+            setDismissStyle(config.getDismissTextStyle());
+        }
+
+        if(config.getMaskColor() > 0){
+            setMaskColour(config.getMaskColor());
+        }
+
+        if(config.getShape() != null){
+            setShape(config.getShape());
+        }
+
+        if(config.getShapePadding() > -1){
+            setShapePadding(config.getShapePadding());
+        }
+
+        if(config.getRenderOverNavigationBar() != null){
+            setRenderOverNavigationBar(config.getRenderOverNavigationBar());
+        }
     }
 
     void updateDismissButton() {
@@ -851,6 +883,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                         showcaseView.setShape(new RectangleShape(showcaseView.mTarget.getBounds(), fullWidth));
                         break;
                     }
+                    default:
                     case CIRCLE_SHAPE: {
                         showcaseView.setShape(new CircleShape(showcaseView.mTarget));
                         break;
@@ -863,8 +896,6 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                         showcaseView.setShape(new OvalShape(showcaseView.mTarget));
                         break;
                     }
-                    default:
-                        throw new IllegalArgumentException("Unsupported shape type: " + shapeType);
                 }
             }
 

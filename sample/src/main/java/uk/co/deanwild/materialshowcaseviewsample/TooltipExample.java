@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 import uk.co.deanwild.materialshowcaseview.ShowcaseTooltip;
 
 
@@ -61,8 +62,13 @@ public class TooltipExample extends Activity implements View.OnClickListener {
 
     void presentShowcaseView() {
 
+
+        ShowcaseConfig config = new ShowcaseConfig();
+        config.setDelay(500);
+
         MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID);
 
+        //sequence.setConfig(config);
 
         ShowcaseTooltip toolTip1 = ShowcaseTooltip.build(this)
                 .corner(30)

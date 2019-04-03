@@ -10,22 +10,17 @@ import uk.co.deanwild.materialshowcaseview.shape.Shape;
 public class ShowcaseConfig {
 
     public static final String DEFAULT_MASK_COLOUR = "#dd335075";
-    public static final long DEFAULT_FADE_TIME = 300;
-    public static final long DEFAULT_DELAY = 0;
-    public static final Shape DEFAULT_SHAPE = new CircleShape();
-    public static final int DEFAULT_SHAPE_PADDING = 10;
-    public static final int DEFAULT_TOOLTIP_MARGIN = 10;
 
-    private long mDelay = DEFAULT_DELAY;
+    private long mDelay = -1;
     private int mMaskColour;
-    private Typeface mDismissTextStyle = Typeface.DEFAULT_BOLD;
+    private Typeface mDismissTextStyle;
 
     private int mContentTextColor;
     private int mDismissTextColor;
-    private long mFadeDuration = DEFAULT_FADE_TIME;
-    private Shape mShape = DEFAULT_SHAPE;
-    private int mShapePadding = DEFAULT_SHAPE_PADDING;
-    private boolean renderOverNav = false;
+    private long mFadeDuration = -1;
+    private Shape mShape = null;
+    private int mShapePadding = -1;
+    private Boolean renderOverNav;
 
     public ShowcaseConfig() {
         mMaskColour = Color.parseColor(ShowcaseConfig.DEFAULT_MASK_COLOUR);
@@ -97,7 +92,7 @@ public class ShowcaseConfig {
         return mShapePadding;
     }
 
-    public boolean getRenderOverNavigationBar() {
+    public Boolean getRenderOverNavigationBar() {
         return renderOverNav;
     }
 
