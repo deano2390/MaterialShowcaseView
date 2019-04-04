@@ -79,7 +79,7 @@ public class TooltipExample extends Activity implements View.OnClickListener {
         sequence.addSequenceItem(
 
                 new MaterialShowcaseView.Builder(this)
-                        .setTarget(mButtonShow)
+                        .setTarget(toolbar)
                         .setToolTip(toolTip1)
                         .withRectangleShape()
                         .setTooltipMargin(30)

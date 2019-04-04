@@ -76,7 +76,7 @@ public class RectangleShape implements Shape {
 
     @Override
     public int getTotalRadius() {
-        return (width / 2) + padding;
+        return (height / 2) + padding;
     }
 
     @Override
