@@ -91,6 +91,10 @@ Publishing libraries to Maven is a chore that takes time and effort. Jitpack.io 
   * [Say It! - English Learning](https://play.google.com/store/apps/details?id=com.cesarsk.say_it) : An Android App aimed to improve your English Pronunciation. 
     * [Github Page](https://github.com/cesarsk/say_it)
 
+# Learning Resources
+
+Refer to [this][6] article if you are interested in knowing how the library is implemented. Also, it might prove to be quite helpful if you want to tweak the library as per your needs.
+
 
 # License
 -------
@@ -118,3 +122,4 @@ Publishing libraries to Maven is a chore that takes time and effort. Jitpack.io 
 [3]: https://code.google.com/p/android-flowtextview/
 [4]: https://img.shields.io/github/release/deano2390/MaterialShowcaseView.svg?label=JitPack
 [5]: https://jitpack.io/#deano2390/MaterialShowcaseView
+[6]: https://medium.com/@yashgirdhar/android-material-showcase-view-part-1-22abd5c65b85
