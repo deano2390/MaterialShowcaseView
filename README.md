@@ -90,10 +90,16 @@ Publishing libraries to Maven is a chore that takes time and effort. Jitpack.io 
 
   * [Say It! - English Learning](https://play.google.com/store/apps/details?id=com.cesarsk.say_it) : An Android App aimed to improve your English Pronunciation. 
     * [Github Page](https://github.com/cesarsk/say_it)
+    
+  * [Queskr](https://play.google.com/store/apps/details?id=com.queskr.www.queskrandroidapp) : Social Q&A at your fingertips
 
 # Learning Resources
+[https://medium.com/@yashgirdhar/android-material-showcase-view-part-1-22abd5c65b85][6]
 
-Refer to [this][6] article if you are interested in knowing how the library is implemented. Also, it might prove to be quite helpful if you want to tweak the library as per your needs.
+[https://1bucketlist.blogspot.com/2017/03/android-material-showcase-view-1.html][7]
+
+[https://blog.fossasia.org/tag/material-showcase-view/][8]
+
 
 
 # License
@@ -123,3 +129,5 @@ Refer to [this][6] article if you are interested in knowing how the library is i
 [4]: https://img.shields.io/github/release/deano2390/MaterialShowcaseView.svg?label=JitPack
 [5]: https://jitpack.io/#deano2390/MaterialShowcaseView
 [6]: https://medium.com/@yashgirdhar/android-material-showcase-view-part-1-22abd5c65b85
+[7]: https://1bucketlist.blogspot.com/2017/03/android-material-showcase-view-1.html
+[8]: https://blog.fossasia.org/tag/material-showcase-view/
