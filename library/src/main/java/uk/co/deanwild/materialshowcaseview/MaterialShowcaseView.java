@@ -992,8 +992,14 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-
-                if (mShouldAnimate) {
+                boolean attached;
+                // taken from https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-master-dev/core/src/main/java/androidx/core/view/ViewCompat.java#3310
+                if (Build.VERSION.SDK_INT >= 19) {
+                    attached = isAttachedToWindow();
+                } else {
+                    attached = getWindowToken() != null;
+                }
+                if (mShouldAnimate && attached) {
                     fadeIn();
                 } else {
                     setVisibility(VISIBLE);
