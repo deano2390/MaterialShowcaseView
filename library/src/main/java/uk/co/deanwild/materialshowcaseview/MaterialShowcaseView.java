@@ -65,6 +65,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private TextView mContentTextView;
     private TextView mDismissButton;
     private boolean mHasCustomGravity;
+    private boolean mHasNavigationMargin = true;
     private TextView mSkipButton;
     private int mGravity;
     private int mContentBottomMargin;
@@ -290,6 +291,16 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     }
 
     /**
+     * Used for setting height for Canvas onDraw().
+     *
+     * @param bottomMargin true if set margin for bottom navigation bar
+     *                     false if don't set margin for bottom navigation bar
+     */
+    public void setBottomNavigationMargin(boolean bottomMargin) {
+        mHasNavigationMargin = bottomMargin;
+    }
+
+    /**
      * Tells us about the "Target" which is the view we want to anchor to.
      * We figure out where it is on screen and (optionally) how big it is.
      * We also figure out whether to place our content and dismiss button above or below it.
@@ -310,7 +321,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             if (!mRenderOverNav && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 
 
-                mBottomMargin = getSoftButtonsBarSizePort();
+                if (mHasNavigationMargin)
+                    mBottomMargin = getSoftButtonsBarSizePort();
+                else
+                    mBottomMargin = 0;
 
 
                 FrameLayout.LayoutParams contentLP = (LayoutParams) getLayoutParams();
@@ -563,40 +577,40 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
      */
     public void setConfig(ShowcaseConfig config) {
 
-        if(config.getDelay() > -1){
+        if (config.getDelay() > -1) {
             setDelay(config.getDelay());
         }
 
-        if(config.getFadeDuration() > 0){
+        if (config.getFadeDuration() > 0) {
             setFadeDuration(config.getFadeDuration());
         }
 
 
-        if(config.getContentTextColor() > 0){
+        if (config.getContentTextColor() > 0) {
             setContentTextColor(config.getContentTextColor());
         }
 
-        if(config.getDismissTextColor() > 0){
+        if (config.getDismissTextColor() > 0) {
             setDismissTextColor(config.getDismissTextColor());
         }
 
-        if(config.getDismissTextStyle() != null){
+        if (config.getDismissTextStyle() != null) {
             setDismissStyle(config.getDismissTextStyle());
         }
 
-        if(config.getMaskColor() > 0){
+        if (config.getMaskColor() > 0) {
             setMaskColour(config.getMaskColor());
         }
 
-        if(config.getShape() != null){
+        if (config.getShape() != null) {
             setShape(config.getShape());
         }
 
-        if(config.getShapePadding() > -1){
+        if (config.getShapePadding() > -1) {
             setShapePadding(config.getShapePadding());
         }
 
-        if(config.getRenderOverNavigationBar() != null){
+        if (config.getRenderOverNavigationBar() != null) {
             setRenderOverNavigationBar(config.getRenderOverNavigationBar());
         }
     }
@@ -667,6 +681,17 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
          */
         public Builder setGravity(int gravity) {
             showcaseView.setGravity(gravity);
+            return this;
+        }
+
+        /**
+         * Builder method for setting margin for bottom navigation bar
+         *
+         * @param hasBottomMargin true if set margin for bottom navigation bar
+         *                        false if don't set margin for bottom navigation bar
+         */
+        public Builder setBottomNavigationMargin(boolean hasBottomMargin) {
+            showcaseView.setBottomNavigationMargin(hasBottomMargin);
             return this;
         }
 
@@ -1046,13 +1071,13 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     public void fadeIn() {
         setVisibility(INVISIBLE);
         mAnimationFactory.animateInView(this, mTarget.getPoint(), mFadeDurationInMillis,
-                new IAnimationFactory.AnimationStartListener() {
-                    @Override
-                    public void onAnimationStart() {
-                        setVisibility(View.VISIBLE);
-                        notifyOnDisplayed();
-                    }
+            new IAnimationFactory.AnimationStartListener() {
+                @Override
+                public void onAnimationStart() {
+                    setVisibility(View.VISIBLE);
+                    notifyOnDisplayed();
                 }
+            }
         );
     }
 
