@@ -18,6 +18,8 @@ public class MaterialShowcaseSequence implements IDetachedListener {
 
     private OnSequenceItemShownListener mOnItemShownListener = null;
     private OnSequenceItemDismissedListener mOnItemDismissedListener = null;
+    private OnSequenceItemSkippedListener mOnItemSkippedListener = null;
+
 
     public MaterialShowcaseSequence(Activity activity) {
         mActivity = activity;
@@ -74,6 +76,9 @@ public class MaterialShowcaseSequence implements IDetachedListener {
 
     public void setOnItemDismissedListener(OnSequenceItemDismissedListener listener) {
         this.mOnItemDismissedListener = listener;
+    }
+    public void setOnItemSkippedListener(OnSequenceItemSkippedListener listener) {
+        this.mOnItemSkippedListener = listener;
     }
 
     public boolean hasFired() {
@@ -181,8 +186,8 @@ public class MaterialShowcaseSequence implements IDetachedListener {
         }
 
         if(wasSkipped){
-            if (mOnItemDismissedListener != null) {
-                mOnItemDismissedListener.onDismiss(showcaseView, mSequencePosition);
+            if (mOnItemSkippedListener != null) {
+                mOnItemSkippedListener.onSkip(showcaseView, mSequencePosition);
             }
 
             /**
@@ -207,6 +212,9 @@ public class MaterialShowcaseSequence implements IDetachedListener {
 
     public interface OnSequenceItemDismissedListener {
         void onDismiss(MaterialShowcaseView itemView, int position);
+    }
+     public interface OnSequenceItemSkippedListener {
+        void onSkip(MaterialShowcaseView itemView, int position);
     }
 
 }
