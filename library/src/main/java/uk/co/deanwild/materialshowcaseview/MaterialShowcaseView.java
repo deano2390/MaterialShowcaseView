@@ -563,40 +563,33 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
      */
     public void setConfig(ShowcaseConfig config) {
 
-        if(config.getDelay() > -1){
+        if (config.getDelay() > -1) {
             setDelay(config.getDelay());
         }
 
-        if(config.getFadeDuration() > 0){
+        if (config.getFadeDuration() > 0) {
             setFadeDuration(config.getFadeDuration());
         }
 
+        setContentTextColor(config.getContentTextColor());
 
-        if(config.getContentTextColor() > 0){
-            setContentTextColor(config.getContentTextColor());
-        }
+        setDismissTextColor(config.getDismissTextColor());
 
-        if(config.getDismissTextColor() > 0){
-            setDismissTextColor(config.getDismissTextColor());
-        }
+        setMaskColour(config.getMaskColor());
 
-        if(config.getDismissTextStyle() != null){
+        if (config.getDismissTextStyle() != null) {
             setDismissStyle(config.getDismissTextStyle());
         }
 
-        if(config.getMaskColor() > 0){
-            setMaskColour(config.getMaskColor());
-        }
-
-        if(config.getShape() != null){
+        if (config.getShape() != null) {
             setShape(config.getShape());
         }
 
-        if(config.getShapePadding() > -1){
+        if (config.getShapePadding() > -1) {
             setShapePadding(config.getShapePadding());
         }
 
-        if(config.getRenderOverNavigationBar() != null){
+        if (config.getRenderOverNavigationBar() != null) {
             setRenderOverNavigationBar(config.getRenderOverNavigationBar());
         }
     }
