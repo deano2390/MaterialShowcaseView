@@ -1,7 +1,10 @@
 package uk.co.deanwild.materialshowcaseview;
 
 import android.graphics.Color;
+
 import android.view.Gravity;
+import android.graphics.Typeface;
+
 
 import uk.co.deanwild.materialshowcaseview.shape.CircleShape;
 import uk.co.deanwild.materialshowcaseview.shape.Shape;
@@ -16,17 +19,19 @@ public class ShowcaseConfig {
     public static final int DEFAULT_SHAPE_PADDING = 10;
     public static final int DEFAULT_TEXT_GRAVITY = Gravity.LEFT;
 
-    private long mDelay = DEFAULT_DELAY;
+    private long mDelay = -1;
     private int mMaskColour;
+    private Typeface mDismissTextStyle;
+
     private int mContentTextColor;
     private int mDismissTextColor;
-    private long mFadeDuration = DEFAULT_FADE_TIME;
-    private Shape mShape = DEFAULT_SHAPE;
-    private int mShapePadding = DEFAULT_SHAPE_PADDING;
-    private boolean renderOverNav = false;
     private int dismissTextGravity = DEFAULT_TEXT_GRAVITY ;
     private int titleTextGravity = DEFAULT_TEXT_GRAVITY ;
     private int contentTextGravity = DEFAULT_TEXT_GRAVITY ;
+    private long mFadeDuration = -1;
+    private Shape mShape = null;
+    private int mShapePadding = -1;
+    private Boolean renderOverNav;
 
     public ShowcaseConfig() {
         mMaskColour = Color.parseColor(ShowcaseConfig.DEFAULT_MASK_COLOUR);
@@ -66,6 +71,14 @@ public class ShowcaseConfig {
         this.mDismissTextColor = dismissTextColor;
     }
 
+    public Typeface getDismissTextStyle() {
+        return mDismissTextStyle;
+    }
+
+    public void setDismissTextStyle(Typeface dismissTextStyle) {
+        this.mDismissTextStyle = dismissTextStyle;
+    }
+
     public long getFadeDuration() {
         return mFadeDuration;
     }
@@ -90,7 +103,7 @@ public class ShowcaseConfig {
         return mShapePadding;
     }
 
-    public boolean getRenderOverNavigationBar() {
+    public Boolean getRenderOverNavigationBar() {
         return renderOverNav;
     }
 

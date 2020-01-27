@@ -15,7 +15,7 @@ public interface Shape {
     /**
      * Draw shape on the canvas with the center at (x, y) using Paint object provided.
      */
-    void draw(Canvas canvas, Paint paint, int x, int y, int padding);
+    void draw(Canvas canvas, Paint paint, int x, int y);
 
     /**
      * Get width of the shape.
@@ -32,4 +32,7 @@ public interface Shape {
      */
     void updateTarget(Target target);
 
+    int getTotalRadius();
+
+    void setPadding(int padding);
 }

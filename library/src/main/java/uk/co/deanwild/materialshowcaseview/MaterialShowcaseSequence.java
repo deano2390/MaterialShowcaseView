@@ -41,6 +41,7 @@ public class MaterialShowcaseSequence implements IDetachedListener {
                 .setTitleText(title)
                 .setDismissText(dismissText)
                 .setContentText(content)
+                .setSequence(true)
                 .build();
 
         if (mConfig != null) {
@@ -52,6 +53,11 @@ public class MaterialShowcaseSequence implements IDetachedListener {
     }
 
     public MaterialShowcaseSequence addSequenceItem(MaterialShowcaseView sequenceItem) {
+
+        if (mConfig != null) {
+            sequenceItem.setConfig(mConfig);
+        }
+
         mShowcaseQueue.add(sequenceItem);
         if (mConfig != null) {
             sequenceItem.setConfig(mConfig);
@@ -130,9 +136,30 @@ public class MaterialShowcaseSequence implements IDetachedListener {
         }
     }
 
+    private void skipTutorial() {
+
+        mShowcaseQueue.clear();
+
+        if (mShowcaseQueue.size() > 0 && !mActivity.isFinishing()) {
+            MaterialShowcaseView sequenceItem = mShowcaseQueue.remove();
+            sequenceItem.setDetachedListener(this);
+            sequenceItem.show(mActivity);
+            if (mOnItemShownListener != null) {
+                mOnItemShownListener.onShow(sequenceItem, mSequencePosition);
+            }
+        } else {
+            /**
+             * We've reached the end of the sequence, save the fired state
+             */
+            if (mSingleUse) {
+                mPrefsManager.setFired();
+            }
+        }
+    }
+
 
     @Override
-    public void onShowcaseDetached(MaterialShowcaseView showcaseView, boolean wasDismissed) {
+    public void onShowcaseDetached(MaterialShowcaseView showcaseView, boolean wasDismissed, boolean wasSkipped) {
 
         showcaseView.setDetachedListener(null);
 
@@ -154,6 +181,22 @@ public class MaterialShowcaseSequence implements IDetachedListener {
             }
 
             showNextItem();
+        }
+
+        if(wasSkipped){
+            if (mOnItemDismissedListener != null) {
+                mOnItemDismissedListener.onDismiss(showcaseView, mSequencePosition);
+            }
+
+            /**
+             * If so, update the prefsManager so we can potentially resume this sequence in the future
+             */
+            if (mPrefsManager != null) {
+                mSequencePosition++;
+                mPrefsManager.setSequenceStatus(mSequencePosition);
+            }
+
+            skipTutorial();
         }
     }
 

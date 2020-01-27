@@ -26,16 +26,16 @@ public class SequenceExample extends AppCompatActivity implements View.OnClickLi
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sequence_example);
-        mButtonOne = (Button) findViewById(R.id.btn_one);
+        mButtonOne = findViewById(R.id.btn_one);
         mButtonOne.setOnClickListener(this);
 
-        mButtonTwo = (Button) findViewById(R.id.btn_two);
+        mButtonTwo = findViewById(R.id.btn_two);
         mButtonTwo.setOnClickListener(this);
 
-        mButtonThree = (Button) findViewById(R.id.btn_three);
+        mButtonThree = findViewById(R.id.btn_three);
         mButtonThree.setOnClickListener(this);
 
-        mButtonReset = (Button) findViewById(R.id.btn_reset);
+        mButtonReset = findViewById(R.id.btn_reset);
         mButtonReset.setOnClickListener(this);
 
         presentShowcaseSequence(); // one second delay
@@ -79,6 +79,7 @@ public class SequenceExample extends AppCompatActivity implements View.OnClickLi
 
         sequence.addSequenceItem(
                 new MaterialShowcaseView.Builder(this)
+                        .setSkipText("SKIP")
                         .setTarget(mButtonTwo)
                         .setDismissText("GOT IT")
                         .setContentText("This is button two")

@@ -16,13 +16,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Button button = (Button) findViewById(R.id.btn_simple_example);
+        Button button = findViewById(R.id.btn_simple_example);
         button.setOnClickListener(this);
-        button = (Button) findViewById(R.id.btn_custom_example);
+        button = findViewById(R.id.btn_custom_example);
         button.setOnClickListener(this);
-        button = (Button) findViewById(R.id.btn_sequence_example);
+        button = findViewById(R.id.btn_sequence_example);
         button.setOnClickListener(this);
-        button = (Button) findViewById(R.id.btn_reset_all);
+        button = findViewById(R.id.btn_tooltip_example);
+        button.setOnClickListener(this);
+        button = findViewById(R.id.btn_reset_all);
         button.setOnClickListener(this);
 
     }
@@ -45,13 +47,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent = new Intent(this, SequenceExample.class);
                 break;
 
+            case R.id.btn_tooltip_example:
+                intent = new Intent(this, TooltipExample.class);
+                break;
+
             case R.id.btn_reset_all:
                 MaterialShowcaseView.resetAll(this);
                 Toast.makeText(this, "All Showcases reset", Toast.LENGTH_SHORT).show();
                 break;
         }
 
-        if(intent!=null){
+        if (intent != null) {
             startActivity(intent);
         }
     }
