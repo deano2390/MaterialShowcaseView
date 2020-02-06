@@ -1,5 +1,6 @@
 package uk.co.deanwild.materialshowcaseviewsample;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -52,6 +53,7 @@ public class SimpleSingleExample extends AppCompatActivity implements View.OnCli
                 .setShape(new OvalShape())
                 .setTitleText("Hello")
                 .setDismissText("GOT IT")
+                .setDismissButtonColor(Color.GREEN)
                 .setContentText("This is some amazing feature you should know about")
                 .setDelay(withDelay) // optional but starting animations immediately in onCreate can make them choppy
                 .singleUse(SHOWCASE_ID) // provide a unique ID used to ensure it is only shown once
