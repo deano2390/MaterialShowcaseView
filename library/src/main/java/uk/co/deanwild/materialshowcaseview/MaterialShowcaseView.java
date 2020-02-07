@@ -14,6 +14,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Handler;
+import android.support.annotation.IntDef;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -22,9 +23,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import java.lang.annotation.Retention;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +39,8 @@ import uk.co.deanwild.materialshowcaseview.shape.Shape;
 import uk.co.deanwild.materialshowcaseview.target.Target;
 import uk.co.deanwild.materialshowcaseview.target.ViewTarget;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 
 /**
  * Helper class to show a sequence of showcase views.
@@ -44,6 +49,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     public static final int DEFAULT_SHAPE_PADDING = 10;
     public static final int DEFAULT_TOOLTIP_MARGIN = 10;
+    public static final int DISMISS_TYPE_TEXT = 1;
+    public static final int DISMISS_TYPE_BUTTON = 2;
+    private int dismissType = DISMISS_TYPE_TEXT;
     long DEFAULT_DELAY = 0;
     long DEFAULT_FADE_TIME = 300;
 
@@ -63,7 +71,8 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private View mContentBox;
     private TextView mTitleTextView;
     private TextView mContentTextView;
-    private TextView mDismissButton;
+    private TextView mDismissText;
+    private Button mDismissButton;
     private boolean mHasCustomGravity;
     private TextView mSkipButton;
     private int mGravity;
@@ -135,9 +144,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mContentBox = contentView.findViewById(R.id.content_box);
         mTitleTextView = contentView.findViewById(R.id.tv_title);
         mContentTextView = contentView.findViewById(R.id.tv_content);
-        mDismissButton = contentView.findViewById(R.id.tv_dismiss);
+        mDismissText = contentView.findViewById(R.id.tv_dismiss);
+        mDismissText.setOnClickListener(this);
+        mDismissButton = contentView.findViewById(R.id.btn_dismiss);
         mDismissButton.setOnClickListener(this);
-
         mSkipButton = contentView.findViewById(R.id.tv_skip);
         mSkipButton.setOnClickListener(this);
     }
@@ -267,7 +277,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
      */
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.tv_dismiss) {
+        if (v.getId() == R.id.tv_dismiss || v.getId()==R.id.btn_dismiss) {
             hide();
         } else if (v.getId() == R.id.tv_skip) {
             skip();
@@ -447,6 +457,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     }
 
     private void setDismissText(CharSequence dismissText) {
+        if (mDismissText != null) {
+            mDismissText.setText(dismissText);
+            updateDismissButton();
+        }
         if (mDismissButton != null) {
             mDismissButton.setText(dismissText);
             updateDismissButton();
@@ -461,10 +475,18 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     }
 
     private void setDismissStyle(Typeface dismissStyle) {
+        if (mDismissText != null) {
+            mDismissText.setTypeface(dismissStyle);
+            updateDismissButton();
+        }
         if (mDismissButton != null) {
             mDismissButton.setTypeface(dismissStyle);
             updateDismissButton();
         }
+    }
+
+    private void setDismissType(int dismissType) {
+        this.dismissType = dismissType;
     }
 
     private void setSkipStyle(Typeface skipStyle) {
@@ -487,10 +509,20 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     }
 
     private void setDismissTextColor(int textColour) {
+        if (mDismissText != null) {
+            mDismissText.setTextColor(textColour);
+        }
         if (mDismissButton != null) {
             mDismissButton.setTextColor(textColour);
         }
     }
+
+    private void setDismissButtonColor(int btnColour) {
+        if (mDismissButton != null) {
+            mDismissButton.setBackgroundColor(btnColour);
+        }
+    }
+
 
     private void setShapePadding(int padding) {
         mShapePadding = padding;
@@ -563,51 +595,60 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
      */
     public void setConfig(ShowcaseConfig config) {
 
-        if(config.getDelay() > -1){
+        if (config.getDelay() > -1) {
             setDelay(config.getDelay());
         }
 
-        if(config.getFadeDuration() > 0){
+        if (config.getFadeDuration() > 0) {
             setFadeDuration(config.getFadeDuration());
         }
 
 
-        if(config.getContentTextColor() > 0){
+        if (config.getContentTextColor() > 0) {
             setContentTextColor(config.getContentTextColor());
         }
 
-        if(config.getDismissTextColor() > 0){
+        if (config.getDismissTextColor() > 0) {
             setDismissTextColor(config.getDismissTextColor());
         }
 
-        if(config.getDismissTextStyle() != null){
+        if (config.getDismissTextStyle() != null) {
             setDismissStyle(config.getDismissTextStyle());
         }
 
-        if(config.getMaskColor() > 0){
+        if (config.getMaskColor() > 0) {
             setMaskColour(config.getMaskColor());
         }
 
-        if(config.getShape() != null){
+        if (config.getShape() != null) {
             setShape(config.getShape());
         }
 
-        if(config.getShapePadding() > -1){
+        if (config.getShapePadding() > -1) {
             setShapePadding(config.getShapePadding());
         }
 
-        if(config.getRenderOverNavigationBar() != null){
+        if (config.getRenderOverNavigationBar() != null) {
             setRenderOverNavigationBar(config.getRenderOverNavigationBar());
         }
     }
 
     void updateDismissButton() {
         // hide or show button
-        if (mDismissButton != null) {
+        if (mDismissText != null && dismissType == DISMISS_TYPE_TEXT) {
+            if (TextUtils.isEmpty(mDismissText.getText())) {
+                mDismissText.setVisibility(GONE);
+            } else {
+                mDismissText.setVisibility(VISIBLE);
+                mDismissButton.setVisibility(GONE);
+            }
+        }
+        if (mDismissButton != null && dismissType == DISMISS_TYPE_BUTTON) {
             if (TextUtils.isEmpty(mDismissButton.getText())) {
                 mDismissButton.setVisibility(GONE);
             } else {
                 mDismissButton.setVisibility(VISIBLE);
+                mDismissText.setVisibility(GONE);
             }
         }
     }
@@ -686,6 +727,17 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         /**
          * Set the dismiss button properties
          */
+
+        @Retention(SOURCE)
+        @IntDef({DISMISS_TYPE_TEXT, DISMISS_TYPE_BUTTON})
+        @interface DismissType {
+        }
+
+        public Builder setDismissType(@DismissType int dismissType) {
+            showcaseView.setDismissType(dismissType);
+            return this;
+        }
+
         public Builder setDismissText(int resId) {
             return setDismissText(activity.getString(resId));
         }
@@ -802,6 +854,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         public Builder setDismissTextColor(int textColour) {
             showcaseView.setDismissTextColor(textColour);
+            return this;
+        }
+
+        public Builder setDismissButtonColor(int buttonColour) {
+            showcaseView.setDismissButtonColor(buttonColour);
             return this;
         }
 
