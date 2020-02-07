@@ -277,7 +277,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
      */
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.tv_dismiss) {
+        if (v.getId() == R.id.tv_dismiss || v.getId()==R.id.btn_dismiss) {
             hide();
         } else if (v.getId() == R.id.tv_skip) {
             skip();
