@@ -9,7 +9,7 @@ import uk.co.deanwild.materialshowcaseview.shape.Shape;
 
 public class ShowcaseConfig {
 
-    public static final String DEFAULT_MASK_COLOUR = "#dd335075";
+    public static final String DEFAULT_MASK_COLOUR = "#E67B37D4";
 
     private long mDelay = -1;
     private int mMaskColour;
