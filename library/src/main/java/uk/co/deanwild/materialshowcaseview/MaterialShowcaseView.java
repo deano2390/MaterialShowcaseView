@@ -181,7 +181,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mOldHeight = height;
 
         // clear canvas
-//        mCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+        mCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 
         // draw solid background
         mCanvas.drawColor(mMaskColour);
