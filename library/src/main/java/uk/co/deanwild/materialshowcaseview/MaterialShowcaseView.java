@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -467,6 +468,16 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
     }
 
+    private void setDismissGravity(int gravity) {
+        if (mDismissButton != null) {
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+            params.gravity = gravity;
+
+            mDismissButton.setLayoutParams(params);
+            updateDismissButton();
+        }
+    }
+
     private void setSkipText(CharSequence skipText) {
         if (mSkipButton != null) {
             mSkipButton.setText(skipText);
@@ -485,6 +496,20 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         if (mSkipButton != null) {
             mSkipButton.setTypeface(skipStyle);
             updateSkipButton();
+        }
+    }
+
+    private void setContentTextStyle(Typeface contentTextStyle) {
+        if (mContentTextView != null) {
+            mContentTextView.setTypeface(contentTextStyle);
+            updateDismissButton();
+        }
+    }
+
+    private void setTitleStyle(Typeface titleStyle) {
+        if (mTitleTextView != null) {
+            mTitleTextView.setTypeface(titleStyle);
+            updateDismissButton();
         }
     }
 
@@ -720,8 +745,23 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             return this;
         }
 
+        public Builder setDismissGravity(int gravity) {
+            showcaseView.setDismissGravity(gravity);
+            return this;
+        }
+
         public Builder setDismissStyle(Typeface dismissStyle) {
             showcaseView.setDismissStyle(dismissStyle);
+            return this;
+        }
+
+        public Builder setContentStyle(Typeface contentStyle) {
+            showcaseView.setContentTextStyle(contentStyle);
+            return this;
+        }
+
+        public Builder setTitleStyle(Typeface titleStyle) {
+            showcaseView.setTitleStyle(titleStyle);
             return this;
         }
 
