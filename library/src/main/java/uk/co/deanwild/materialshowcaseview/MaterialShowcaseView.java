@@ -440,8 +440,13 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     private void setTitleText(CharSequence contentText) {
         if (mTitleTextView != null && !contentText.equals("")) {
-            mContentTextView.setAlpha(0.5F);
             mTitleTextView.setText(contentText);
+        }
+    }
+
+    private void setContentTextAlpha(float value) {
+        if (mContentTextView != null) {
+            mContentTextView.setAlpha(value);
         }
     }
 
@@ -810,6 +815,14 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
          */
         public Builder setTitleText(CharSequence text) {
             showcaseView.setTitleText(text);
+            return this;
+        }
+
+        /**
+         * Set alpha of the content text shown on the ShowcaseView.
+         */
+        public Builder setContentTextAlpha(float value) {
+            showcaseView.setContentTextAlpha(value);
             return this;
         }
 
