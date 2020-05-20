@@ -3,6 +3,7 @@ package uk.co.deanwild.materialshowcaseview;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -192,6 +193,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             mEraser.setColor(0xFFFFFFFF);
             mEraser.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
             mEraser.setFlags(Paint.ANTI_ALIAS_FLAG);
+        }
+
+        // Adding padding on Landscape orientation to prevent from overlapping with Android soft button bar
+        if (getContext().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && mContentBox != null) {
+            mContentBox.setPadding(getSoftButtonsBarSizePort() + 5, 16, getSoftButtonsBarSizePort() + 5, 16);
         }
 
         // draw (erase) shape
