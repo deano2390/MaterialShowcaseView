@@ -492,6 +492,31 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
     }
 
+    private void setTitleTextSize(int unit,float size) {
+        if (mTitleTextView != null) {
+            mTitleTextView.setTextSize(unit,size);
+        }
+    }
+
+    private void setContentTextSize(int unit,float size) {
+        if (mContentTextView != null) {
+            mContentTextView.setTextSize(unit,size);
+        }
+    }
+
+    private void setDismissTextSize(int unit,float size) {
+        if (mDismissButton != null) {
+            mDismissButton.setTextSize(unit,size);
+        }
+    }
+
+    private void setSkipTextSize(int unit,float size) {
+        if (mSkipButton != null) {
+            mSkipButton.setTextSize(unit,size);
+        }
+    }
+
+
     private void setShapePadding(int padding) {
         mShapePadding = padding;
     }
