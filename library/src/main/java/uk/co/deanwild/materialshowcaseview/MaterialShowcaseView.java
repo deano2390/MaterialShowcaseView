@@ -830,17 +830,17 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             return this;
         }
 
-        private Builder setTitleTextSize(int unit,float size) {
+        public Builder setTitleTextSize(int unit,float size) {
                 showcaseView.setTitleTextSize(unit,size);
                 return this;
         }
 
-        private Builder setContentTextSize(int unit,float size) {
+        public Builder setContentTextSize(int unit,float size) {
             showcaseView.setContentTextSize(unit,size);
             return this;
         }
 
-        private Builder setDismissTextSize(int unit,float size) {
+        public Builder setDismissTextSize(int unit,float size) {
             showcaseView.setDismissTextSize(unit,size);
             return this;
         }
