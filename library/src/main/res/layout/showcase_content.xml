@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:textColor="@android:color/white"
         android:paddingLeft="5dp"
-        android:textSize="20sp" />
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/tv_dismiss"
