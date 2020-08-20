@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="uk.co.deanwild.materialshowcaseviewsample" >
+    package="uk.co.deanwild.materialshowcaseviewsample">
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -18,22 +18,20 @@
         </activity>
         <activity
             android:name=".SimpleSingleExample"
-            android:label="@string/title_activity_simple_single_example" >
-        </activity>
+            android:label="@string/title_activity_simple_single_example"></activity>
         <activity
             android:name=".CustomExample"
-            android:label="@string/title_activity_custom_example" >
-        </activity>
+            android:label="@string/title_activity_custom_example"></activity>
         <activity
             android:name=".SequenceExample"
-            android:label="@string/title_activity_sequence_example" >
-        </activity>
-
+            android:label="@string/title_activity_sequence_example"></activity>
         <activity
             android:name=".TooltipExample"
-            android:theme="@style/ToolTipTheme"
-            android:label="@string/title_activity_sequence_example" >
-        </activity>
+            android:label="@string/title_activity_sequence_example"
+            android:theme="@style/ToolTipTheme"></activity>
+        <activity
+            android:name=".RecyclerViewExample"
+            android:label="@string/title_activity_recyclerview_example"></activity>
     </application>
 
 </manifest>
