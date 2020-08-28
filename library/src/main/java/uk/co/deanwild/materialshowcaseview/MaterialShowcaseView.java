@@ -3,6 +3,7 @@ package uk.co.deanwild.materialshowcaseview;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -23,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -66,6 +68,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private TextView mSubContentTextView;
     private TextView mDismissButton;
     private boolean mHasCustomGravity;
+    private boolean mHasNavigationMargin = false;
     private TextView mSkipButton;
     private int mGravity;
     private int mContentBottomMargin;
@@ -202,6 +205,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             mEraser.setFlags(Paint.ANTI_ALIAS_FLAG);
         }
 
+        // Adding padding on Landscape orientation to prevent from overlapping with Android soft button bar
+        if (getContext().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && mContentBox != null) {
+            mContentBox.setPadding(getSoftButtonsBarSizePort() + 5, 16, getSoftButtonsBarSizePort() + 5, 16);
+        }
+
         // draw (erase) shape
         mShape.draw(mCanvas, mEraser, mXPosition, mYPosition);
 
@@ -305,6 +313,16 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     }
 
     /**
+     * Used for setting height for Canvas onDraw().
+     *
+     * @param bottomMargin true if set margin for bottom navigation bar
+     *                     false if don't set margin for bottom navigation bar
+     */
+    public void setBottomNavigationMargin(boolean bottomMargin) {
+        mHasNavigationMargin = bottomMargin;
+    }
+
+    /**
      * Tells us about the "Target" which is the view we want to anchor to.
      * We figure out where it is on screen and (optionally) how big it is.
      * We also figure out whether to place our content and dismiss button above or below it.
@@ -325,7 +343,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             if (!mRenderOverNav && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 
 
-                mBottomMargin = getSoftButtonsBarSizePort();
+                if (mHasNavigationMargin)
+                    mBottomMargin = getSoftButtonsBarSizePort();
+                else
+                    mBottomMargin = 0;
 
 
                 FrameLayout.LayoutParams contentLP = (LayoutParams) getLayoutParams();
@@ -440,8 +461,13 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     private void setTitleText(CharSequence contentText) {
         if (mTitleTextView != null && !contentText.equals("")) {
-            mContentTextView.setAlpha(0.5F);
             mTitleTextView.setText(contentText);
+        }
+    }
+
+    private void setContentTextAlpha(float value) {
+        if (mContentTextView != null) {
+            mContentTextView.setAlpha(value);
         }
     }
 
@@ -473,6 +499,16 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
     }
 
+    private void setDismissGravity(int gravity) {
+        if (mDismissButton != null) {
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+            params.gravity = gravity;
+
+            mDismissButton.setLayoutParams(params);
+            updateDismissButton();
+        }
+    }
+
     private void setSkipText(CharSequence skipText) {
         if (mSkipButton != null) {
             mSkipButton.setText(skipText);
@@ -491,6 +527,20 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         if (mSkipButton != null) {
             mSkipButton.setTypeface(skipStyle);
             updateSkipButton();
+        }
+    }
+
+    private void setContentTextStyle(Typeface contentTextStyle) {
+        if (mContentTextView != null) {
+            mContentTextView.setTypeface(contentTextStyle);
+            updateDismissButton();
+        }
+    }
+
+    private void setTitleStyle(Typeface titleStyle) {
+        if (mTitleTextView != null) {
+            mTitleTextView.setTypeface(titleStyle);
+            updateDismissButton();
         }
     }
 
@@ -589,40 +639,40 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
      */
     public void setConfig(ShowcaseConfig config) {
 
-        if(config.getDelay() > -1){
+        if (config.getDelay() > -1) {
             setDelay(config.getDelay());
         }
 
-        if(config.getFadeDuration() > 0){
+        if (config.getFadeDuration() > 0) {
             setFadeDuration(config.getFadeDuration());
         }
 
 
-        if(config.getContentTextColor() > 0){
+        if (config.getContentTextColor() > 0) {
             setContentTextColor(config.getContentTextColor());
         }
 
-        if(config.getDismissTextColor() > 0){
+        if (config.getDismissTextColor() > 0) {
             setDismissTextColor(config.getDismissTextColor());
         }
 
-        if(config.getDismissTextStyle() != null){
+        if (config.getDismissTextStyle() != null) {
             setDismissStyle(config.getDismissTextStyle());
         }
 
-        if(config.getMaskColor() > 0){
+        if (config.getMaskColor() > 0) {
             setMaskColour(config.getMaskColor());
         }
 
-        if(config.getShape() != null){
+        if (config.getShape() != null) {
             setShape(config.getShape());
         }
 
-        if(config.getShapePadding() > -1){
+        if (config.getShapePadding() > -1) {
             setShapePadding(config.getShapePadding());
         }
 
-        if(config.getRenderOverNavigationBar() != null){
+        if (config.getRenderOverNavigationBar() != null) {
             setRenderOverNavigationBar(config.getRenderOverNavigationBar());
         }
     }
@@ -697,6 +747,17 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
 
         /**
+         * Builder method for setting margin for bottom navigation bar
+         *
+         * @param hasBottomMargin true if set margin for bottom navigation bar
+         *                        false if don't set margin for bottom navigation bar
+         */
+        public Builder setBottomNavigationMargin(boolean hasBottomMargin) {
+            showcaseView.setBottomNavigationMargin(hasBottomMargin);
+            return this;
+        }
+
+        /**
          * Set the title text shown on the ShowcaseView.
          */
         public Builder setTarget(View target) {
@@ -721,11 +782,26 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             return this;
         }
 
+        public Builder setDismissGravity(int gravity) {
+            showcaseView.setDismissGravity(gravity);
+            return this;
+        }
+
         public Builder setDismissStyle(Typeface dismissStyle) {
             showcaseView.setDismissStyle(dismissStyle);
             return this;
         }
 
+        public Builder setContentStyle(Typeface contentStyle) {
+            showcaseView.setContentTextStyle(contentStyle);
+            return this;
+        }
+
+        public Builder setTitleStyle(Typeface titleStyle) {
+            showcaseView.setTitleStyle(titleStyle);
+            return this;
+        }
+      
         /**
          * Set the skip button properties
          */
@@ -778,6 +854,14 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
          */
         public Builder setTitleText(CharSequence text) {
             showcaseView.setTitleText(text);
+            return this;
+        }
+
+        /**
+         * Set alpha of the content text shown on the ShowcaseView.
+         */
+        public Builder setContentTextAlpha(float value) {
+            showcaseView.setContentTextAlpha(value);
             return this;
         }
 
@@ -1089,13 +1173,13 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     public void fadeIn() {
         setVisibility(INVISIBLE);
         mAnimationFactory.animateInView(this, mTarget.getPoint(), mFadeDurationInMillis,
-                new IAnimationFactory.AnimationStartListener() {
-                    @Override
-                    public void onAnimationStart() {
-                        setVisibility(View.VISIBLE);
-                        notifyOnDisplayed();
-                    }
+            new IAnimationFactory.AnimationStartListener() {
+                @Override
+                public void onAnimationStart() {
+                    setVisibility(View.VISIBLE);
+                    notifyOnDisplayed();
                 }
+            }
         );
     }
 
