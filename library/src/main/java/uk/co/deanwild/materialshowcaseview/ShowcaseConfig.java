@@ -99,4 +99,8 @@ public class ShowcaseConfig {
     public void setRenderOverNavigationBar(boolean renderOverNav) {
         this.renderOverNav = renderOverNav;
     }
+
+    public boolean getSubContentTextColor() {
+        return false;
+    }
 }
