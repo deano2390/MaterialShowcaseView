@@ -65,6 +65,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private View mContentBox;
     private TextView mTitleTextView;
     private TextView mContentTextView;
+    private TextView mSubContentTextView;
     private TextView mDismissButton;
     private boolean mHasCustomGravity;
     private boolean mHasNavigationMargin = false;
@@ -96,6 +97,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private ShowcaseTooltip toolTip;
     private boolean toolTipShown;
 
+    private Bitmap mTargetPointerImage;
+    private Point mTargetPointerLocation;
+
     public MaterialShowcaseView(Context context) {
         super(context);
         init(context);
@@ -115,6 +119,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     public MaterialShowcaseView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context);
+    }
+
+    public void setTargetPointer(Bitmap targetPointerImage, Point targetPointerLocation) {
+        mTargetPointerImage = targetPointerImage;
+        mTargetPointerLocation = targetPointerLocation;
     }
 
 
@@ -138,6 +147,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mContentBox = contentView.findViewById(R.id.content_box);
         mTitleTextView = contentView.findViewById(R.id.tv_title);
         mContentTextView = contentView.findViewById(R.id.tv_content);
+        mSubContentTextView = contentView.findViewById(R.id.tv_sub_content);
         mDismissButton = contentView.findViewById(R.id.tv_dismiss);
         mDismissButton.setOnClickListener(this);
 
@@ -205,6 +215,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         // Draw the bitmap on our views  canvas.
         canvas.drawBitmap(mBitmap, 0, 0, null);
+
+        // Draw Target pointer if available
+        if (mTargetPointerImage != null) {
+            canvas.drawBitmap(mTargetPointerImage, mXPosition + mTargetPointerLocation.x, mYPosition + mTargetPointerLocation.y, null);
+        }
     }
 
     @Override
@@ -462,6 +477,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
     }
 
+    private void setSubContentText(CharSequence contentText) {
+        if (mSubContentTextView != null) {
+            mSubContentTextView.setText(contentText);
+        }
+    }
 
     private void setToolTip(ShowcaseTooltip toolTip) {
         this.toolTip = toolTip;
@@ -533,6 +553,12 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private void setContentTextColor(int textColour) {
         if (mContentTextView != null) {
             mContentTextView.setTextColor(textColour);
+        }
+    }
+
+    private void setSubContentTextColor(int textColour) {
+        if (mSubContentTextView != null) {
+            mSubContentTextView.setTextColor(textColour);
         }
     }
 
@@ -775,8 +801,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             showcaseView.setTitleStyle(titleStyle);
             return this;
         }
-
-
+      
         /**
          * Set the skip button properties
          */
@@ -806,6 +831,14 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
          */
         public Builder setContentText(CharSequence text) {
             showcaseView.setContentText(text);
+            return this;
+        }
+
+        /**
+         * Set the sub descriptive text shown on the ShowcaseView.
+         */
+        public Builder setSubContentText(CharSequence text) {
+            showcaseView.setSubContentText(text);
             return this;
         }
 
@@ -884,6 +917,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             return this;
         }
 
+        public Builder setSubContentTextColor(int textColour) {
+            showcaseView.setSubContentTextColor(textColour);
+            return this;
+        }
+
         public Builder setDismissTextColor(int textColour) {
             showcaseView.setDismissTextColor(textColour);
             return this;
@@ -896,6 +934,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         public Builder setFadeDuration(int fadeDurationInMillis) {
             showcaseView.setFadeDuration(fadeDurationInMillis);
+            return this;
+        }
+
+        public Builder setTargetPointer(Bitmap targetPointerImage, Point targetPointerLocation) {
+            showcaseView.setTargetPointer(targetPointerImage, targetPointerLocation);
             return this;
         }
 
