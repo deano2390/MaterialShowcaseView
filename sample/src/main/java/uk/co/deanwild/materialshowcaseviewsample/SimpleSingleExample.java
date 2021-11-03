@@ -6,6 +6,7 @@ import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -60,6 +61,8 @@ public class SimpleSingleExample extends AppCompatActivity implements View.OnCli
                 .setContentText("This is some amazing feature you should know about")
                 .setSubContentText("Sub Content Text")
                 .setTargetPointer(icon, new Point(-400, -50))
+                .setGravity(Gravity.CENTER)
+                .setDismissGravity(Gravity.END)
                 .setDelay(withDelay) // optional but starting animations immediately in onCreate can make them choppy
                 .singleUse(SHOWCASE_ID) // provide a unique ID used to ensure it is only shown once
 //                .useFadeAnimation() // remove comment if you want to use fade animations for Lollipop & up
