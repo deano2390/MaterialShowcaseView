@@ -18,6 +18,7 @@ public class MaterialShowcaseSequence implements IDetachedListener {
 
     private OnSequenceItemShownListener mOnItemShownListener = null;
     private OnSequenceItemDismissedListener mOnItemDismissedListener = null;
+    private OnSequenceSkippedListener mOnSkippedListener = null;
 
     public MaterialShowcaseSequence(Activity activity) {
         mActivity = activity;
@@ -74,6 +75,9 @@ public class MaterialShowcaseSequence implements IDetachedListener {
 
     public void setOnItemDismissedListener(OnSequenceItemDismissedListener listener) {
         this.mOnItemDismissedListener = listener;
+    }
+    public void setOnSkippedListener(OnSequenceSkippedListener listener){
+        this.mOnSkippedListener = listener;
     }
 
     public boolean hasFired() {
@@ -184,6 +188,9 @@ public class MaterialShowcaseSequence implements IDetachedListener {
             if (mOnItemDismissedListener != null) {
                 mOnItemDismissedListener.onDismiss(showcaseView, mSequencePosition);
             }
+            if (mOnSkippedListener != null) {
+                mOnSkippedListener.onSkip(showcaseView, mSequencePosition);
+            }
 
             /**
              * If so, update the prefsManager so we can potentially resume this sequence in the future
@@ -203,6 +210,9 @@ public class MaterialShowcaseSequence implements IDetachedListener {
 
     public interface OnSequenceItemShownListener {
         void onShow(MaterialShowcaseView itemView, int position);
+    }
+    public interface OnSequenceSkippedListener {
+        void onSkip(MaterialShowcaseView itemView, int position);
     }
 
     public interface OnSequenceItemDismissedListener {
