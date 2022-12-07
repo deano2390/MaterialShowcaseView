@@ -2,6 +2,7 @@ package uk.co.deanwild.materialshowcaseview;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -16,6 +17,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -32,6 +34,7 @@ import uk.co.deanwild.materialshowcaseview.shape.CircleShape;
 import uk.co.deanwild.materialshowcaseview.shape.NoShape;
 import uk.co.deanwild.materialshowcaseview.shape.OvalShape;
 import uk.co.deanwild.materialshowcaseview.shape.RectangleShape;
+import uk.co.deanwild.materialshowcaseview.shape.RoundedRectangleShape;
 import uk.co.deanwild.materialshowcaseview.shape.Shape;
 import uk.co.deanwild.materialshowcaseview.target.Target;
 import uk.co.deanwild.materialshowcaseview.target.ViewTarget;
@@ -45,7 +48,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     public static final int DEFAULT_SHAPE_PADDING = 10;
     public static final int DEFAULT_TOOLTIP_MARGIN = 10;
     long DEFAULT_DELAY = 0;
-    long DEFAULT_FADE_TIME = 300;
+    long DEFAULT_FADE_TIME = 600;
 
     private int mOldHeight;
     private int mOldWidth;
@@ -56,10 +59,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private Shape mShape;
     private int mXPosition;
     private int mYPosition;
-    private boolean mWasDismissed = false, mWasSkipped = false;
+    private boolean mWasDismissed = false, mWasSkipped = false, mWasBack = false;
     private int mShapePadding = DEFAULT_SHAPE_PADDING;
     private int tooltipMargin = DEFAULT_TOOLTIP_MARGIN;
-
+    private boolean useSkipAsBack = false;
     private View mContentBox;
     private TextView mTitleTextView;
     private TextView mContentTextView;
@@ -85,14 +88,29 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     List<IShowcaseListener> mListeners; // external listeners who want to observe when we show and dismiss
     private UpdateOnGlobalLayout mLayoutListener;
     private IDetachedListener mDetachedListener;
+
+
     private boolean mTargetTouchable = false;
     private boolean mDismissOnTargetTouch = true;
-
+    private boolean forDialog = false;
     private boolean isSequence = false;
 
     private ShowcaseTooltip toolTip;
     private boolean toolTipShown;
-
+    private OnSkipListener mOnSkippedListener = null;
+    private OnBackListener mOnBackListener = null;
+    public interface OnBackListener {
+        void onBack(MaterialShowcaseView itemView);
+    }
+    public void setOnBackListener(OnBackListener listener){
+        this.mOnBackListener = listener;
+    }
+    public interface OnSkipListener {
+        void onSkip(MaterialShowcaseView itemView);
+    }
+    public void setOnSkippedListener(OnSkipListener listener){
+        this.mOnSkippedListener = listener;
+    }
     public MaterialShowcaseView(Context context) {
         super(context);
         init(context);
@@ -140,6 +158,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
         mSkipButton = contentView.findViewById(R.id.tv_skip);
         mSkipButton.setOnClickListener(this);
+
     }
 
 
@@ -168,9 +187,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         if (mBitmap == null || mCanvas == null || mOldHeight != height || mOldWidth != width) {
 
             if (mBitmap != null) mBitmap.recycle();
-
             mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-
             mCanvas = new Canvas(mBitmap);
         }
 
@@ -193,7 +210,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
 
         // draw (erase) shape
-        mShape.draw(mCanvas, mEraser, mXPosition, mYPosition);
+
+
+        mShape.draw(mCanvas, mEraser, mXPosition + shiftByX, mYPosition + shiftByY);
 
         // Draw the bitmap on our views  canvas.
         canvas.drawBitmap(mBitmap, 0, 0, null);
@@ -219,8 +238,12 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        Log.d("onTouch", "touched");
+        mWasBack = false;
+        mWasSkipped = false;
         if (mDismissOnTouch) {
             hide();
+
         }
         if (mTargetTouchable && mTarget.getBounds().contains((int) event.getX(), (int) event.getY())) {
             if (mDismissOnTargetTouch) {
@@ -233,30 +256,49 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
 
 
     private void notifyOnDisplayed() {
+        if (mListeners != null){
 
+            List<IShowcaseListener> tempListeners = new ArrayList<IShowcaseListener>(mListeners);
 
-        if (mListeners != null) {
-            for (IShowcaseListener listener : mListeners) {
+            for (IShowcaseListener listener : tempListeners){
                 listener.onShowcaseDisplayed(this);
             }
         }
     }
 
+    private Boolean forceOneTime = false;
     private void notifyOnDismissed() {
         if (mListeners != null) {
-            for (IShowcaseListener listener : mListeners) {
-                listener.onShowcaseDismissed(this);
-            }
+            if(!forceOneTime){
+                forceOneTime = true;
+                final Handler handler = new Handler();
+//                    FOR DIALOG SHOWCASES. This gets called twice in quick succession,
+//                    remove from array before calling to ensure only goes round once.
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        forceOneTime = false;
+                    }
+                },  2000);
 
-            mListeners.clear();
-            mListeners = null;
+                List<IShowcaseListener> tempListeners = new ArrayList<IShowcaseListener>(mListeners);
+
+                for (IShowcaseListener listener : tempListeners) {
+                    if(!mWasBack){
+//                    FOR DIALOG SHOWCASES. This gets called twice in quick succession,
+//                    remove from array before calling to ensure only goes round once.
+                        tempListeners.remove(listener);
+                        listener.onShowcaseDismissed(this);
+                    }
+                }
+            }
         }
 
         /**
          * internal listener used by sequence for storing progress within the sequence
          */
         if (mDetachedListener != null) {
-            mDetachedListener.onShowcaseDetached(this, mWasDismissed, mWasSkipped);
+            mDetachedListener.onShowcaseDetached(this, mWasDismissed, mWasSkipped, mWasBack);
         }
     }
 
@@ -267,10 +309,20 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
      */
     @Override
     public void onClick(View v) {
+        Log.d("onClick", "clicked");
+
+        mWasBack = false;
+        mWasSkipped = false;
         if (v.getId() == R.id.tv_dismiss) {
             hide();
         } else if (v.getId() == R.id.tv_skip) {
-            skip();
+            if(useSkipAsBack){
+                back();
+            }else{
+                skip();
+            }
+
+
         }
     }
 
@@ -288,6 +340,17 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         }
         applyLayoutParams();
     }
+
+
+    private int shiftByX = 0;
+    private int shiftByY = 0;
+
+    public void shiftBy(int x, int y){
+        shiftByX = x;
+        shiftByY = y;
+    }
+
+
 
     /**
      * Tells us about the "Target" which is the view we want to anchor to.
@@ -313,10 +376,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                 mBottomMargin = getSoftButtonsBarSizePort();
 
 
-                FrameLayout.LayoutParams contentLP = (LayoutParams) getLayoutParams();
+                LayoutParams contentLP = (LayoutParams) getLayoutParams();
 
                 if (contentLP != null && contentLP.bottomMargin != mBottomMargin)
                     contentLP.bottomMargin = mBottomMargin;
+
             }
 
             // apply the target position
@@ -342,6 +406,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                     mContentTopMargin = 0;
                     mContentBottomMargin = (height - yPos) + radius + mShapePadding;
                     mGravity = Gravity.BOTTOM;
+
                 } else {
                     // target is in upper half of screen, we'll sit below it
                     mContentTopMargin = yPos + radius + mShapePadding;
@@ -357,7 +422,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     private void applyLayoutParams() {
 
         if (mContentBox != null && mContentBox.getLayoutParams() != null) {
-            FrameLayout.LayoutParams contentLP = (LayoutParams) mContentBox.getLayoutParams();
+            LayoutParams contentLP = (LayoutParams) mContentBox.getLayoutParams();
 
             boolean layoutParamsChanged = false;
 
@@ -370,6 +435,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                 contentLP.topMargin = mContentTopMargin;
                 layoutParamsChanged = true;
             }
+
 
             if (contentLP.gravity != mGravity) {
                 contentLP.gravity = mGravity;
@@ -422,10 +488,15 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         mXPosition = x;
         mYPosition = y;
     }
+    Point getPosition() {
+        return new Point(mXPosition, mYPosition);
+    }
 
     private void setTitleText(CharSequence contentText) {
         if (mTitleTextView != null && !contentText.equals("")) {
-            mContentTextView.setAlpha(0.5F);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+                mContentTextView.setAlpha(0.5F);
+            }
             mTitleTextView.setText(contentText);
         }
     }
@@ -472,6 +543,12 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             mSkipButton.setTypeface(skipStyle);
             updateSkipButton();
         }
+    }
+    private TextView getSkipButton(){
+        return mSkipButton;
+    }
+    private TextView getDismissButton(){
+        return mDismissButton;
     }
 
     private void setTitleTextColor(int textColour) {
@@ -626,6 +703,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     public boolean hasFired() {
         return mPrefsManager.hasFired();
     }
+    public boolean hasStarted() {
+        return mPrefsManager.hasStarted();
+    }
 
     /**
      * REDRAW LISTENER - this ensures we redraw after activity finishes laying out
@@ -648,8 +728,15 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
         private static final int RECTANGLE_SHAPE = 1;
         private static final int NO_SHAPE = 2;
         private static final int OVAL_SHAPE = 3;
+        private static final int ROUNDED_RECT = 4;
 
         private boolean fullWidth = false;
+        private int rounding = 10;
+
+        private int shiftx = 0;
+        private int shifty = 0;
+
+
         private int shapeType = CIRCLE_SHAPE;
 
         final MaterialShowcaseView showcaseView;
@@ -669,7 +756,14 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             showcaseView.setGravity(gravity);
             return this;
         }
-
+        public Builder setOnSkippedListener(OnSkipListener listener) {
+            showcaseView.setOnSkippedListener(listener);
+            return this;
+        }
+        public Builder setOnBackListener(OnBackListener listener) {
+            showcaseView.setOnBackListener(listener);
+            return this;
+        }
         /**
          * Set the title text shown on the ShowcaseView.
          */
@@ -699,7 +793,14 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             showcaseView.setDismissStyle(dismissStyle);
             return this;
         }
+        public Builder copyStyle(View copyableView){
+            TextView dismiss = showcaseView.getDismissButton();
+            TextView skip = showcaseView.getSkipButton();
 
+
+
+            return this;
+        }
 
         /**
          * Set the skip button properties
@@ -769,7 +870,11 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             showcaseView.setTargetTouchable(targetTouchable);
             return this;
         }
-
+        public Builder shiftBy(int x, int y){
+            shiftx = x;
+            shifty = y;
+            return this;
+        }
         /**
          * Set whether or not the showcase should dismiss when the target is touched.
          * <p>
@@ -819,6 +924,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             showcaseView.addShowcaseListener(listener);
             return this;
         }
+        public Builder setSkipAsBack(){
+            showcaseView.useSkipAsBack = true;
+            return this;
+        }
 
         public Builder singleUse(String showcaseID) {
             showcaseView.singleUse(showcaseID);
@@ -839,7 +948,15 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             shapeType = OVAL_SHAPE;
             return this;
         }
+        public Builder withRoundedRectangleShape() {
+            return withRoundedRectangleShape(rounding);
+        }
 
+        public Builder withRoundedRectangleShape(int rounding) {
+            this.shapeType = ROUNDED_RECT;
+            this.rounding = rounding;
+            return this;
+        }
         public Builder withoutShape() {
             shapeType = NO_SHAPE;
             return this;
@@ -896,6 +1013,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                         showcaseView.setShape(new OvalShape(showcaseView.mTarget));
                         break;
                     }
+                    case ROUNDED_RECT:{
+                        showcaseView.setShape(new RoundedRectangleShape(showcaseView.mTarget.getBounds(), false, rounding));
+                        break;
+                    }
                 }
             }
 
@@ -907,9 +1028,10 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
                     showcaseView.setAnimationFactory(new FadeAnimationFactory());
                 }
             }
-
+            showcaseView.updateSkipButton();
+            showcaseView.updateDismissButton();
             showcaseView.mShape.setPadding(showcaseView.mShapePadding);
-
+            showcaseView.shiftBy(shiftx, shifty);
             return showcaseView;
         }
 
@@ -917,8 +1039,93 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             build().show(activity);
             return showcaseView;
         }
+        public MaterialShowcaseView show(Dialog dialog) {
+
+            build().show(dialog);
+            return showcaseView;
+        }
+        public MaterialShowcaseView show(Dialog dialog, View view) {
+
+            build().show(dialog, view);
+            return showcaseView;
+        }
     }
 
+
+    public boolean show(ViewGroup viewGroup) {
+
+        /**
+         * if we're in single use mode and have already shot our bolt then do nothing
+         */
+        if (mSingleUse) {
+            if (mPrefsManager.hasFired()) {
+                return false;
+            } else {
+                mPrefsManager.setFired();
+            }
+        }
+
+//        ((ViewGroup) activity.getWindow().getDecorView()).addView(this);
+        viewGroup.addView(this);
+
+        setShouldRender(true);
+
+
+        if (toolTip != null) {
+
+            if (!(mTarget instanceof ViewTarget)) {
+                throw new RuntimeException("The target must be of type: " + ViewTarget.class.getCanonicalName());
+            }
+
+            ViewTarget viewTarget = (ViewTarget) mTarget;
+
+            toolTip.configureTarget(this, viewTarget.getView());
+
+        }
+
+
+        mHandler = new Handler();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                boolean attached;
+                // taken from https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-master-dev/core/src/main/java/androidx/core/view/ViewCompat.java#3310
+                if (Build.VERSION.SDK_INT >= 19) {
+                    attached = isAttachedToWindow();
+                } else {
+                    attached = getWindowToken() != null;
+                }
+                if (mShouldAnimate && attached) {
+                    fadeIn();
+                } else {
+                    setVisibility(VISIBLE);
+                    notifyOnDisplayed();
+                }
+            }
+        }, mDelayInMillis);
+
+        updateDismissButton();
+
+        return true;
+    }
+    public boolean show(Dialog dialog){
+        forDialog = true;
+        return show((ViewGroup) dialog.getWindow().getDecorView());
+    }
+    public boolean show(Dialog dialog, View view){
+        forDialog = true;
+
+        int view_width = dialog.getWindow().getAttributes().width;
+        int view_height = dialog.getWindow().getAttributes().height;
+        int dialog_width = view.getWidth();
+        int dialog_height = view.getHeight();
+
+        //shiftBy(((dialog_width-view_width)/2),((dialog_height-view_height)/2));
+        shiftBy(((dialog_width-view_width)/2),((dialog_width-view_width)/2));
+
+
+        return show((ViewGroup) dialog.getWindow().getDecorView());
+    }
     private void singleUse(String showcaseID) {
         mSingleUse = true;
         mPrefsManager = new PrefsManager(getContext(), showcaseID);
@@ -970,6 +1177,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             }
         }
 
+        if (getParent() != null && getParent() instanceof ViewGroup) {
+            ((ViewGroup)this.getParent()).removeView(this);
+        }
         ((ViewGroup) activity.getWindow().getDecorView()).addView(this);
 
         setShouldRender(true);
@@ -1027,7 +1237,14 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
             removeFromWindow();
         }
     }
+    public void back(){
+        mWasBack = true;
 
+        hide();
+        if(mOnBackListener != null){
+            mOnBackListener.onBack(this);
+        }
+    }
 
     public void skip() {
 
@@ -1036,15 +1253,17 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
          */
         mWasSkipped = true;
 
-        if (mShouldAnimate) {
-            animateOut();
-        } else {
-            removeFromWindow();
+        hide();
+        if(mOnSkippedListener != null){
+            mOnSkippedListener.onSkip(this);
         }
     }
 
     public void fadeIn() {
         setVisibility(INVISIBLE);
+        if(mAnimationFactory == null){
+            mAnimationFactory = new FadeAnimationFactory();
+        }
         mAnimationFactory.animateInView(this, mTarget.getPoint(), mFadeDurationInMillis,
                 new IAnimationFactory.AnimationStartListener() {
                     @Override
@@ -1057,7 +1276,9 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnTouchLis
     }
 
     public void animateOut() {
-
+        if(mAnimationFactory == null){
+            mAnimationFactory = new FadeAnimationFactory();
+        }
         mAnimationFactory.animateOutView(this, mTarget.getPoint(), mFadeDurationInMillis, new IAnimationFactory.AnimationEndListener() {
             @Override
             public void onAnimationEnd() {
