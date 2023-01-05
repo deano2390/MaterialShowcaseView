@@ -34,6 +34,14 @@ public class PrefsManager {
     }
 
     /***
+     * METHODS FOR INDIVIDUAL SHOWCASE VIEWS
+     */
+    boolean hasStarted() {
+        int status = getSequenceStatus();
+        return (status != SEQUENCE_NEVER_STARTED );
+    }
+
+    /***
      * METHODS FOR SHOWCASE SEQUENCES
      */
     int getSequenceStatus() {
