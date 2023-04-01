@@ -18,15 +18,31 @@ Since Google introduced the Material design philosophy I have seen quite a few a
 
 [![jitpack][4]][5]
 
-Add the jitpack repo to your your project's build.gradle at the end of repositories [Why?](#why-jitpack)
+Add the jitpack repo to your your project. [Why?](#why-jitpack)
+
+Using the new dependency resolution management (Gradle 6.8+):
+
+/settings.gradle
+```groovy
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+
+For older gradle versions:
 
 /build.gradle
 ```groovy
 allprojects {
-	repositories {
-		jcenter()
-		maven { url "https://jitpack.io" }
-	}
+    repositories {
+        jcenter()
+        maven { url "https://jitpack.io" }
+    }
 }
 ```
 
@@ -34,11 +50,19 @@ Then add the dependency to your module's build.gradle:
 
 /app/build.gradle
 ```groovy
+// gradle 7.0+
+implementation 'com.github.deano2390:MaterialShowcaseView:1.3.7'
+
+// older versions
 compile 'com.github.deano2390:MaterialShowcaseView:1.3.7'
 ```
 
 NOTE: Some people have mentioned that they needed to add the @aar suffix to get it to resolve from JitPack:
 ```groovy
+// gradle 7.0+
+implementation 'com.github.deano2390:MaterialShowcaseView:1.3.7@aar'
+
+// older versions
 compile 'com.github.deano2390:MaterialShowcaseView:1.3.7@aar'
 ```
 
@@ -48,37 +72,33 @@ This is the basic usage of a single showcase view, you should check out the samp
 
 ```java
 
-	// single example
-	new MaterialShowcaseView.Builder(this)
-		.setTarget(mButtonShow)
-		.setDismissText("GOT IT")
-		.setContentText("This is some amazing feature you should know about")
-		.setDelay(withDelay) // optional but starting animations immediately in onCreate can make them choppy
-		.singleUse(SHOWCASE_ID) // provide a unique ID used to ensure it is only shown once
-		.show();
-                
-                
-                
-                
-	// sequence example            
-	ShowcaseConfig config = new ShowcaseConfig();
-	config.setDelay(500); // half second between each showcase view
+// single example
+new MaterialShowcaseView.Builder(this)
+    .setTarget(mButtonShow)
+    .setDismissText("GOT IT")
+    .setContentText("This is some amazing feature you should know about")
+    .setDelay(withDelay) // optional but starting animations immediately in onCreate can make them choppy
+    .singleUse(SHOWCASE_ID) // provide a unique ID used to ensure it isonly shown once
+    .show();
 
-	MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID);
+// sequence example            
+ShowcaseConfig config = new ShowcaseConfig();
+config.setDelay(500); // half second between each showcase view
 
-	sequence.setConfig(config);
+MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this,SHOWCASE_ID);
 
-	sequence.addSequenceItem(mButtonOne,
-		"This is button one", "GOT IT");
+sequence.setConfig(config);
 
-	sequence.addSequenceItem(mButtonTwo,
-		"This is button two", "GOT IT");
+sequence.addSequenceItem(mButtonOne,
+    "This is button one", "GOT IT");
 
-	sequence.addSequenceItem(mButtonThree,
-		"This is button three", "GOT IT");
+sequence.addSequenceItem(mButtonTwo,
+    "This is button two", "GOT IT");
 
-	sequence.start();
-                
+sequence.addSequenceItem(mButtonThree,
+    "This is button three", "GOT IT");
+
+sequence.start();            
 ```
 
 # Why Jitpack
