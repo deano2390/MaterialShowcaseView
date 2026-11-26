@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.1.0
+
+### Added
+* Dismiss and skip as real buttons: `setDismissButtonColor` / `setSkipButtonColor` give a filled,
+  rounded button with a ripple, and `setDismissBackground` / `setSkipBackground` take any drawable.
+  Matching `ShowcaseConfig.dismissButtonColor` / `skipButtonColor`. Inspired by #188 by @androidsagar.
+  (#174, #64, #70, #177)
+* `MaterialShowcaseView.isShowing(activity)` to check whether a showcase or sequence is on screen. (#61)
+* `MaterialShowcaseView.setShowcasesEnabled(false)` to turn every showcase off, for example in UI
+  tests. Nothing is shown or recorded as shown while disabled. (#104)
+* `Builder.setShapeBorder(colour, width)` / `ShowcaseConfig.setShapeBorder` to outline the
+  highlighted shape; works with custom shapes too. (#96)
+
 ## 2.0.0
 
 A modernisation release. It is a drop-in replacement for 1.3.7: the public API is source- and

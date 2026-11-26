@@ -93,6 +93,7 @@ open class MaterialShowcaseSequence(activity: Activity?) : IDetachedListener {
     open fun hasFired(): Boolean = prefsManager?.getSequenceStatus() == PrefsManager.SEQUENCE_FINISHED
 
     open fun start() {
+        if (!MaterialShowcaseView.areShowcasesEnabled()) return
         val prefs = prefsManager
         if (singleUse && prefs != null) {
             if (hasFired()) return
@@ -115,6 +116,8 @@ open class MaterialShowcaseSequence(activity: Activity?) : IDetachedListener {
         // Leaving mid-sequence (finishing, or being recreated for a configuration change): stop
         // here, but keep progress so we resume next time.
         if (activity.isFinishing || activity.isDestroyed || activity.isChangingConfigurations) return
+        // Disabled mid-sequence: stop without recording progress.
+        if (!MaterialShowcaseView.areShowcasesEnabled()) return
 
         val sequenceItem = showcaseQueue.remove()
         sequenceItem.setDetachedListener(this)

@@ -9,6 +9,10 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
 import android.graphics.Typeface
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.RippleDrawable
+import android.content.res.ColorStateList
 import android.os.Looper
 import android.util.AttributeSet
 import android.view.Gravity
@@ -108,6 +112,9 @@ open class MaterialShowcaseView @JvmOverloads constructor(
     /** Siblings this showcase has hidden from accessibility services (see [AccessibilityHider]). */
     private val hiddenForAccessibility = mutableListOf<View>()
 
+    /** Outline drawn around the shape; null for none. */
+    private var borderPaint: Paint? = null
+
     private val eraser = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.WHITE
         xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
@@ -187,7 +194,11 @@ open class MaterialShowcaseView @JvmOverloads constructor(
             )
         }
         canvas.drawColor(maskColour)
-        if (hasTarget()) shape?.draw(canvas, eraser, showcaseX, showcaseY)
+        if (hasTarget()) {
+            shape?.draw(canvas, eraser, showcaseX, showcaseY)
+            // Re-drawing the shape with a stroke paint outlines it, for built-in and custom shapes alike.
+            borderPaint?.let { shape?.draw(canvas, it, showcaseX, showcaseY) }
+        }
         canvas.restoreToCount(save)
     }
 
@@ -534,6 +545,52 @@ open class MaterialShowcaseView @JvmOverloads constructor(
 
     private fun setSkipTextSize(unit: Int, size: Float) = skipButton.setTextSize(unit, size)
 
+    private fun setShapeBorder(colour: Int, width: Int) {
+        borderPaint = if (width <= 0) null else Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = colour
+            style = Paint.Style.STROKE
+            strokeWidth = width.toFloat()
+        }
+        invalidate()
+    }
+
+    private fun setDismissBackground(background: Drawable?) = dismissButton.setButtonBackground(background)
+
+    private fun setSkipBackground(background: Drawable?) = skipButton.setButtonBackground(background)
+
+    private fun setDismissButtonColor(colour: Int) = dismissButton.setButtonBackground(filledButton(colour))
+
+    private fun setSkipButtonColor(colour: Int) = skipButton.setButtonBackground(filledButton(colour))
+
+    /** A rounded, filled button background with a ripple, in [colour]. */
+    private fun filledButton(colour: Int): Drawable {
+        val radius = 4 * resources.displayMetrics.density
+        val shape = GradientDrawable().apply {
+            cornerRadius = radius
+            setColor(colour)
+        }
+        val mask = GradientDrawable().apply {
+            cornerRadius = radius
+            setColor(Color.WHITE)
+        }
+        return RippleDrawable(ColorStateList.valueOf(0x40FFFFFF), shape, mask)
+    }
+
+    /**
+     * Applies [background] with button-like padding; null restores the default plain text button
+     * (the theme's selectable item background).
+     */
+    private fun TextView.setButtonBackground(background: Drawable?) {
+        val density = resources.displayMetrics.density
+        val horizontal = ((if (background != null) 16 else 5) * density).toInt()
+        val vertical = (10 * density).toInt()
+        this.background = background ?: android.util.TypedValue().let { tv ->
+            context.theme.resolveAttribute(android.R.attr.selectableItemBackground, tv, true)
+            androidx.core.content.ContextCompat.getDrawable(context, tv.resourceId)
+        }
+        setPaddingRelative(horizontal, vertical, horizontal, vertical)
+    }
+
     private fun setDismissOnBackPress(dismissOnBackPress: Boolean) {
         this.dismissOnBackPress = dismissOnBackPress
         // Fallback for Activities without an OnBackPressedDispatcher: take key focus.
@@ -632,6 +689,9 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         config.contentTextSize?.let { setContentTextSize(it.unit, it.size) }
         config.dismissTextSize?.let { setDismissTextSize(it.unit, it.size) }
         config.dismissOnBackPress?.let { setDismissOnBackPress(it) }
+        config.dismissButtonColor?.let { setDismissButtonColor(it) }
+        config.skipButtonColor?.let { setSkipButtonColor(it) }
+        config.shapeBorder?.let { setShapeBorder(it.colour, it.width) }
     }
 
     private fun updateDismissButton() {
@@ -690,6 +750,8 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         check(Looper.myLooper() == Looper.getMainLooper()) {
             "MaterialShowcaseView.show() must be called on the main thread"
         }
+        // Globally disabled (e.g. in UI tests): show nothing and record nothing.
+        if (!showcasesEnabled) return false
         if (parent != null) return false
         val tooltipAnchor = toolTip?.let {
             (target as? ViewTarget)?.view
@@ -876,6 +938,22 @@ open class MaterialShowcaseView @JvmOverloads constructor(
 
         open fun setSkipTextColor(textColour: Int): Builder = apply { showcaseView.setSkipTextColor(textColour) }
 
+        /** Shows the dismiss text as a filled, rounded button in [colour]. */
+        open fun setDismissButtonColor(colour: Int): Builder = apply { showcaseView.setDismissButtonColor(colour) }
+
+        /** Shows the skip text as a filled, rounded button in [colour]. */
+        open fun setSkipButtonColor(colour: Int): Builder = apply { showcaseView.setSkipButtonColor(colour) }
+
+        /** Any background for the dismiss button, e.g. a drawable from your theme. Null for plain text. */
+        open fun setDismissBackground(background: Drawable?): Builder =
+            apply { showcaseView.setDismissBackground(background) }
+
+        /** Any background for the skip button. Null for plain text. */
+        open fun setSkipBackground(background: Drawable?): Builder = apply { showcaseView.setSkipBackground(background) }
+
+        /** Draws an outline of [width] pixels in [colour] around the highlighted shape. */
+        open fun setShapeBorder(colour: Int, width: Int): Builder = apply { showcaseView.setShapeBorder(colour, width) }
+
         /** Typeface for the title. */
         open fun setTitleStyle(titleStyle: Typeface?): Builder = apply { showcaseView.setTitleStyle(titleStyle) }
 
@@ -1003,6 +1081,28 @@ open class MaterialShowcaseView @JvmOverloads constructor(
          * True if the single-use showcase or sequence with [showcaseID] has already been shown,
          * so you can skip building it altogether.
          */
+        @Volatile
+        private var showcasesEnabled = true
+
+        /**
+         * Turns every showcase and sequence on or off, for example `false` in UI tests so
+         * overlays don't get in the way. While disabled nothing is shown or recorded as shown.
+         */
+        @JvmStatic
+        fun setShowcasesEnabled(enabled: Boolean) {
+            showcasesEnabled = enabled
+        }
+
+        @JvmStatic
+        fun areShowcasesEnabled(): Boolean = showcasesEnabled
+
+        /** True if a showcase (including one in a running sequence) is currently on [activity]. */
+        @JvmStatic
+        fun isShowing(activity: Activity?): Boolean {
+            val decor = activity?.window?.peekDecorView() as? ViewGroup ?: return false
+            return (0 until decor.childCount).any { decor.getChildAt(it) is MaterialShowcaseView }
+        }
+
         @JvmStatic
         fun hasFired(context: Context?, showcaseID: String?): Boolean =
             PrefsManager(context, requireNotNull(showcaseID)).hasFired()

@@ -62,6 +62,22 @@ open class ShowcaseConfig {
     /** Whether the back button closes showcases (ending a sequence); null means "not set". */
     open var dismissOnBackPress: Boolean? = null
 
+    /** Shows dismiss text as a filled button in this colour; null means "not set". */
+    open var dismissButtonColor: Int? = null
+
+    /** Shows skip text as a filled button in this colour; null means "not set". */
+    open var skipButtonColor: Int? = null
+
+    internal class Border(val colour: Int, val width: Int)
+
+    internal var shapeBorder: Border? = null
+        private set
+
+    /** Draws an outline of [width] pixels in [colour] around the highlighted shape. */
+    open fun setShapeBorder(colour: Int, width: Int) {
+        shapeBorder = Border(colour, width)
+    }
+
     internal class TextSize(val unit: Int, val size: Float)
 
     internal var titleTextSize: TextSize? = null

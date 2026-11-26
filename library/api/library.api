@@ -61,6 +61,9 @@ public class uk.co.deanwild.materialshowcaseview.MaterialShowcaseView extends an
   public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView(android.content.Context);
   public static final void resetSingleUse(android.content.Context, java.lang.String);
   public static final void resetAll(android.content.Context);
+  public static final void setShowcasesEnabled(boolean);
+  public static final boolean areShowcasesEnabled();
+  public static final boolean isShowing(android.app.Activity);
   public static final boolean hasFired(android.content.Context, java.lang.String);
 }
 
@@ -94,6 +97,11 @@ public class uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder {
   public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setContentTextColor(int);
   public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setDismissTextColor(int);
   public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setSkipTextColor(int);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setDismissButtonColor(int);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setSkipButtonColor(int);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setDismissBackground(android.graphics.drawable.Drawable);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setSkipBackground(android.graphics.drawable.Drawable);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setShapeBorder(int, int);
   public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setTitleStyle(android.graphics.Typeface);
   public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setContentStyle(android.graphics.Typeface);
   public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setTitleTextSize(int, float);
@@ -160,6 +168,11 @@ public class uk.co.deanwild.materialshowcaseview.ShowcaseConfig {
   public void setContentTextStyle(android.graphics.Typeface);
   public java.lang.Boolean getDismissOnBackPress();
   public void setDismissOnBackPress(java.lang.Boolean);
+  public java.lang.Integer getDismissButtonColor();
+  public void setDismissButtonColor(java.lang.Integer);
+  public java.lang.Integer getSkipButtonColor();
+  public void setSkipButtonColor(java.lang.Integer);
+  public void setShapeBorder(int, int);
   public void setTitleTextSize(int, float);
   public void setContentTextSize(int, float);
   public void setDismissTextSize(int, float);
@@ -398,6 +411,9 @@ public final class uk.co.deanwild.materialshowcaseview.AnimationsKt$doOnStart$1 
 public final class uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Companion {
   public final void resetSingleUse(android.content.Context, java.lang.String);
   public final void resetAll(android.content.Context);
+  public final void setShowcasesEnabled(boolean);
+  public final boolean areShowcasesEnabled();
+  public final boolean isShowing(android.app.Activity);
   public final boolean hasFired(android.content.Context, java.lang.String);
   public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Companion(kotlin.jvm.internal.DefaultConstructorMarker);
 }
@@ -418,6 +434,12 @@ public final class uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$show
 public final class uk.co.deanwild.materialshowcaseview.PrefsManager$Companion {
   public final void resetAll(android.content.Context);
   public uk.co.deanwild.materialshowcaseview.PrefsManager$Companion(kotlin.jvm.internal.DefaultConstructorMarker);
+}
+
+public final class uk.co.deanwild.materialshowcaseview.ShowcaseConfig$Border {
+  public uk.co.deanwild.materialshowcaseview.ShowcaseConfig$Border(int, int);
+  public final int getColour();
+  public final int getWidth();
 }
 
 public final class uk.co.deanwild.materialshowcaseview.ShowcaseConfig$Companion {

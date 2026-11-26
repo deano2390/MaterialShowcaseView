@@ -34,7 +34,7 @@ Then add the dependency to your module's `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.deano2390:MaterialShowcaseView:2.0.0")
+    implementation("com.github.deano2390:MaterialShowcaseView:2.1.0")
 }
 ```
 
@@ -53,7 +53,7 @@ dependencyResolutionManagement {
 
 // app/build.gradle
 dependencies {
-    implementation 'com.github.deano2390:MaterialShowcaseView:2.0.0'
+    implementation 'com.github.deano2390:MaterialShowcaseView:2.1.0'
 }
 ```
 </details>
@@ -130,6 +130,8 @@ MaterialShowcaseView.Builder(this)
     .setTargetTouchable(true)            // let taps through to the target...
     .setDismissOnTargetTouch(true)       // ...and dismiss when it's tapped
     .setDismissOnBackPress(true)         // back closes it (and ends a sequence)
+    .setDismissButtonColor(accentColour) // a filled button instead of plain text (or setDismissBackground)
+    .setShapeBorder(Color.WHITE, 4)      // outline the highlight
     .show()
 ```
 
@@ -145,6 +147,10 @@ To avoid building a single-use showcase that has already been shown:
 ```kotlin
 if (!MaterialShowcaseView.hasFired(context, SHOWCASE_ID)) { /* build and show it */ }
 ```
+
+`MaterialShowcaseView.isShowing(activity)` tells you whether a showcase (or a sequence) is on
+screen. In UI tests, call `MaterialShowcaseView.setShowcasesEnabled(false)` so overlays don't get
+in the way; nothing is shown or recorded as shown while disabled.
 
 Showcases must be shown from the main thread. To show one again, call
 `MaterialShowcaseView.resetSingleUse(context, SHOWCASE_ID)` or `MaterialShowcaseView.resetAll(context)`.
