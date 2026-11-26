@@ -96,9 +96,9 @@ open class MaterialShowcaseView @JvmOverloads constructor(
     private var toolTip: ShowcaseTooltip? = null
     private var toolTipShown = false
 
-    /** System bar + display cut-out insets, and navigation bar insets, relative to this view. */
+    /** System bar + display cut-out insets, and the navigation buttons' insets, relative to this view. */
     private var systemInsets = Insets.NONE
-    private var navigationInsets = Insets.NONE
+    private var navigationButtonInsets = Insets.NONE
 
     private val hiddenForAccessibility = mutableListOf<Pair<View, Int>>()
 
@@ -165,12 +165,13 @@ open class MaterialShowcaseView @JvmOverloads constructor(
 
         val save = canvas.saveLayer(0f, 0f, w.toFloat(), h.toFloat(), null)
         if (!renderOverNav) {
-            // Leave the navigation bar uncovered (only relevant when drawing edge-to-edge).
+            // Leave the navigation buttons uncovered. Only relevant when the app draws edge-to-edge
+            // with 3-button navigation; the gesture handle has no tappable inset and is dimmed.
             canvas.clipRect(
-                navigationInsets.left,
+                navigationButtonInsets.left,
                 0,
-                w - navigationInsets.right,
-                h - navigationInsets.bottom,
+                w - navigationButtonInsets.right,
+                h - navigationButtonInsets.bottom,
             )
         }
         canvas.drawColor(maskColour)
@@ -310,21 +311,7 @@ open class MaterialShowcaseView @JvmOverloads constructor(
                 radius = it.getHeight() / 2
             }
 
-            if (!hasCustomGravity) {
-                val height = height
-                if (showcaseY > height / 2) {
-                    // Target is in the lower half of the screen: sit above it.
-                    contentTopMargin = 0
-                    contentBottomMargin =
-                        ((height - showcaseY) + radius + shapePadding - paddingBottom).coerceAtLeast(0)
-                    contentGravity = Gravity.BOTTOM
-                } else {
-                    // Target is in the upper half of the screen: sit below it.
-                    contentTopMargin = (showcaseY + radius + shapePadding - paddingTop).coerceAtLeast(0)
-                    contentBottomMargin = 0
-                    contentGravity = Gravity.TOP
-                }
-            }
+            if (!hasCustomGravity) placeContent(radius)
         } else if (!hasCustomGravity) {
             // Nothing to point at: centre the content.
             contentTopMargin = 0
@@ -333,6 +320,50 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         }
         applyLayoutParams()
         invalidate()
+    }
+
+    /**
+     * Puts the content below a target in the top half of the screen and above one in the bottom
+     * half. If it doesn't fit there it goes on the other side; if it fits on neither, it is pinned
+     * to the screen edge on the roomier side (overlapping the target) so the dismiss button is
+     * always reachable.
+     */
+    private fun placeContent(radius: Int) {
+        val height = height
+        val spaceBelow = height - paddingBottom - (showcaseY + radius + shapePadding)
+        val spaceAbove = (showcaseY - radius - shapePadding) - paddingTop
+        val contentHeight = measureContentHeight()
+        val preferBelow = showcaseY <= height / 2
+
+        val below = when {
+            contentHeight == 0 -> preferBelow // not measurable yet
+            preferBelow && contentHeight <= spaceBelow -> true
+            !preferBelow && contentHeight <= spaceAbove -> false
+            contentHeight <= spaceBelow -> true
+            contentHeight <= spaceAbove -> false
+            else -> spaceBelow >= spaceAbove
+        }
+        val fits = contentHeight <= if (below) spaceBelow else spaceAbove
+
+        if (below) {
+            contentGravity = if (fits) Gravity.TOP else Gravity.BOTTOM
+            contentTopMargin = if (fits) (height - paddingTop - paddingBottom - spaceBelow).coerceAtLeast(0) else 0
+            contentBottomMargin = 0
+        } else {
+            contentGravity = if (fits) Gravity.BOTTOM else Gravity.TOP
+            contentTopMargin = 0
+            contentBottomMargin = if (fits) (height - paddingTop - paddingBottom - spaceAbove).coerceAtLeast(0) else 0
+        }
+    }
+
+    private fun measureContentHeight(): Int {
+        val available = width - paddingLeft - paddingRight
+        if (available <= 0) return 0
+        contentBox.measure(
+            MeasureSpec.makeMeasureSpec(available, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+        )
+        return contentBox.measuredHeight
     }
 
     private fun applyLayoutParams() {
@@ -359,9 +390,12 @@ open class MaterialShowcaseView @JvmOverloads constructor(
     internal fun applyInsets(insets: WindowInsetsCompat) {
         val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
         val nav = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
-        if (bars == systemInsets && nav == navigationInsets) return
+        val tappable = insets.getInsets(WindowInsetsCompat.Type.tappableElement())
+        // Navigation buttons = the part of the navigation bar that takes taps (none for gestures).
+        val navButtons = Insets.min(nav, tappable)
+        if (bars == systemInsets && navButtons == navigationButtonInsets) return
         systemInsets = bars
-        navigationInsets = nav
+        navigationButtonInsets = navButtons
         // Keep the text and buttons clear of the status bar, navigation bar and cut-outs.
         setPadding(bars.left, bars.top, bars.right, bars.bottom)
         updateLayout()

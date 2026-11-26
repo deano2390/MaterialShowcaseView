@@ -379,6 +379,51 @@ class MaterialShowcaseViewTest {
         assertThat(lp.bottomMargin).isGreaterThan(view.height - screen.bottom.windowCentre().y)
     }
 
+    /** The dismiss button is laid out completely inside the content box, and the box is on screen. */
+    private fun assertDismissFullyVisible(view: MaterialShowcaseView) {
+        val box = view.findViewById<View>(R.id.content_box)
+        val dismiss = view.findViewById<View>(R.id.tv_dismiss)
+        assertThat(dismiss.height).isGreaterThan(0)
+        assertThat(dismiss.bottom).isAtMost(box.height)
+        assertThat(box.top).isAtLeast(view.paddingTop)
+        assertThat(box.bottom).isAtMost(view.height - view.paddingBottom)
+    }
+
+    private fun longText(lines: Int) = List(lines) { "This line explains the feature in some detail." }.joinToString(" ")
+
+    // Issue #171: content that didn't fit below/above the target pushed the dismiss button off screen
+    @Test
+    fun tallContent_targetInTopHalf_dismissStaysVisible() {
+        val target = android.widget.Button(screen.activity)
+        screen.root.addView(target, FrameLayout.LayoutParams(100, 50, Gravity.TOP or Gravity.START).apply { topMargin = 180 })
+        idle()
+
+        val view = builder(target).setTitleText("Title").setContentText(longText(4)).showWithFactory()
+        idle()
+
+        assertDismissFullyVisible(view)
+    }
+
+    @Test
+    fun tallContent_targetInBottomHalf_dismissStaysVisible() {
+        val target = android.widget.Button(screen.activity)
+        screen.root.addView(target, FrameLayout.LayoutParams(100, 50, Gravity.BOTTOM or Gravity.START).apply { bottomMargin = 180 })
+        idle()
+
+        val view = builder(target).setTitleText("Title").setContentText(longText(4)).showWithFactory()
+        idle()
+
+        assertDismissFullyVisible(view)
+    }
+
+    @Test
+    fun veryTallContent_dismissStaysVisible() {
+        val view = builder(screen.middle).setTitleText("Title").setContentText(longText(6)).showWithFactory()
+        idle()
+
+        assertDismissFullyVisible(view)
+    }
+
     @Test
     fun customGravity_isRespected() {
         val view = builder().setGravity(Gravity.CENTER).showWithFactory()
