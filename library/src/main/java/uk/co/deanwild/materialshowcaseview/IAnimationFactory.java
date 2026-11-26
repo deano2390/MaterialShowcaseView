@@ -3,7 +3,11 @@ package uk.co.deanwild.materialshowcaseview;
 import android.graphics.Point;
 import android.view.View;
 
-
+/**
+ * Animates a showcase in and out. Points are in the showcase view's own coordinates.
+ * <p>
+ * Declared in Java on purpose; see {@link IShowcaseListener}.
+ */
 public interface IAnimationFactory {
 
     void animateInView(View target, Point point, long duration, AnimationStartListener listener);
@@ -12,12 +16,11 @@ public interface IAnimationFactory {
 
     void animateTargetToPoint(MaterialShowcaseView showcaseView, Point point);
 
-    public interface AnimationStartListener {
+    interface AnimationStartListener {
         void onAnimationStart();
     }
 
-    public interface AnimationEndListener {
+    interface AnimationEndListener {
         void onAnimationEnd();
     }
 }
-

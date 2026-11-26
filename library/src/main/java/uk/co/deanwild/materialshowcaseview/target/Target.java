@@ -3,8 +3,14 @@ package uk.co.deanwild.materialshowcaseview.target;
 import android.graphics.Point;
 import android.graphics.Rect;
 
-
+/**
+ * Something to showcase. Coordinates are in the window's coordinate space.
+ * <p>
+ * Declared in Java on purpose, so Kotlin implementations written against 1.x keep compiling.
+ */
 public interface Target {
+
+    /** No target: the showcase masks the whole screen and centres its content. */
     Target NONE = new Target() {
         @Override
         public Point getPoint() {
@@ -18,7 +24,9 @@ public interface Target {
         }
     };
 
+    /** Centre of the target, in window coordinates. */
     Point getPoint();
 
+    /** Bounds of the target, in window coordinates. */
     Rect getBounds();
 }

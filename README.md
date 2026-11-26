@@ -18,68 +18,164 @@ Since Google introduced the Material design philosophy I have seen quite a few a
 
 [![jitpack][4]][5]
 
-Add the jitpack repo to your your project's build.gradle at the end of repositories [Why?](#why-jitpack)
+Add the JitPack repository to `settings.gradle.kts` ([why JitPack?](#why-jitpack)):
 
-/build.gradle
-```groovy
-allprojects {
-	repositories {
-		jcenter()
-		maven { url "https://jitpack.io" }
-	}
+```kotlin
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven("https://jitpack.io")
+    }
 }
 ```
 
-Then add the dependency to your module's build.gradle:
+Then add the dependency to your module's `build.gradle.kts`:
 
-/app/build.gradle
-```groovy
-compile 'com.github.deano2390:MaterialShowcaseView:1.3.7'
+```kotlin
+dependencies {
+    implementation("com.github.deano2390:MaterialShowcaseView:2.0.0")
+}
 ```
 
-NOTE: Some people have mentioned that they needed to add the @aar suffix to get it to resolve from JitPack:
+<details>
+<summary>Groovy DSL</summary>
+
 ```groovy
-compile 'com.github.deano2390:MaterialShowcaseView:1.3.7@aar'
+// settings.gradle
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://jitpack.io" }
+    }
+}
+
+// app/build.gradle
+dependencies {
+    implementation 'com.github.deano2390:MaterialShowcaseView:2.0.0'
+}
 ```
+</details>
+
+Requires minSdk 21 or higher.
 
 # How to use
 --------
-This is the basic usage of a single showcase view, you should check out the sample app for more advanced usage.
+This is the basic usage of a single showcase view. Check out the [sample app](sample) for more.
+
+Kotlin:
+
+```kotlin
+// single example
+MaterialShowcaseView.Builder(this)
+    .setTarget(button)
+    .setTitleText("Hello")
+    .setContentText("This is some amazing feature you should know about")
+    .setDismissText("GOT IT")
+    .setDelay(500) // optional, but starting animations immediately in onCreate can make them choppy
+    .singleUse(SHOWCASE_ID) // a unique ID used to make sure it is only shown once
+    .show()
+
+// sequence example
+val config = ShowcaseConfig().apply {
+    delay = 500 // half a second between each showcase view
+}
+
+MaterialShowcaseSequence(this, SHOWCASE_ID).apply {
+    setConfig(config) // set the config before adding items
+    addSequenceItem(buttonOne, "This is button one", "GOT IT")
+    addSequenceItem(buttonTwo, "This is button two", "GOT IT")
+    addSequenceItem(buttonThree, "This is button three", "GOT IT")
+    start()
+}
+```
+
+Java:
 
 ```java
+// single example
+new MaterialShowcaseView.Builder(this)
+    .setTarget(button)
+    .setContentText("This is some amazing feature you should know about")
+    .setDismissText("GOT IT")
+    .setDelay(500)
+    .singleUse(SHOWCASE_ID)
+    .show();
 
-	// single example
-	new MaterialShowcaseView.Builder(this)
-		.setTarget(mButtonShow)
-		.setDismissText("GOT IT")
-		.setContentText("This is some amazing feature you should know about")
-		.setDelay(withDelay) // optional but starting animations immediately in onCreate can make them choppy
-		.singleUse(SHOWCASE_ID) // provide a unique ID used to ensure it is only shown once
-		.show();
-                
-                
-                
-                
-	// sequence example            
-	ShowcaseConfig config = new ShowcaseConfig();
-	config.setDelay(500); // half second between each showcase view
+// sequence example
+ShowcaseConfig config = new ShowcaseConfig();
+config.setDelay(500);
 
-	MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID);
-
-	sequence.setConfig(config);
-
-	sequence.addSequenceItem(mButtonOne,
-		"This is button one", "GOT IT");
-
-	sequence.addSequenceItem(mButtonTwo,
-		"This is button two", "GOT IT");
-
-	sequence.addSequenceItem(mButtonThree,
-		"This is button three", "GOT IT");
-
-	sequence.start();
-                
+MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID);
+sequence.setConfig(config);
+sequence.addSequenceItem(buttonOne, "This is button one", "GOT IT");
+sequence.addSequenceItem(buttonTwo, "This is button two", "GOT IT");
+sequence.addSequenceItem(buttonThree, "This is button three", "GOT IT");
+sequence.start();
 ```
+
+## Customising
+
+```kotlin
+MaterialShowcaseView.Builder(this)
+    .setTarget(button)
+    .withRoundedRectangleShape()         // or withCircleShape(), withOvalShape(), withRectangleShape(), withoutShape()
+    .setShapePadding(24)
+    .setMaskColour(0xDD335075.toInt())   // the alpha channel controls how much shows through
+    .setTitleTextSize(TypedValue.COMPLEX_UNIT_SP, 24f)
+    .setContentTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+    .setTitleStyle(myTypeface)
+    .setDismissOnTouch(true)             // tap anywhere to dismiss
+    .setTargetTouchable(true)            // let taps through to the target...
+    .setDismissOnTargetTouch(true)       // ...and dismiss when it's tapped
+    .setDismissOnBackPress(true)         // back closes it (and ends a sequence)
+    .show()
+```
+
+Sequences can tell you how they ended:
+
+```kotlin
+sequence.setOnSkippedListener { item, position -> /* skipped at this item */ }
+sequence.setOnSequenceFinishedListener { skipped -> /* completed, or skipped */ }
+```
+
+To avoid building a single-use showcase that has already been shown:
+
+```kotlin
+if (!MaterialShowcaseView.hasFired(context, SHOWCASE_ID)) { /* build and show it */ }
+```
+
+Showcases must be shown from the main thread. To show one again, call
+`MaterialShowcaseView.resetSingleUse(context, SHOWCASE_ID)` or `MaterialShowcaseView.resetAll(context)`.
+
+# Migrating to 2.0
+------------------
+
+2.0 is a drop-in replacement for 1.x: every public API from 1.3.7 is still there, for both Java
+and Kotlin callers. What changed:
+
+* **Requirements:** minSdk 21. The library is now written in Kotlin, so it brings in `kotlin-stdlib`,
+  `androidx.core` and `androidx.activity`.
+* **Gradle:** use `implementation` (not `compile`). The `@aar` suffix is no longer needed.
+* **Behaviour fixes** you might notice:
+  * Setting a title no longer fades the content text to 50% opacity, and an empty title no longer
+    leaves a gap.
+  * Text sizes are in `sp`, so they follow the user's font size setting.
+  * A `ShowcaseConfig` only overrides the values you actually set on it. It used to reset colours you
+    had set on individual items.
+  * `setDismissOnTouch(true)` dismisses when the finger lifts, not on the first touch event.
+  * System bars are handled with window insets, so content never ends up under the navigation bar.
+    This works with gesture navigation, landscape and edge-to-edge apps.
+  * Skipping a single-use showcase is remembered, the same as dismissing it.
+  * In a sequence, the item listeners now get the correct position, with or without single-use.
+* **Kotlin callers:** the old Java-style calls such as `config.setDelay(500)` still compile but are
+  deprecated in favour of property syntax (`config.delay = 500`). The IDE quick-fix converts them.
+  One rare case does break: a Kotlin *subclass* of `CircleShape`, `OvalShape`, `RectangleShape`,
+  `ShowcaseConfig` or `ViewTarget` that overrides a getter such as `getRadius()` must override the
+  property (`override var radius`) instead.
+
+See the [CHANGELOG](CHANGELOG.md) for the full list of fixes.
 
 # Why Jitpack
 ------------
