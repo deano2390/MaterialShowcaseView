@@ -414,6 +414,9 @@ public final class uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$show$1$1 
   public boolean onPreDraw();
 }
 
+public final class uk.co.deanwild.materialshowcaseview.compat.SequenceItemCallbacks {
+}
+
 public final class uk.co.deanwild.materialshowcaseview.shape.CircleShape$Companion {
   public final int getPreferredRadius(android.graphics.Rect);
   public uk.co.deanwild.materialshowcaseview.shape.CircleShape$Companion(kotlin.jvm.internal.DefaultConstructorMarker);
@@ -422,14 +425,6 @@ public final class uk.co.deanwild.materialshowcaseview.shape.CircleShape$Compani
 public final class uk.co.deanwild.materialshowcaseview.shape.OvalShape$Companion {
   public final int getPreferredRadius(android.graphics.Rect);
   public uk.co.deanwild.materialshowcaseview.shape.OvalShape$Companion(kotlin.jvm.internal.DefaultConstructorMarker);
-}
-
-public final class uk.co.deanwild.materialshowcaseview.target.Target$Companion {
-}
-
-public final class uk.co.deanwild.materialshowcaseview.target.Target$Companion$NONE$1 implements uk.co.deanwild.materialshowcaseview.target.Target {
-  public android.graphics.Point getPoint();
-  public android.graphics.Rect getBounds();
 }
 
 public interface uk.co.deanwild.materialshowcaseview.IAnimationFactory {
@@ -455,12 +450,10 @@ public interface uk.co.deanwild.materialshowcaseview.IShowcaseListener {
   public abstract void onShowcaseDismissed(uk.co.deanwild.materialshowcaseview.MaterialShowcaseView);
 }
 
-public interface uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence$OnSequenceItemDismissedListener {
-  public abstract void onDismiss(uk.co.deanwild.materialshowcaseview.MaterialShowcaseView, int);
+public interface uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence$OnSequenceItemDismissedListener extends uk.co.deanwild.materialshowcaseview.compat.SequenceItemCallbacks$Dismissed {
 }
 
-public interface uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence$OnSequenceItemShownListener {
-  public abstract void onShow(uk.co.deanwild.materialshowcaseview.MaterialShowcaseView, int);
+public interface uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence$OnSequenceItemShownListener extends uk.co.deanwild.materialshowcaseview.compat.SequenceItemCallbacks$Shown {
 }
 
 public interface uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$ListenerDisplay {
@@ -470,6 +463,14 @@ public interface uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$ListenerDis
 public interface uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$TooltipAnimation {
   public abstract void animateEnter(android.view.View, android.animation.Animator$AnimatorListener);
   public abstract void animateExit(android.view.View, android.animation.Animator$AnimatorListener);
+}
+
+public interface uk.co.deanwild.materialshowcaseview.compat.SequenceItemCallbacks$Dismissed {
+  public abstract void onDismiss(uk.co.deanwild.materialshowcaseview.MaterialShowcaseView, int);
+}
+
+public interface uk.co.deanwild.materialshowcaseview.compat.SequenceItemCallbacks$Shown {
+  public abstract void onShow(uk.co.deanwild.materialshowcaseview.MaterialShowcaseView, int);
 }
 
 public interface uk.co.deanwild.materialshowcaseview.shape.Shape {
@@ -482,7 +483,6 @@ public interface uk.co.deanwild.materialshowcaseview.shape.Shape {
 }
 
 public interface uk.co.deanwild.materialshowcaseview.target.Target {
-  public static final uk.co.deanwild.materialshowcaseview.target.Target$Companion Companion;
   public static final uk.co.deanwild.materialshowcaseview.target.Target NONE;
   public abstract android.graphics.Point getPoint();
   public abstract android.graphics.Rect getBounds();

@@ -4,10 +4,10 @@ import android.content.Context
 import androidx.core.content.edit
 
 /** Persists whether single-use showcases and sequences have been shown. */
-open class PrefsManager(context: Context, private val showcaseID: String?) {
+open class PrefsManager(context: Context?, private val showcaseID: String?) {
 
     // Hold the application context so we never leak an Activity.
-    private val context: Context = context.applicationContext ?: context
+    private val context: Context = requireNotNull(context).let { it.applicationContext ?: it }
 
     /* Individual showcases */
 
@@ -42,6 +42,6 @@ open class PrefsManager(context: Context, private val showcaseID: String?) {
             prefs(context).edit { putInt(STATUS + showcaseID, SEQUENCE_NEVER_STARTED) }
 
         @JvmStatic
-        fun resetAll(context: Context) = prefs(context).edit { clear() }
+        fun resetAll(context: Context?) = prefs(requireNotNull(context)).edit { clear() }
     }
 }

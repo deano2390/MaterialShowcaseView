@@ -6,10 +6,12 @@ import android.graphics.Rect
 import android.view.View
 
 /** Targets a [View]. */
-open class ViewTarget(open val view: View) : Target {
+open class ViewTarget(view: View?) : Target {
 
-    constructor(viewId: Int, activity: Activity) : this(
-        requireNotNull(activity.findViewById<View>(viewId)) { "No view with id $viewId in ${activity.javaClass.name}" },
+    open val view: View = requireNotNull(view) { "ViewTarget needs a View" }
+
+    constructor(viewId: Int, activity: Activity?) : this(
+        requireNotNull(requireNotNull(activity).findViewById<View>(viewId)) { "No view with id $viewId in ${activity.javaClass.name}" },
     )
 
     override fun getPoint(): Point {

@@ -25,7 +25,8 @@ fun idleFor(millis: Long) = shadowOf(Looper.getMainLooper()).idleFor(Duration.of
  * [top] near the top-left, [middle] in the centre and [bottom] near the bottom.
  */
 class TestScreen {
-    val activity: Activity = Robolectric.buildActivity(Activity::class.java).setup().get()
+    val controller = Robolectric.buildActivity(Activity::class.java).setup()
+    val activity: Activity = controller.get()
     val root = FrameLayout(activity)
     val top = button("top", Gravity.TOP or Gravity.START)
     val middle = button("middle", Gravity.CENTER)

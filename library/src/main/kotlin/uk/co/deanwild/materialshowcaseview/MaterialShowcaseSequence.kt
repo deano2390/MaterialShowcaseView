@@ -2,6 +2,7 @@ package uk.co.deanwild.materialshowcaseview
 
 import android.app.Activity
 import android.view.View
+import uk.co.deanwild.materialshowcaseview.compat.SequenceItemCallbacks
 import java.util.LinkedList
 import java.util.Queue
 
@@ -11,7 +12,9 @@ import java.util.Queue
  * With a sequence ID (single-use) the sequence remembers how far the user got, resumes
  * from there next time, and never shows again once finished or skipped.
  */
-open class MaterialShowcaseSequence(private val activity: Activity) : IDetachedListener {
+open class MaterialShowcaseSequence(activity: Activity?) : IDetachedListener {
+
+    private val activity: Activity = requireNotNull(activity) { "MaterialShowcaseSequence needs an Activity" }
 
     internal var prefsManager: PrefsManager? = null
         private set
@@ -23,15 +26,15 @@ open class MaterialShowcaseSequence(private val activity: Activity) : IDetachedL
     private var onItemShownListener: OnSequenceItemShownListener? = null
     private var onItemDismissedListener: OnSequenceItemDismissedListener? = null
 
-    constructor(activity: Activity, sequenceID: String) : this(activity) {
+    constructor(activity: Activity?, sequenceID: String?) : this(activity) {
         singleUse(sequenceID)
     }
 
-    open fun addSequenceItem(targetView: View, content: String?, dismissText: String?): MaterialShowcaseSequence =
+    open fun addSequenceItem(targetView: View?, content: String?, dismissText: String?): MaterialShowcaseSequence =
         addSequenceItem(targetView, "", content, dismissText)
 
     open fun addSequenceItem(
-        targetView: View,
+        targetView: View?,
         title: String?,
         content: String?,
         dismissText: String?,
@@ -50,15 +53,16 @@ open class MaterialShowcaseSequence(private val activity: Activity) : IDetachedL
      * Adds a showcase to the end of the sequence. If a [ShowcaseConfig] has been set it is
      * applied now, so call [setConfig] before adding items.
      */
-    open fun addSequenceItem(sequenceItem: MaterialShowcaseView): MaterialShowcaseSequence {
+    open fun addSequenceItem(sequenceItem: MaterialShowcaseView?): MaterialShowcaseSequence {
+        requireNotNull(sequenceItem) { "addSequenceItem() needs a MaterialShowcaseView" }
         config?.let { sequenceItem.setConfig(it) }
         showcaseQueue.add(sequenceItem)
         return this
     }
 
-    open fun singleUse(sequenceID: String): MaterialShowcaseSequence {
+    open fun singleUse(sequenceID: String?): MaterialShowcaseSequence {
         singleUse = true
-        prefsManager = PrefsManager(activity, sequenceID)
+        prefsManager = PrefsManager(activity, requireNotNull(sequenceID) { "singleUse() needs an ID" })
         return this
     }
 
@@ -92,13 +96,26 @@ open class MaterialShowcaseSequence(private val activity: Activity) : IDetachedL
             if (singleUse) prefsManager?.setFired()
             return
         }
-        // Leaving mid-sequence: stop here, but keep progress so we resume next time.
-        if (activity.isFinishing) return
+        // Leaving mid-sequence (finishing, or being recreated for a configuration change): stop
+        // here, but keep progress so we resume next time.
+        if (activity.isFinishing || activity.isDestroyed || activity.isChangingConfigurations) return
 
         val sequenceItem = showcaseQueue.remove()
         sequenceItem.setDetachedListener(this)
-        sequenceItem.show(activity)
-        onItemShownListener?.onShow(sequenceItem, sequencePosition)
+        if (sequenceItem.show(activity)) {
+            onItemShownListener?.onShow(sequenceItem, sequencePosition)
+        } else {
+            // The item can't be shown (e.g. it is single-use and has fired): move past it rather
+            // than waiting forever for it to be dismissed.
+            sequenceItem.setDetachedListener(null)
+            advance()
+        }
+    }
+
+    private fun advance() {
+        sequencePosition++
+        if (singleUse) prefsManager?.setSequenceStatus(sequencePosition)
+        showNextItem()
     }
 
     override fun onShowcaseDetached(showcaseView: MaterialShowcaseView, wasDismissed: Boolean, wasSkipped: Boolean) {
@@ -114,9 +131,7 @@ open class MaterialShowcaseSequence(private val activity: Activity) : IDetachedL
             // Only advance if the item was deliberately dismissed, not just detached.
             wasDismissed -> {
                 onItemDismissedListener?.onDismiss(showcaseView, sequencePosition)
-                sequencePosition++
-                if (singleUse) prefsManager?.setSequenceStatus(sequencePosition)
-                showNextItem()
+                advance()
             }
         }
     }
@@ -125,11 +140,7 @@ open class MaterialShowcaseSequence(private val activity: Activity) : IDetachedL
         this.config = config
     }
 
-    fun interface OnSequenceItemShownListener {
-        fun onShow(itemView: MaterialShowcaseView, position: Int)
-    }
+    fun interface OnSequenceItemShownListener : SequenceItemCallbacks.Shown
 
-    fun interface OnSequenceItemDismissedListener {
-        fun onDismiss(itemView: MaterialShowcaseView, position: Int)
-    }
+    fun interface OnSequenceItemDismissedListener : SequenceItemCallbacks.Dismissed
 }

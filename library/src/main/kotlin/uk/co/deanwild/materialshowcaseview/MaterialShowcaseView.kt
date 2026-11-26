@@ -60,6 +60,7 @@ open class MaterialShowcaseView @JvmOverloads constructor(
     private var wasSkipped = false
     private var dismissing = false
     private var notifiedDismissed = false
+    private var displayed = false
 
     private var shapePadding = DEFAULT_SHAPE_PADDING
     private var tooltipMargin = DEFAULT_TOOLTIP_MARGIN
@@ -100,7 +101,8 @@ open class MaterialShowcaseView @JvmOverloads constructor(
     private var systemInsets = Insets.NONE
     private var navigationButtonInsets = Insets.NONE
 
-    private val hiddenForAccessibility = mutableListOf<Pair<View, Int>>()
+    /** Siblings this showcase has hidden from accessibility services (see [AccessibilityHider]). */
+    private val hiddenForAccessibility = mutableListOf<View>()
 
     private val eraser = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.WHITE
@@ -213,14 +215,42 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         for (i in 0 until parent.childCount) {
             val sibling = parent.getChildAt(i)
             if (sibling === this) continue
-            hiddenForAccessibility += sibling to sibling.importantForAccessibility
-            sibling.importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+            AccessibilityHider.hide(sibling)
+            hiddenForAccessibility += sibling
         }
     }
 
     private fun restoreSiblingAccessibility() {
-        for ((view, importance) in hiddenForAccessibility) view.importantForAccessibility = importance
+        for (view in hiddenForAccessibility) AccessibilityHider.restore(view)
         hiddenForAccessibility.clear()
+    }
+
+    /**
+     * Reference-counts hiding so overlapping showcases (one animating out while the next comes
+     * in) restore the original state whatever order they are removed in.
+     */
+    private object AccessibilityHider {
+        private class Entry(val original: Int, var count: Int)
+
+        private val entries = java.util.WeakHashMap<View, Entry>()
+
+        fun hide(view: View) {
+            val entry = entries[view]
+            if (entry != null) {
+                entry.count++
+            } else {
+                entries[view] = Entry(view.importantForAccessibility, 1)
+                view.importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+            }
+        }
+
+        fun restore(view: View) {
+            val entry = entries[view] ?: return
+            if (--entry.count == 0) {
+                entries.remove(view)
+                view.importantForAccessibility = entry.original
+            }
+        }
     }
 
     /* ---------------------------------------------------------------------------------------
@@ -403,8 +433,9 @@ open class MaterialShowcaseView @JvmOverloads constructor(
 
     private fun updateToolTip() {
         val toolTip = toolTip ?: return
-        // Only once we're actually on screen; before that the tooltip has no anchor.
-        if (!shouldRender || !isAttachedToWindow) return
+        // Only once the showcase is visible; before that the tooltip has no anchor and its enter
+        // animation would play behind an invisible overlay.
+        if (!displayed || !isAttachedToWindow) return
         if (!toolTipShown) {
             toolTipShown = true
             val shapeDiameter = (shape?.getTotalRadius() ?: 0) * 2
@@ -514,36 +545,39 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         invalidate()
     }
 
-    open fun addShowcaseListener(showcaseListener: IShowcaseListener) {
-        listeners += showcaseListener
+    open fun addShowcaseListener(showcaseListener: IShowcaseListener?) {
+        if (showcaseListener != null) listeners += showcaseListener
     }
 
-    open fun removeShowcaseListener(showcaseListener: IShowcaseListener) {
-        listeners -= showcaseListener
+    open fun removeShowcaseListener(showcaseListener: IShowcaseListener?) {
+        listeners.remove(showcaseListener)
     }
 
     @Deprecated(
         "A MaterialShowcaseSequence is never registered as a listener, so this did nothing.",
         level = DeprecationLevel.WARNING,
     )
-    open fun removeShowcaseListener(showcaseListener: MaterialShowcaseSequence) = Unit
+    open fun removeShowcaseListener(showcaseListener: MaterialShowcaseSequence?) = Unit
 
     internal fun setDetachedListener(detachedListener: IDetachedListener?) {
         this.detachedListener = detachedListener
     }
 
-    open fun setShape(shape: Shape) {
+    /** Sets the highlight shape; null means the Builder's default shape. */
+    open fun setShape(shape: Shape?) {
         this.shape = shape
-        shape.setPadding(shapePadding)
+        shape?.setPadding(shapePadding)
     }
 
-    open fun setAnimationFactory(animationFactory: IAnimationFactory) {
-        this.animationFactory = animationFactory
-        hasCustomAnimationFactory = true
+    /** Sets how the showcase animates in and out; null restores the default. */
+    open fun setAnimationFactory(animationFactory: IAnimationFactory?) {
+        this.animationFactory = animationFactory ?: CircularRevealAnimationFactory()
+        hasCustomAnimationFactory = animationFactory != null
     }
 
     /** Applies the values that were explicitly set on [config]. */
-    open fun setConfig(config: ShowcaseConfig) {
+    open fun setConfig(config: ShowcaseConfig?) {
+        if (config == null) return
         if (config.delay > -1) setDelay(config.delay)
         if (config.fadeDuration > 0) setFadeDuration(config.fadeDuration)
         if (config.isTitleTextColorSet) setTitleTextColor(config.titleTextColor)
@@ -580,11 +614,16 @@ open class MaterialShowcaseView @JvmOverloads constructor(
      * Shows the showcase over [activity]. Returns false if nothing was shown, e.g. because
      * it is single-use and has been shown before, or it is already showing.
      */
-    open fun show(activity: Activity): Boolean {
+    open fun show(activity: Activity?): Boolean {
+        requireNotNull(activity) { "show() needs an Activity" }
         check(Looper.myLooper() == Looper.getMainLooper()) {
             "MaterialShowcaseView.show() must be called on the main thread"
         }
         if (parent != null) return false
+        val tooltipAnchor = toolTip?.let {
+            (target as? ViewTarget)?.view
+                ?: throw IllegalStateException("A tooltip requires a target of type ${ViewTarget::class.java.name}")
+        }
 
         // Single-use and already shown: do nothing.
         prefsManager?.let {
@@ -599,15 +638,12 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         dismissing = false
         notifiedDismissed = false
         toolTipShown = false
+        displayed = false
 
         (activity.window.decorView as ViewGroup).addView(this)
         shouldRender = true
 
-        toolTip?.let {
-            val viewTarget = target as? ViewTarget
-                ?: throw IllegalStateException("A tooltip requires a target of type ${ViewTarget::class.java.name}")
-            it.configureTarget(this, viewTarget.view)
-        }
+        if (tooltipAnchor != null) toolTip?.configureTarget(this, tooltipAnchor)
 
         postDelayed(showRunnable, delayInMillis)
         updateDismissButton()
@@ -669,6 +705,7 @@ open class MaterialShowcaseView @JvmOverloads constructor(
     }
 
     private fun onDisplayed() {
+        displayed = true
         updateToolTip()
         for (listener in listeners.toList()) listener.onShowcaseDisplayed(this)
     }
@@ -703,9 +740,11 @@ open class MaterialShowcaseView @JvmOverloads constructor(
     /**
      * Fluent API for configuring and showing a showcase.
      */
-    open class Builder(private val activity: Activity) {
+    open class Builder(activity: Activity?) {
 
-        internal val showcaseView = MaterialShowcaseView(activity)
+        private val activity: Activity = requireNotNull(activity) { "MaterialShowcaseView.Builder needs an Activity" }
+
+        internal val showcaseView = MaterialShowcaseView(this.activity)
 
         private var fullWidth = false
         private var shapeType = CIRCLE_SHAPE
@@ -714,7 +753,8 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         open fun setGravity(gravity: Int): Builder = apply { showcaseView.setGravity(gravity) }
 
         /** Sets the view to showcase. Without a target the whole screen is masked. */
-        open fun setTarget(target: View): Builder = apply { showcaseView.setTarget(ViewTarget(target)) }
+        open fun setTarget(target: View?): Builder =
+            apply { showcaseView.setTarget(target?.let { ViewTarget(it) }) }
 
         open fun setSequence(isSequence: Boolean?): Builder = apply { showcaseView.setIsSequence(isSequence == true) }
 
@@ -766,12 +806,13 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         open fun setFadeDuration(fadeDurationInMillis: Int): Builder =
             apply { showcaseView.setFadeDuration(fadeDurationInMillis.toLong()) }
 
-        open fun setListener(listener: IShowcaseListener): Builder = apply { showcaseView.addShowcaseListener(listener) }
+        open fun setListener(listener: IShowcaseListener?): Builder = apply { showcaseView.addShowcaseListener(listener) }
 
         /** Only show this showcase once, ever, for the given ID. */
-        open fun singleUse(showcaseID: String): Builder = apply { showcaseView.singleUse(showcaseID) }
+        open fun singleUse(showcaseID: String?): Builder =
+            apply { showcaseView.singleUse(requireNotNull(showcaseID) { "singleUse() needs an ID" }) }
 
-        open fun setShape(shape: Shape): Builder = apply { showcaseView.setShape(shape) }
+        open fun setShape(shape: Shape?): Builder = apply { showcaseView.setShape(shape) }
 
         open fun withCircleShape(): Builder = apply { shapeType = CIRCLE_SHAPE }
 
@@ -836,10 +877,11 @@ open class MaterialShowcaseView @JvmOverloads constructor(
 
         /** Forget that the single-use showcase or sequence with [showcaseID] has been shown. */
         @JvmStatic
-        fun resetSingleUse(context: Context, showcaseID: String) = PrefsManager.resetShowcase(context, showcaseID)
+        fun resetSingleUse(context: Context?, showcaseID: String?) =
+            PrefsManager.resetShowcase(requireNotNull(context), showcaseID)
 
         /** Forget every single-use showcase and sequence. */
         @JvmStatic
-        fun resetAll(context: Context) = PrefsManager.resetAll(context)
+        fun resetAll(context: Context?) = PrefsManager.resetAll(requireNotNull(context))
     }
 }

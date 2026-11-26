@@ -44,7 +44,8 @@ open class ShowcaseTooltip private constructor(context: Context) {
 
     open fun position(position: Position): ShowcaseTooltip = apply { tooltipView.setPosition(position) }
 
-    open fun customView(customView: View): ShowcaseTooltip = apply { tooltipView.setCustomView(customView) }
+    open fun customView(customView: View?): ShowcaseTooltip =
+        apply { tooltipView.setCustomView(requireNotNull(customView)) }
 
     /** Uses the view with [viewId] from the Activity as the tooltip content. */
     open fun customView(viewId: Int): ShowcaseTooltip = apply {
@@ -76,18 +77,20 @@ open class ShowcaseTooltip private constructor(context: Context) {
         anchor.postDelayed({
             if (!root.isAttachedToWindow || !anchor.isAttachedToWindow) return@postDelayed
 
-            // Target bounds in the root's coordinate space.
+            // Target bounds relative to where the root lays out its children, i.e. inside its
+            // padding (the showcase pads itself by the system bar insets).
             val anchorLocation = IntArray(2).also { anchor.getLocationInWindow(it) }
             val rootLocation = IntArray(2).also { root.getLocationInWindow(it) }
-            val left = anchorLocation[0] - rootLocation[0]
-            val top = anchorLocation[1] - rootLocation[1]
+            val left = anchorLocation[0] - rootLocation[0] - root.paddingLeft
+            val top = anchorLocation[1] - rootLocation[1] - root.paddingTop
             val rect = Rect(left, top - margin, left + anchor.width, top + anchor.height + margin)
+            val availableWidth = root.width - root.paddingLeft - root.paddingRight
 
             (tooltipView.parent as? ViewGroup)?.removeView(tooltipView)
             root.addView(tooltipView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             tooltipView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
                 override fun onPreDraw(): Boolean {
-                    tooltipView.setup(rect, root.width)
+                    tooltipView.setup(rect, availableWidth)
                     tooltipView.viewTreeObserver.removeOnPreDrawListener(this)
                     return false
                 }
@@ -113,7 +116,7 @@ open class ShowcaseTooltip private constructor(context: Context) {
         apply { tooltipView.setTooltipAnimation(tooltipAnimation) }
 
     /** Sets the tooltip text. Simple HTML markup is supported. */
-    open fun text(text: String): ShowcaseTooltip = apply { tooltipView.setText(text) }
+    open fun text(text: String?): ShowcaseTooltip = apply { tooltipView.setText(text) }
 
     open fun text(text: Int): ShowcaseTooltip = apply { tooltipView.setText(text) }
 
@@ -261,8 +264,8 @@ open class ShowcaseTooltip private constructor(context: Context) {
             postInvalidate()
         }
 
-        open fun setText(text: String) {
-            (childView as? TextView)?.text = HtmlCompat.fromHtml(text, HtmlCompat.FROM_HTML_MODE_LEGACY)
+        open fun setText(text: String?) {
+            (childView as? TextView)?.text = HtmlCompat.fromHtml(text.orEmpty(), HtmlCompat.FROM_HTML_MODE_LEGACY)
             postInvalidate()
         }
 
@@ -557,7 +560,8 @@ open class ShowcaseTooltip private constructor(context: Context) {
         private const val SHOW_DELAY_MS = 100L
 
         @JvmStatic
-        fun build(context: Context): ShowcaseTooltip = ShowcaseTooltip(context)
+        fun build(context: Context?): ShowcaseTooltip =
+            ShowcaseTooltip(requireNotNull(context) { "ShowcaseTooltip.build() needs a Context" })
 
         private fun getActivityContext(context: Context?): Activity? {
             var c = context

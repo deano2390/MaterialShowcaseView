@@ -158,7 +158,8 @@ val javapPath = javaToolchains.launcherFor { languageVersion.set(JavaLanguageVer
     .map { it.metadata.installationPath.file("bin/javap").asFile.absolutePath }
 val releaseClasses = files(
     layout.buildDirectory.dir("intermediates/built_in_kotlinc/release/compileReleaseKotlin/classes"),
-).builtBy("compileReleaseKotlin")
+    layout.buildDirectory.dir("intermediates/javac/release/compileReleaseJavaWithJavac/classes"),
+).builtBy("compileReleaseKotlin", "compileReleaseJavaWithJavac")
 val apiFile = layout.projectDirectory.file("api/library.api")
 
 tasks.register<ApiDumpTask>("apiDump") {
