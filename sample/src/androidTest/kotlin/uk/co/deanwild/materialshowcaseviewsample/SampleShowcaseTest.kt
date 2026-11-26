@@ -98,6 +98,23 @@ class SampleShowcaseTest {
     }
 
     @Test
+    fun customExample_menuItemShowcase_usesTheAppsOwnLayout() {
+        ActivityScenario.launch(CustomExample::class.java).use { scenario ->
+            // Dismiss the automatic showcase first.
+            scenario.awaitShowcase()
+            onView(withText("This is some amazing feature you should know about")).perform(click())
+            scenario.awaitNoShowcase()
+
+            onView(androidx.test.espresso.matcher.ViewMatchers.withId(R.id.menu_sample_action)).perform(click())
+            scenario.waitUntil(message = "custom content") { list ->
+                list.size == 1 && list.single().findViewById<android.view.View>(uk.co.deanwild.materialshowcaseview.R.id.showcase_dismiss) != null
+            }
+            onView(withText("Next")).perform(click())
+            scenario.awaitNoShowcase()
+        }
+    }
+
+    @Test
     fun sequenceExample_stepsThroughEveryItem() {
         ActivityScenario.launch(SequenceExample::class.java).use { scenario ->
             for (expected in listOf("This is button one", "This is button two", "This is button three")) {

@@ -62,6 +62,9 @@ open class ShowcaseConfig {
     /** Whether the back button closes showcases (ending a sequence); null means "not set". */
     open var dismissOnBackPress: Boolean? = null
 
+    /** Whether to scroll targets fully on screen before showing; null means "not set". */
+    open var scrollTargetIntoView: Boolean? = null
+
     /** Shows dismiss text as a filled button in this colour; null means "not set". */
     open var dismissButtonColor: Int? = null
 

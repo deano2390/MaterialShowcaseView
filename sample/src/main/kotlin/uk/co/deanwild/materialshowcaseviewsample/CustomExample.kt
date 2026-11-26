@@ -43,10 +43,9 @@ class CustomExample : AppCompatActivity() {
             val view = findViewById<View>(R.id.menu_sample_action)
             MaterialShowcaseView.Builder(this)
                 .setTarget(view)
-                .setShapePadding(96)
-                .setDismissText("GOT IT")
-                .setContentText("Example of how to setup a MaterialShowcaseView for menu items in action bar.")
-                .setContentTextColor(ContextCompat.getColor(this, R.color.green))
+                .setShapePadding(48)
+                // The app's own layout replaces the built-in text and buttons.
+                .setContentLayout(R.layout.showcase_custom_content)
                 .setMaskColour(ContextCompat.getColor(this, R.color.purple))
                 .show()
         }

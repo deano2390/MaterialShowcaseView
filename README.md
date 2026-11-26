@@ -34,7 +34,7 @@ Then add the dependency to your module's `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.deano2390:MaterialShowcaseView:2.2.0")
+    implementation("com.github.deano2390:MaterialShowcaseView:2.3.0")
 }
 ```
 
@@ -53,7 +53,7 @@ dependencyResolutionManagement {
 
 // app/build.gradle
 dependencies {
-    implementation 'com.github.deano2390:MaterialShowcaseView:2.2.0'
+    implementation 'com.github.deano2390:MaterialShowcaseView:2.3.0'
 }
 ```
 </details>
@@ -134,6 +134,28 @@ MaterialShowcaseView.Builder(this)
     .setShapeBorder(Color.WHITE, 4)      // outline the highlight
     .show()
 ```
+
+### Your own layout
+
+Replace the built-in title, text and buttons with your own layout. The showcase still positions it
+beside the target. Give a view `android:id="@id/showcase_dismiss"` or `@id/showcase_skip` to make it
+dismiss or skip:
+
+```kotlin
+MaterialShowcaseView.Builder(this)
+    .setTarget(button)
+    .setContentLayout(R.layout.my_showcase_content)   // or setContentView(view)
+    .show()
+```
+
+### Targets inside scrolling content
+
+`setScrollTargetIntoView(true)` (or `ShowcaseConfig.scrollTargetIntoView`) scrolls a `ScrollView`,
+`NestedScrollView` or `RecyclerView` so the target is fully on screen before the showcase appears.
+For a `RecyclerView` item that hasn't been created yet, scroll to its position first and show the
+showcase once it's laid out.
+
+### Sequences
 
 In a sequence, dismissing an item moves straight on to the next: the highlight glides from one
 target to the next and the screen stays covered, so stray taps can't reach your app in between. Call

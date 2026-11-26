@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Give a view in a custom content layout one of these ids to make it dismiss or skip. -->
+    <item name="showcase_dismiss" type="id" />
+    <item name="showcase_skip" type="id" />
+</resources>

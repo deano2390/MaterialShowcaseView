@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.3.0
+
+### Added
+* Custom content: `Builder.setContentView(view)` / `setContentLayout(layoutRes)` replace the
+  built-in title, text and buttons with your own layout, still positioned beside the target. Views
+  with the ids `showcase_dismiss` / `showcase_skip` dismiss or skip. Supersedes #98 and #47. (#11)
+* `Builder.setScrollTargetIntoView(true)` / `ShowcaseConfig.scrollTargetIntoView` scroll the
+  target's scrolling parents so it is fully on screen before the showcase appears. (#6)
+
 ## 2.2.0
 
 ### Changed
