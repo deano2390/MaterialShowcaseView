@@ -38,7 +38,7 @@ binary-compatible for both Java and Kotlin callers.
 * Setting a title no longer makes the content text semi-transparent, and an empty title no longer
   leaves a gap. (#83)
 * `hasFired()` no longer throws when single-use isn't enabled.
-* Text sizes are in `sp` and respect the user's font size. (#84, #151, #194)
+* Text sizes are in `sp` and respect the user's font size.
 * The skip button no longer takes up an invisible tappable area when it has no text.
 * `PrefsManager` holds the application context and no longer throws after `close()`.
 * Tooltips: no longer shown (and crashing) before the showcase is displayed. `customView(int)` now
