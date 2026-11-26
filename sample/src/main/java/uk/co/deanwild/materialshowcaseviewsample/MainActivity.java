@@ -3,7 +3,7 @@ package uk.co.deanwild.materialshowcaseviewsample;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -34,27 +34,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Intent intent = null;
 
-        switch (v.getId()) {
-            case R.id.btn_simple_example:
-                intent = new Intent(this, SimpleSingleExample.class);
-                break;
-
-            case R.id.btn_custom_example:
-                intent = new Intent(this, CustomExample.class);
-                break;
-
-            case R.id.btn_sequence_example:
-                intent = new Intent(this, SequenceExample.class);
-                break;
-
-            case R.id.btn_tooltip_example:
-                intent = new Intent(this, TooltipExample.class);
-                break;
-
-            case R.id.btn_reset_all:
-                MaterialShowcaseView.resetAll(this);
-                Toast.makeText(this, "All Showcases reset", Toast.LENGTH_SHORT).show();
-                break;
+        int id = v.getId();
+        if (id == R.id.btn_simple_example) {
+            intent = new Intent(this, SimpleSingleExample.class);
+        } else if (id == R.id.btn_custom_example) {
+            intent = new Intent(this, CustomExample.class);
+        } else if (id == R.id.btn_sequence_example) {
+            intent = new Intent(this, SequenceExample.class);
+        } else if (id == R.id.btn_tooltip_example) {
+            intent = new Intent(this, TooltipExample.class);
+        } else if (id == R.id.btn_reset_all) {
+            MaterialShowcaseView.resetAll(this);
+            Toast.makeText(this, "All Showcases reset", Toast.LENGTH_SHORT).show();
         }
 
         if (intent != null) {
