@@ -53,6 +53,37 @@ open class ShowcaseConfig {
     open var renderOverNavigationBar: Boolean? = null
         protected set
 
+    /** Typeface for titles; null means "not set". */
+    open var titleTextStyle: Typeface? = null
+
+    /** Typeface for content text; null means "not set". */
+    open var contentTextStyle: Typeface? = null
+
+    /** Whether the back button closes showcases (ending a sequence); null means "not set". */
+    open var dismissOnBackPress: Boolean? = null
+
+    internal class TextSize(val unit: Int, val size: Float)
+
+    internal var titleTextSize: TextSize? = null
+        private set
+    internal var contentTextSize: TextSize? = null
+        private set
+    internal var dismissTextSize: TextSize? = null
+        private set
+
+    /** Title text size, e.g. `setTitleTextSize(TypedValue.COMPLEX_UNIT_SP, 24f)`. */
+    open fun setTitleTextSize(unit: Int, size: Float) {
+        titleTextSize = TextSize(unit, size)
+    }
+
+    open fun setContentTextSize(unit: Int, size: Float) {
+        contentTextSize = TextSize(unit, size)
+    }
+
+    open fun setDismissTextSize(unit: Int, size: Float) {
+        dismissTextSize = TextSize(unit, size)
+    }
+
     // Keeps the exact 1.x signature (primitive boolean) for binary compatibility.
     open fun setRenderOverNavigationBar(renderOverNav: Boolean) {
         renderOverNavigationBar = renderOverNav

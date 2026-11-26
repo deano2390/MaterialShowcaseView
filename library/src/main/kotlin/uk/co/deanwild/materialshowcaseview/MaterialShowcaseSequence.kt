@@ -25,6 +25,8 @@ open class MaterialShowcaseSequence(activity: Activity?) : IDetachedListener {
 
     private var onItemShownListener: OnSequenceItemShownListener? = null
     private var onItemDismissedListener: OnSequenceItemDismissedListener? = null
+    private var onSkippedListener: OnSequenceSkippedListener? = null
+    private var onFinishedListener: OnSequenceFinishedListener? = null
 
     constructor(activity: Activity?, sequenceID: String?) : this(activity) {
         singleUse(sequenceID)
@@ -74,6 +76,19 @@ open class MaterialShowcaseSequence(activity: Activity?) : IDetachedListener {
         onItemDismissedListener = listener
     }
 
+    /** Called when the user skips the sequence, with the item and position they skipped at. */
+    open fun setOnSkippedListener(listener: OnSequenceSkippedListener?) {
+        onSkippedListener = listener
+    }
+
+    /**
+     * Called once when the sequence ends, either because the last item was dismissed or because
+     * it was skipped. Not called if the user leaves part-way through.
+     */
+    open fun setOnSequenceFinishedListener(listener: OnSequenceFinishedListener?) {
+        onFinishedListener = listener
+    }
+
     /** True if this is a single-use sequence that has been finished or skipped. */
     open fun hasFired(): Boolean = prefsManager?.getSequenceStatus() == PrefsManager.SEQUENCE_FINISHED
 
@@ -94,6 +109,7 @@ open class MaterialShowcaseSequence(activity: Activity?) : IDetachedListener {
         if (showcaseQueue.isEmpty()) {
             // End of the sequence.
             if (singleUse) prefsManager?.setFired()
+            onFinishedListener?.onFinished(false)
             return
         }
         // Leaving mid-sequence (finishing, or being recreated for a configuration change): stop
@@ -124,8 +140,10 @@ open class MaterialShowcaseSequence(activity: Activity?) : IDetachedListener {
         when {
             wasSkipped -> {
                 onItemDismissedListener?.onDismiss(showcaseView, sequencePosition)
+                onSkippedListener?.onSkip(showcaseView, sequencePosition)
                 showcaseQueue.clear()
                 if (singleUse) prefsManager?.setFired()
+                onFinishedListener?.onFinished(true)
             }
 
             // Only advance if the item was deliberately dismissed, not just detached.
@@ -143,4 +161,13 @@ open class MaterialShowcaseSequence(activity: Activity?) : IDetachedListener {
     fun interface OnSequenceItemShownListener : SequenceItemCallbacks.Shown
 
     fun interface OnSequenceItemDismissedListener : SequenceItemCallbacks.Dismissed
+
+    fun interface OnSequenceSkippedListener {
+        fun onSkip(itemView: MaterialShowcaseView, position: Int)
+    }
+
+    fun interface OnSequenceFinishedListener {
+        /** [skipped] is true if the user skipped the rest of the sequence. */
+        fun onFinished(skipped: Boolean)
+    }
 }

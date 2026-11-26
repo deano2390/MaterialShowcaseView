@@ -115,6 +115,37 @@ sequence.addSequenceItem(buttonThree, "This is button three", "GOT IT");
 sequence.start();
 ```
 
+## Customising
+
+```kotlin
+MaterialShowcaseView.Builder(this)
+    .setTarget(button)
+    .withRoundedRectangleShape()         // or withCircleShape(), withOvalShape(), withRectangleShape(), withoutShape()
+    .setShapePadding(24)
+    .setMaskColour(0xDD335075.toInt())   // the alpha channel controls how much shows through
+    .setTitleTextSize(TypedValue.COMPLEX_UNIT_SP, 24f)
+    .setContentTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+    .setTitleStyle(myTypeface)
+    .setDismissOnTouch(true)             // tap anywhere to dismiss
+    .setTargetTouchable(true)            // let taps through to the target...
+    .setDismissOnTargetTouch(true)       // ...and dismiss when it's tapped
+    .setDismissOnBackPress(true)         // back closes it (and ends a sequence)
+    .show()
+```
+
+Sequences can tell you how they ended:
+
+```kotlin
+sequence.setOnSkippedListener { item, position -> /* skipped at this item */ }
+sequence.setOnSequenceFinishedListener { skipped -> /* completed, or skipped */ }
+```
+
+To avoid building a single-use showcase that has already been shown:
+
+```kotlin
+if (!MaterialShowcaseView.hasFired(context, SHOWCASE_ID)) { /* build and show it */ }
+```
+
 Showcases must be shown from the main thread. To show one again, call
 `MaterialShowcaseView.resetSingleUse(context, SHOWCASE_ID)` or `MaterialShowcaseView.resetAll(context)`.
 
@@ -124,8 +155,8 @@ Showcases must be shown from the main thread. To show one again, call
 2.0 is a drop-in replacement for 1.x: every public API from 1.3.7 is still there, for both Java
 and Kotlin callers. What changed:
 
-* **Requirements:** minSdk 21. The library is now written in Kotlin, so it brings in `kotlin-stdlib`
-  and `androidx.core`.
+* **Requirements:** minSdk 21. The library is now written in Kotlin, so it brings in `kotlin-stdlib`,
+  `androidx.core` and `androidx.activity`.
 * **Gradle:** use `implementation` (not `compile`). The `@aar` suffix is no longer needed.
 * **Behaviour fixes** you might notice:
   * Setting a title no longer fades the content text to 50% opacity, and an empty title no longer
@@ -140,6 +171,9 @@ and Kotlin callers. What changed:
   * In a sequence, the item listeners now get the correct position, with or without single-use.
 * **Kotlin callers:** the old Java-style calls such as `config.setDelay(500)` still compile but are
   deprecated in favour of property syntax (`config.delay = 500`). The IDE quick-fix converts them.
+  One rare case does break: a Kotlin *subclass* of `CircleShape`, `OvalShape`, `RectangleShape`,
+  `ShowcaseConfig` or `ViewTarget` that overrides a getter such as `getRadius()` must override the
+  property (`override var radius`) instead.
 
 See the [CHANGELOG](CHANGELOG.md) for the full list of fixes.
 

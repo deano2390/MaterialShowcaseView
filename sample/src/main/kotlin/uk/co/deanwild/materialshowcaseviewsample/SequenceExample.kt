@@ -35,11 +35,16 @@ class SequenceExample : AppCompatActivity() {
     private fun presentShowcaseSequence() {
         val config = ShowcaseConfig().apply {
             delay = 500 // half a second between each showcase view
+            dismissOnBackPress = true // back skips the rest of the sequence
         }
 
         val sequence = MaterialShowcaseSequence(this, SHOWCASE_ID)
         sequence.setOnItemShownListener { itemView, position ->
             Toast.makeText(itemView.context, "Item #$position", Toast.LENGTH_SHORT).show()
+        }
+        sequence.setOnSequenceFinishedListener { skipped ->
+            val message = if (skipped) "Tutorial skipped" else "Tutorial finished"
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
         sequence.setConfig(config)
 
@@ -60,7 +65,7 @@ class SequenceExample : AppCompatActivity() {
                 .setTarget(buttonThree)
                 .setDismissText("GOT IT")
                 .setContentText("This is button three")
-                .withRectangleShape()
+                .withRoundedRectangleShape()
                 .build(),
         )
 

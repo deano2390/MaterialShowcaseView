@@ -58,6 +58,7 @@ kotlin {
 dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.annotation)
+    implementation(libs.androidx.activity)
 
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)

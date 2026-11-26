@@ -12,6 +12,7 @@ import android.graphics.Typeface
 import android.os.Looper
 import android.util.AttributeSet
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -20,6 +21,8 @@ import android.view.ViewTreeObserver
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.VisibleForTesting
 import androidx.core.graphics.Insets
 import androidx.core.view.AccessibilityDelegateCompat
@@ -31,6 +34,7 @@ import uk.co.deanwild.materialshowcaseview.shape.CircleShape
 import uk.co.deanwild.materialshowcaseview.shape.NoShape
 import uk.co.deanwild.materialshowcaseview.shape.OvalShape
 import uk.co.deanwild.materialshowcaseview.shape.RectangleShape
+import uk.co.deanwild.materialshowcaseview.shape.RoundedRectangleShape
 import uk.co.deanwild.materialshowcaseview.shape.Shape
 import uk.co.deanwild.materialshowcaseview.target.Target
 import uk.co.deanwild.materialshowcaseview.target.ViewTarget
@@ -111,6 +115,12 @@ open class MaterialShowcaseView @JvmOverloads constructor(
 
     private val layoutListener = ViewTreeObserver.OnGlobalLayoutListener { updateLayout() }
 
+    // Keeps the highlight on the target when the content underneath scrolls.
+    private val scrollListener = ViewTreeObserver.OnScrollChangedListener { updateLayout() }
+
+    private var dismissOnBackPress = false
+    private var backCallback: OnBackPressedCallback? = null
+
     private val showRunnable = Runnable {
         if (!isAttachedToWindow) return@Runnable
         if (shouldAnimate) {
@@ -190,6 +200,7 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         // Register on the *window's* observer; registering before attach puts the listener on
         // a temporary observer that we could never remove it from again.
         viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
+        viewTreeObserver.addOnScrollChangedListener(scrollListener)
         ViewCompat.getRootWindowInsets(this)?.let { applyInsets(it) }
         hideSiblingsFromAccessibility()
         ViewCompat.setAccessibilityPaneTitle(this, titleTextView.text.ifEmpty { contentTextView.text })
@@ -197,6 +208,9 @@ open class MaterialShowcaseView @JvmOverloads constructor(
 
     override fun onDetachedFromWindow() {
         viewTreeObserver.removeOnGlobalLayoutListener(layoutListener)
+        viewTreeObserver.removeOnScrollChangedListener(scrollListener)
+        backCallback?.remove()
+        backCallback = null
         removeCallbacks(showRunnable)
         restoreSiblingAccessibility()
         super.onDetachedFromWindow()
@@ -502,6 +516,30 @@ open class MaterialShowcaseView @JvmOverloads constructor(
 
     private fun setDismissTextColor(colour: Int) = dismissButton.setTextColor(colour)
 
+    private fun setSkipTextColor(colour: Int) = skipButton.setTextColor(colour)
+
+    private fun setTitleStyle(style: Typeface?) {
+        titleTextView.typeface = style
+    }
+
+    private fun setContentStyle(style: Typeface?) {
+        contentTextView.typeface = style
+    }
+
+    private fun setTitleTextSize(unit: Int, size: Float) = titleTextView.setTextSize(unit, size)
+
+    private fun setContentTextSize(unit: Int, size: Float) = contentTextView.setTextSize(unit, size)
+
+    private fun setDismissTextSize(unit: Int, size: Float) = dismissButton.setTextSize(unit, size)
+
+    private fun setSkipTextSize(unit: Int, size: Float) = skipButton.setTextSize(unit, size)
+
+    private fun setDismissOnBackPress(dismissOnBackPress: Boolean) {
+        this.dismissOnBackPress = dismissOnBackPress
+        // Fallback for Activities without an OnBackPressedDispatcher: take key focus.
+        isFocusableInTouchMode = dismissOnBackPress
+    }
+
     private fun setShapePadding(padding: Int) {
         shapePadding = padding
         shape?.setPadding(padding)
@@ -588,6 +626,12 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         config.shape?.let { setShape(it) }
         if (config.shapePadding > -1) setShapePadding(config.shapePadding)
         config.renderOverNavigationBar?.let { setRenderOverNavigationBar(it) }
+        config.titleTextStyle?.let { setTitleStyle(it) }
+        config.contentTextStyle?.let { setContentStyle(it) }
+        config.titleTextSize?.let { setTitleTextSize(it.unit, it.size) }
+        config.contentTextSize?.let { setContentTextSize(it.unit, it.size) }
+        config.dismissTextSize?.let { setDismissTextSize(it.unit, it.size) }
+        config.dismissOnBackPress?.let { setDismissOnBackPress(it) }
     }
 
     private fun updateDismissButton() {
@@ -600,6 +644,33 @@ open class MaterialShowcaseView @JvmOverloads constructor(
 
     /** True if this is a single-use showcase that has already been shown. */
     open fun hasFired(): Boolean = prefsManager?.hasFired() ?: false
+
+    /**
+     * True if the showcase was skipped (the skip button or, with dismiss-on-back-press, the back
+     * button) rather than dismissed. Useful in [IShowcaseListener.onShowcaseDismissed].
+     */
+    open fun wasSkipped(): Boolean = wasSkipped
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (dismissOnBackPress && backCallback == null && event.keyCode == KeyEvent.KEYCODE_BACK) {
+            if (event.action == KeyEvent.ACTION_UP && !event.isCanceled) skip()
+            return true
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
+    private fun registerBackHandler(activity: Activity) {
+        if (!dismissOnBackPress) return
+        if (activity is ComponentActivity) {
+            val callback = object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() = skip()
+            }
+            activity.onBackPressedDispatcher.addCallback(callback)
+            backCallback = callback
+        } else {
+            requestFocus()
+        }
+    }
 
     private fun singleUse(showcaseID: String) {
         singleUse = true
@@ -644,6 +715,7 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         shouldRender = true
 
         if (tooltipAnchor != null) toolTip?.configureTarget(this, tooltipAnchor)
+        registerBackHandler(activity)
 
         postDelayed(showRunnable, delayInMillis)
         updateDismissButton()
@@ -748,6 +820,7 @@ open class MaterialShowcaseView @JvmOverloads constructor(
 
         private var fullWidth = false
         private var shapeType = CIRCLE_SHAPE
+        private var cornerRadius = -1
 
         /** Places the content with [gravity] instead of positioning it automatically. */
         open fun setGravity(gravity: Int): Builder = apply { showcaseView.setGravity(gravity) }
@@ -801,6 +874,32 @@ open class MaterialShowcaseView @JvmOverloads constructor(
 
         open fun setDismissTextColor(textColour: Int): Builder = apply { showcaseView.setDismissTextColor(textColour) }
 
+        open fun setSkipTextColor(textColour: Int): Builder = apply { showcaseView.setSkipTextColor(textColour) }
+
+        /** Typeface for the title. */
+        open fun setTitleStyle(titleStyle: Typeface?): Builder = apply { showcaseView.setTitleStyle(titleStyle) }
+
+        /** Typeface for the content text. */
+        open fun setContentStyle(contentStyle: Typeface?): Builder = apply { showcaseView.setContentStyle(contentStyle) }
+
+        /** Title text size, e.g. `setTitleTextSize(TypedValue.COMPLEX_UNIT_SP, 24f)`. */
+        open fun setTitleTextSize(unit: Int, size: Float): Builder = apply { showcaseView.setTitleTextSize(unit, size) }
+
+        open fun setContentTextSize(unit: Int, size: Float): Builder =
+            apply { showcaseView.setContentTextSize(unit, size) }
+
+        open fun setDismissTextSize(unit: Int, size: Float): Builder =
+            apply { showcaseView.setDismissTextSize(unit, size) }
+
+        open fun setSkipTextSize(unit: Int, size: Float): Builder = apply { showcaseView.setSkipTextSize(unit, size) }
+
+        /**
+         * Whether the back button closes the showcase. It counts as a skip, so in a sequence
+         * it ends the whole sequence. False by default.
+         */
+        open fun setDismissOnBackPress(dismissOnBackPress: Boolean): Builder =
+            apply { showcaseView.setDismissOnBackPress(dismissOnBackPress) }
+
         open fun setDelay(delayInMillis: Int): Builder = apply { showcaseView.setDelay(delayInMillis.toLong()) }
 
         open fun setFadeDuration(fadeDurationInMillis: Int): Builder =
@@ -834,6 +933,15 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         /** Also dim the navigation bar area when the app draws edge-to-edge. */
         open fun renderOverNavigationBar(): Builder = apply { showcaseView.setRenderOverNavigationBar(true) }
 
+        /** A rectangle with rounded corners around the target. */
+        open fun withRoundedRectangleShape(): Builder = withRoundedRectangleShape(-1)
+
+        /** A rectangle with rounded corners of [cornerRadius] pixels around the target. */
+        open fun withRoundedRectangleShape(cornerRadius: Int): Builder = apply {
+            shapeType = ROUNDED_RECTANGLE_SHAPE
+            this.cornerRadius = cornerRadius
+        }
+
         open fun useFadeAnimation(): Builder = apply { showcaseView.setUseFadeAnimation(true) }
 
         open fun build(): MaterialShowcaseView {
@@ -843,6 +951,11 @@ open class MaterialShowcaseView @JvmOverloads constructor(
                 view.setShape(
                     when (shapeType) {
                         RECTANGLE_SHAPE -> RectangleShape(target.getBounds(), fullWidth)
+                        ROUNDED_RECTANGLE_SHAPE -> RoundedRectangleShape(
+                            target.getBounds(),
+                            false,
+                            if (cornerRadius >= 0) cornerRadius else (DEFAULT_CORNER_RADIUS_DP * activity.resources.displayMetrics.density).toInt(),
+                        )
                         NO_SHAPE -> NoShape()
                         OVAL_SHAPE -> OvalShape(target)
                         else -> CircleShape(target)
@@ -866,6 +979,8 @@ open class MaterialShowcaseView @JvmOverloads constructor(
             const val RECTANGLE_SHAPE = 1
             const val NO_SHAPE = 2
             const val OVAL_SHAPE = 3
+            const val ROUNDED_RECTANGLE_SHAPE = 4
+            const val DEFAULT_CORNER_RADIUS_DP = 12
         }
     }
 
@@ -883,5 +998,13 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         /** Forget every single-use showcase and sequence. */
         @JvmStatic
         fun resetAll(context: Context?) = PrefsManager.resetAll(requireNotNull(context))
+
+        /**
+         * True if the single-use showcase or sequence with [showcaseID] has already been shown,
+         * so you can skip building it altogether.
+         */
+        @JvmStatic
+        fun hasFired(context: Context?, showcaseID: String?): Boolean =
+            PrefsManager(context, requireNotNull(showcaseID)).hasFired()
     }
 }

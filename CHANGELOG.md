@@ -49,8 +49,24 @@ binary-compatible for both Java and Kotlin callers.
 * Accessibility: content behind the showcase is hidden from screen readers while it's shown, the
   showcase is announced, and the dismiss and skip buttons are focusable buttons. (#175)
 
+### Added
+* Text size and typeface setters: `setTitleTextSize`, `setContentTextSize`, `setDismissTextSize`,
+  `setSkipTextSize`, `setTitleStyle`, `setContentStyle` and `setSkipTextColor` on the Builder, and
+  matching options on `ShowcaseConfig`. Based on #196 by @amodkanthe. (#84, #113, #151, #194)
+* `MaterialShowcaseSequence.setOnSkippedListener` and `setOnSequenceFinishedListener`, and
+  `MaterialShowcaseView.wasSkipped()`. Based on #204 by @Danjosh0211 and #87 by @BehnamMaboodi.
+  (#60, #106, #107)
+* `RoundedRectangleShape` and `Builder.withRoundedRectangleShape()`. Based on #204 by @Danjosh0211. (#159)
+* `MaterialShowcaseView.hasFired(context, id)` to check a single-use showcase or sequence without
+  building it. (#24, #93)
+* `Builder.setDismissOnBackPress(true)` / `ShowcaseConfig.dismissOnBackPress`: the back button
+  closes the showcase and ends a sequence. (#88)
+* The highlight follows the target when the content underneath scrolls. (#149)
+
 ### API
 * Added `MaterialShowcaseView.removeShowcaseListener(IShowcaseListener)`. The old
   `removeShowcaseListener(MaterialShowcaseSequence)` overload never did anything and is deprecated.
 * Added `ShowcaseConfig.titleTextColor`.
+* Kotlin callers can pass nullable values (such as `Fragment.activity`) where 1.x accepted them,
+  and implement the listener interfaces with nullable or non-null parameters, as before.
 * `getSoftButtonsBarSizePort()` and `ShowcaseTooltip.MyContext(Fragment)` are deprecated.

@@ -1,6 +1,8 @@
 package uk.co.deanwild.materialshowcaseviewsample
 
+import android.graphics.Typeface
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -58,6 +60,8 @@ class CustomExample : AppCompatActivity() {
             .setDismissText("GOT IT")
             .setDismissOnTouch(true)
             .setContentTextColor(ContextCompat.getColor(this, R.color.green))
+            .setContentTextSize(TypedValue.COMPLEX_UNIT_SP, 24f)
+            .setContentStyle(Typeface.DEFAULT_BOLD)
             .setMaskColour(ContextCompat.getColor(this, R.color.purple))
             .setDelay(withDelay) // optional, but starting animations immediately in onCreate can make them choppy
             .singleUse(SHOWCASE_ID) // a unique ID used to make sure it is only shown once
