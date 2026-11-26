@@ -18,6 +18,7 @@ class MainActivity : AppCompatActivity() {
         open(R.id.btn_custom_example, CustomExample::class.java)
         open(R.id.btn_sequence_example, SequenceExample::class.java)
         open(R.id.btn_tooltip_example, TooltipExample::class.java)
+        open(R.id.btn_dialog_example, DialogExample::class.java)
 
         findViewById<Button>(R.id.btn_reset_all).setOnClickListener {
             MaterialShowcaseView.resetAll(this)

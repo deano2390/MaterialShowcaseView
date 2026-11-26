@@ -23,6 +23,8 @@ public class uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence implem
   public void setOnItemDismissedListener(uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence$OnSequenceItemDismissedListener);
   public void setOnSkippedListener(uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence$OnSequenceSkippedListener);
   public void setOnSequenceFinishedListener(uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence$OnSequenceFinishedListener);
+  public void setDialog(android.app.Dialog);
+  public void setAnimateBetweenItems(boolean);
   public boolean hasFired();
   public void start();
   public void onShowcaseDetached(uk.co.deanwild.materialshowcaseview.MaterialShowcaseView, boolean, boolean);
@@ -49,6 +51,7 @@ public class uk.co.deanwild.materialshowcaseview.MaterialShowcaseView extends an
   public boolean wasSkipped();
   public boolean dispatchKeyEvent(android.view.KeyEvent);
   public boolean show(android.app.Activity);
+  public boolean show(android.app.Dialog);
   public void hide();
   public void skip();
   public void fadeIn();
@@ -399,15 +402,6 @@ public final class uk.co.deanwild.materialshowcaseview.AnimationsKt {
   public static final void animateShowcaseToPoint(uk.co.deanwild.materialshowcaseview.MaterialShowcaseView, android.graphics.Point);
 }
 
-public final class uk.co.deanwild.materialshowcaseview.AnimationsKt$doOnEndOrCancel$1 extends android.animation.AnimatorListenerAdapter {
-  public void onAnimationEnd(android.animation.Animator);
-  public void onAnimationCancel(android.animation.Animator);
-}
-
-public final class uk.co.deanwild.materialshowcaseview.AnimationsKt$doOnStart$1 extends android.animation.AnimatorListenerAdapter {
-  public void onAnimationStart(android.animation.Animator);
-}
-
 public final class uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Companion {
   public final void resetSingleUse(android.content.Context, java.lang.String);
   public final void resetAll(android.content.Context);
@@ -416,19 +410,6 @@ public final class uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Comp
   public final boolean isShowing(android.app.Activity);
   public final boolean hasFired(android.content.Context, java.lang.String);
   public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Companion(kotlin.jvm.internal.DefaultConstructorMarker);
-}
-
-public final class uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$announceAsButton$1 extends androidx.core.view.AccessibilityDelegateCompat {
-  public void onInitializeAccessibilityNodeInfo(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat);
-}
-
-public final class uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$registerBackHandler$callback$1 extends androidx.activity.OnBackPressedCallback {
-  public void handleOnBackPressed();
-}
-
-public final class uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$showRunnable$lambda$0$$inlined$doOnLayout$1 implements android.view.View$OnLayoutChangeListener {
-  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$showRunnable$lambda$0$$inlined$doOnLayout$1(uk.co.deanwild.materialshowcaseview.MaterialShowcaseView);
-  public void onLayoutChange(android.view.View, int, int, int, int, int, int, int, int);
 }
 
 public final class uk.co.deanwild.materialshowcaseview.PrefsManager$Companion {
@@ -474,23 +455,6 @@ public final class uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$Position 
   public static uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$Position[] values();
   public static uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$Position valueOf(java.lang.String);
   public static kotlin.enums.EnumEntries<uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$Position> getEntries();
-}
-
-public final class uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$TooltipView$WhenMappings {
-  public static final int[] $EnumSwitchMapping$0;
-  public static final int[] $EnumSwitchMapping$1;
-}
-
-public final class uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$TooltipView$setup$1 implements android.view.ViewTreeObserver$OnPreDrawListener {
-  public boolean onPreDraw();
-}
-
-public final class uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$TooltipView$startEnterAnimation$1 extends android.animation.AnimatorListenerAdapter {
-  public void onAnimationEnd(android.animation.Animator);
-}
-
-public final class uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$show$1$1 implements android.view.ViewTreeObserver$OnPreDrawListener {
-  public boolean onPreDraw();
 }
 
 public final class uk.co.deanwild.materialshowcaseview.compat.SequenceItemCallbacks {

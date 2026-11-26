@@ -122,6 +122,7 @@ class ReviewFindingsTest {
         val deferred = DeferredExitFactory()
         val shown = mutableListOf<Int>()
         val seq = MaterialShowcaseSequence(screen.activity)
+        seq.setAnimateBetweenItems(false) // exercises the animate-out path
         seq.setOnItemShownListener { _, pos -> shown += pos }
         seq.addSequenceItem(builder(screen, screen.top).build().withFactory(deferred))
         seq.addSequenceItem(builder(screen, screen.bottom).build().withFactory(deferred))

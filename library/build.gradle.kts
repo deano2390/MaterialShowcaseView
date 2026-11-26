@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.github.deano2390"
-version = "2.1.0"
+version = "2.2.0"
 
 android {
     namespace = "uk.co.deanwild.materialshowcaseview"
@@ -121,6 +121,9 @@ abstract class ApiSignatureTask : DefaultTask() {
         return out.toString().split(Regex("(?m)^Compiled from .*\\n"))
             .map { it.trim() }
             .filter { it.startsWith("public ") || it.startsWith("protected ") }
+            // Anonymous and lambda classes (Foo$1, Foo$bar$1) aren't callable API.
+            .filterNot { Regex("^[^{]*\\$\\d+[\\s<{]").containsMatchIn(it.lineSequence().first()) }
+            .filterNot { it.lineSequence().first().contains("\$WhenMappings") }
             .map { block -> block.lines().filterNot { it.contains("\$library") || it.contains("access\$") }.joinToString("\n") }
             .sorted()
             .joinToString("\n\n", postfix = "\n")

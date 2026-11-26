@@ -1,6 +1,7 @@
 package uk.co.deanwild.materialshowcaseview
 
 import android.app.Activity
+import android.app.Dialog
 import android.view.View
 import uk.co.deanwild.materialshowcaseview.compat.SequenceItemCallbacks
 import java.util.LinkedList
@@ -27,6 +28,8 @@ open class MaterialShowcaseSequence(activity: Activity?) : IDetachedListener {
     private var onItemDismissedListener: OnSequenceItemDismissedListener? = null
     private var onSkippedListener: OnSequenceSkippedListener? = null
     private var onFinishedListener: OnSequenceFinishedListener? = null
+    private var dialog: Dialog? = null
+    private var animateBetweenItems = true
 
     constructor(activity: Activity?, sequenceID: String?) : this(activity) {
         singleUse(sequenceID)
@@ -89,6 +92,20 @@ open class MaterialShowcaseSequence(activity: Activity?) : IDetachedListener {
         onFinishedListener = listener
     }
 
+    /** Shows the sequence over [dialog] (which must be showing) instead of over the Activity. */
+    open fun setDialog(dialog: Dialog?) {
+        this.dialog = dialog
+    }
+
+    /**
+     * When true (the default), dismissing an item moves straight to the next one: the highlight
+     * glides from one target to the next and the screen stays covered throughout. When false,
+     * each item animates out and the next animates in, as in 1.x (with any configured delay).
+     */
+    open fun setAnimateBetweenItems(animateBetweenItems: Boolean) {
+        this.animateBetweenItems = animateBetweenItems
+    }
+
     /** True if this is a single-use sequence that has been finished or skipped. */
     open fun hasFired(): Boolean = prefsManager?.getSequenceStatus() == PrefsManager.SEQUENCE_FINISHED
 
@@ -106,29 +123,62 @@ open class MaterialShowcaseSequence(activity: Activity?) : IDetachedListener {
         showNextItem()
     }
 
-    private fun showNextItem() {
-        if (showcaseQueue.isEmpty()) {
-            // End of the sequence.
-            if (singleUse) prefsManager?.setFired()
-            onFinishedListener?.onFinished(false)
-            return
-        }
-        // Leaving mid-sequence (finishing, or being recreated for a configuration change): stop
-        // here, but keep progress so we resume next time.
-        if (activity.isFinishing || activity.isDestroyed || activity.isChangingConfigurations) return
-        // Disabled mid-sequence: stop without recording progress.
-        if (!MaterialShowcaseView.areShowcasesEnabled()) return
+    /**
+     * Shows the next item that can be shown, transitioning from [previous] if given.
+     * Returns true if an item is now showing.
+     */
+    private fun showNextItem(previous: MaterialShowcaseView? = null): Boolean {
+        while (true) {
+            if (showcaseQueue.isEmpty()) {
+                // End of the sequence.
+                if (singleUse) prefsManager?.setFired()
+                onFinishedListener?.onFinished(false)
+                return false
+            }
+            // Leaving mid-sequence (finishing, or being recreated for a configuration change):
+            // stop here, but keep progress so we resume next time.
+            if (activity.isFinishing || activity.isDestroyed || activity.isChangingConfigurations) return false
+            // Disabled mid-sequence: stop without recording progress.
+            if (!MaterialShowcaseView.areShowcasesEnabled()) return false
 
-        val sequenceItem = showcaseQueue.remove()
-        sequenceItem.setDetachedListener(this)
-        if (sequenceItem.show(activity)) {
-            onItemShownListener?.onShow(sequenceItem, sequencePosition)
-        } else {
+            val sequenceItem = showcaseQueue.remove()
+            sequenceItem.setDetachedListener(this)
+            sequenceItem.onDismissRequested = ::handOver
+            if (sequenceItem.showInternal(activity, dialog, previous)) {
+                onItemShownListener?.onShow(sequenceItem, sequencePosition)
+                return true
+            }
             // The item can't be shown (e.g. it is single-use and has fired): move past it rather
             // than waiting forever for it to be dismissed.
             sequenceItem.setDetachedListener(null)
-            advance()
+            sequenceItem.onDismissRequested = null
+            sequencePosition++
+            if (singleUse) prefsManager?.setSequenceStatus(sequencePosition)
         }
+    }
+
+    /**
+     * Called when [item] is deliberately dismissed. Shows the next item straight away, on top,
+     * so the screen never uncovers between items. Returns false to let [item] animate out
+     * normally (last item, transitions off, or nothing left that can be shown).
+     */
+    private fun handOver(item: MaterialShowcaseView): Boolean {
+        if (!animateBetweenItems || showcaseQueue.isEmpty()) return false
+        if (activity.isFinishing || activity.isDestroyed || activity.isChangingConfigurations) return false
+        if (!MaterialShowcaseView.areShowcasesEnabled()) return false
+
+        // We advance here, so the item's own detach must not advance again.
+        item.setDetachedListener(null)
+        item.onDismissRequested = null
+        onItemDismissedListener?.onDismiss(item, sequencePosition)
+        sequencePosition++
+        if (singleUse) prefsManager?.setSequenceStatus(sequencePosition)
+
+        if (!showNextItem(previous = item)) return false
+        // The next item now covers the screen; remove this one underneath it. Posted so we
+        // aren't removing the view from inside its own touch/click handling.
+        item.post { item.removeFromWindow() }
+        return true
     }
 
     private fun advance() {
