@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig
@@ -53,6 +54,8 @@ class SequenceExample : AppCompatActivity() {
         sequence.addSequenceItem(
             MaterialShowcaseView.Builder(this)
                 .setSkipText("SKIP")
+                .setDismissButtonColor(ContextCompat.getColor(this, R.color.darkblue))
+                .setShapeBorder(ContextCompat.getColor(this, R.color.orange), (3 * resources.displayMetrics.density).toInt())
                 .setTarget(buttonTwo)
                 .setDismissText("GOT IT")
                 .setContentText("This is button two")
