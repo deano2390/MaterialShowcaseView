@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.2.0
+
+### Changed
+* Sequences move smoothly between items. Dismissing an item shows the next one straight away,
+  with the highlight gliding (and resizing) from the previous target to the new one while its
+  text fades in. The screen stays covered throughout, so taps can't reach the app between
+  items, and the delay only applies before the first item. Use
+  `MaterialShowcaseSequence.setAnimateBetweenItems(false)` to keep the 1.x behaviour.
+  (#12, #140, #192)
+
+### Added
+* Showcases over dialogs: `MaterialShowcaseView.show(dialog)` and
+  `MaterialShowcaseSequence.setDialog(dialog)`. The showcase covers the whole screen above the
+  dialog, lines up with views inside it, and goes away if the dialog is dismissed. Back-press
+  dismissal over a dialog needs an AndroidX dialog (`AppCompatDialog`/`ComponentDialog`). (#51)
+* `MaterialShowcaseView.isShowing(activity)` now also covers showcases over that Activity's dialogs.
+
 ## 2.1.0
 
 ### Added

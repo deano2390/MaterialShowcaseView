@@ -152,6 +152,31 @@ class SampleShowcaseTest {
     }
 
     @Test
+    fun dialogExample_showcaseAppearsOverTheDialog_andStepsThrough() {
+        val device = androidx.test.uiautomator.UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        ActivityScenario.launch(DialogExample::class.java).use { scenario ->
+            onView(withText("Show dialog")).perform(click())
+
+            for (text in listOf("Delete removes the photo from every device", "Or keep it with Cancel")) {
+                val item = device.wait(androidx.test.uiautomator.Until.findObject(androidx.test.uiautomator.By.text(text)), 5000)
+                    ?: throw AssertionError("'$text' not shown over the dialog")
+                var showing = false
+                scenario.onActivity { showing = MaterialShowcaseView.isShowing(it) }
+                assertTrue(showing)
+                device.findObject(androidx.test.uiautomator.By.text("GOT IT")).click()
+                device.wait(androidx.test.uiautomator.Until.gone(androidx.test.uiautomator.By.text(text)), 5000)
+            }
+
+            // The sequence is over and the dialog is still up.
+            device.waitForIdle()
+            var showing = true
+            scenario.onActivity { showing = MaterialShowcaseView.isShowing(it) }
+            assertTrue(!showing)
+            assertTrue(device.hasObject(androidx.test.uiautomator.By.text("Delete photo?")))
+        }
+    }
+
+    @Test
     fun rotationMidShowcase_doesNotCrash_andShowsAgain() {
         ActivityScenario.launch(SimpleSingleExample::class.java).use { scenario ->
             scenario.awaitShowcase()

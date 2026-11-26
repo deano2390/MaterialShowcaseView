@@ -34,7 +34,7 @@ Then add the dependency to your module's `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.deano2390:MaterialShowcaseView:2.1.0")
+    implementation("com.github.deano2390:MaterialShowcaseView:2.2.0")
 }
 ```
 
@@ -53,7 +53,7 @@ dependencyResolutionManagement {
 
 // app/build.gradle
 dependencies {
-    implementation 'com.github.deano2390:MaterialShowcaseView:2.1.0'
+    implementation 'com.github.deano2390:MaterialShowcaseView:2.2.0'
 }
 ```
 </details>
@@ -134,6 +134,25 @@ MaterialShowcaseView.Builder(this)
     .setShapeBorder(Color.WHITE, 4)      // outline the highlight
     .show()
 ```
+
+In a sequence, dismissing an item moves straight on to the next: the highlight glides from one
+target to the next and the screen stays covered, so stray taps can't reach your app in between. Call
+`sequence.setAnimateBetweenItems(false)` for the 1.x behaviour, where each item animates out and the
+next animates in.
+
+To showcase views inside a dialog, show the dialog first and then show the showcase over it:
+
+```kotlin
+val dialog = AlertDialog.Builder(this).setTitle("Delete photo?").setPositiveButton("Delete", null).show()
+
+MaterialShowcaseView.Builder(this)
+    .setTarget(dialog.getButton(AlertDialog.BUTTON_POSITIVE))
+    .setContentText("Delete removes the photo from every device")
+    .build()
+    .show(dialog)                 // or sequence.setDialog(dialog) for a sequence
+```
+
+The showcase covers the whole screen above the dialog and goes away if the dialog is dismissed.
 
 Sequences can tell you how they ended:
 

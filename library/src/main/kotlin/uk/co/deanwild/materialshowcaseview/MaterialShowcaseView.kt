@@ -1,6 +1,13 @@
 package uk.co.deanwild.materialshowcaseview
 
+import android.animation.ValueAnimator
 import android.app.Activity
+import android.app.Dialog
+import android.content.ContextWrapper
+import android.graphics.PixelFormat
+import android.os.Build
+import android.view.WindowManager
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
@@ -26,6 +33,7 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.activity.ComponentActivity
+import androidx.activity.ComponentDialog
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.VisibleForTesting
 import androidx.core.graphics.Insets
@@ -128,6 +136,31 @@ open class MaterialShowcaseView @JvmOverloads constructor(
     private var dismissOnBackPress = false
     private var backCallback: OnBackPressedCallback? = null
 
+    /** The Activity this showcase is shown in (directly, or over one of its dialogs). */
+    private var hostActivity: Activity? = null
+
+    /** When shown over a dialog: the dialog window's root view, and the panel window we add. */
+    private var hostRoot: View? = null
+    private var panel: FrameLayout? = null
+    private var panelWindowManager: WindowManager? = null
+    private val hostDetachListener = object : OnAttachStateChangeListener {
+        override fun onViewAttachedToWindow(v: View) = Unit
+        override fun onViewDetachedFromWindow(v: View) = removeFromWindow()
+    }
+
+    /**
+     * Sequence hook: lets a sequence take over a deliberate dismissal and move straight on to
+     * the next item. Returns true if it took over.
+     */
+    internal var onDismissRequested: ((MaterialShowcaseView) -> Boolean)? = null
+
+    /* Transition from the previous item in a sequence: the highlight glides from there. */
+    private var transitionFromScreen: Point? = null
+    private var transitionStartScaleX = 1f
+    private var transitionStartScaleY = 1f
+    private var transitionProgress = 1f
+    private var transitionAnimator: ValueAnimator? = null
+
     private val showRunnable = Runnable {
         if (!isAttachedToWindow) return@Runnable
         if (shouldAnimate) {
@@ -195,9 +228,21 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         }
         canvas.drawColor(maskColour)
         if (hasTarget()) {
-            shape?.draw(canvas, eraser, showcaseX, showcaseY)
+            val hole = currentHolePosition()
+            val shapeSave = canvas.save()
+            if (transitionProgress < 1f) {
+                // Mid-transition: grow/shrink from the previous item's shape size.
+                canvas.scale(
+                    lerp(transitionStartScaleX, 1f, transitionProgress),
+                    lerp(transitionStartScaleY, 1f, transitionProgress),
+                    hole.x.toFloat(),
+                    hole.y.toFloat(),
+                )
+            }
+            shape?.draw(canvas, eraser, hole.x, hole.y)
             // Re-drawing the shape with a stroke paint outlines it, for built-in and custom shapes alike.
-            borderPaint?.let { shape?.draw(canvas, it, showcaseX, showcaseY) }
+            borderPaint?.let { shape?.draw(canvas, it, hole.x, hole.y) }
+            canvas.restoreToCount(shapeSave)
         }
         canvas.restoreToCount(save)
     }
@@ -214,6 +259,7 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         viewTreeObserver.addOnScrollChangedListener(scrollListener)
         ViewCompat.getRootWindowInsets(this)?.let { applyInsets(it) }
         hideSiblingsFromAccessibility()
+        showing += this
         ViewCompat.setAccessibilityPaneTitle(this, titleTextView.text.ifEmpty { contentTextView.text })
     }
 
@@ -224,6 +270,7 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         backCallback = null
         removeCallbacks(showRunnable)
         restoreSiblingAccessibility()
+        showing -= this
         super.onDetachedFromWindow()
 
         // Detached without being dismissed or skipped (rotation, user left the Activity...):
@@ -236,7 +283,8 @@ open class MaterialShowcaseView @JvmOverloads constructor(
     }
 
     private fun hideSiblingsFromAccessibility() {
-        val parent = parent as? ViewGroup ?: return
+        // Over a dialog we live in our own window, so hide the dialog's content instead.
+        val parent = (hostRoot ?: parent) as? ViewGroup ?: return
         for (i in 0 until parent.childCount) {
             val sibling = parent.getChildAt(i)
             if (sibling === this) continue
@@ -338,11 +386,35 @@ open class MaterialShowcaseView @JvmOverloads constructor(
 
     private fun hasTarget(): Boolean = target.let { it != null && it !== Target.NONE }
 
+    /** Where this view sits relative to the window the target's coordinates are in. */
     private fun windowOffset(): Point {
+        val host = hostRoot
+        if (host != null) {
+            // We're in our own panel window over a dialog; targets report dialog-window coordinates.
+            val mine = IntArray(2).also { getLocationOnScreen(it) }
+            val theirs = IntArray(2).also { host.getLocationOnScreen(it) }
+            return Point(mine[0] - theirs[0], mine[1] - theirs[1])
+        }
         val location = IntArray(2)
         getLocationInWindow(location)
         return Point(location[0], location[1])
     }
+
+    /** Centre of the highlight as currently drawn, in this view's coordinates. */
+    @VisibleForTesting
+    internal fun currentHolePosition(): Point {
+        val from = transitionFromScreen
+        if (from == null || transitionProgress >= 1f) return Point(showcaseX, showcaseY)
+        val mine = IntArray(2).also { getLocationOnScreen(it) }
+        val fromX = (from.x - mine[0]).toFloat()
+        val fromY = (from.y - mine[1]).toFloat()
+        return Point(
+            lerp(fromX, showcaseX.toFloat(), transitionProgress).toInt(),
+            lerp(fromY, showcaseY.toFloat(), transitionProgress).toInt(),
+        )
+    }
+
+    private fun lerp(from: Float, to: Float, fraction: Float) = from + (to - from) * fraction
 
     /** Target bounds translated into this view's coordinate space. */
     private fun targetBoundsInView(): Rect {
@@ -719,8 +791,20 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         return super.dispatchKeyEvent(event)
     }
 
-    private fun registerBackHandler(activity: Activity) {
+    private fun registerBackHandler(activity: Activity, dialog: Dialog?) {
         if (!dismissOnBackPress) return
+        if (dialog != null) {
+            // Over a dialog the dialog keeps key focus, so this needs an AndroidX dialog
+            // (AppCompatDialog, ComponentDialog) to intercept back presses.
+            if (dialog is ComponentDialog) {
+                val callback = object : OnBackPressedCallback(true) {
+                    override fun handleOnBackPressed() = skip()
+                }
+                dialog.onBackPressedDispatcher.addCallback(callback)
+                backCallback = callback
+            }
+            return
+        }
         if (activity is ComponentActivity) {
             val callback = object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() = skip()
@@ -745,8 +829,25 @@ open class MaterialShowcaseView @JvmOverloads constructor(
      * Shows the showcase over [activity]. Returns false if nothing was shown, e.g. because
      * it is single-use and has been shown before, or it is already showing.
      */
-    open fun show(activity: Activity?): Boolean {
-        requireNotNull(activity) { "show() needs an Activity" }
+    open fun show(activity: Activity?): Boolean =
+        showInternal(requireNotNull(activity) { "show() needs an Activity" }, null, null)
+
+    /**
+     * Shows the showcase over [dialog], which must already be showing. The showcase covers the
+     * whole screen, above the dialog, and goes away if the dialog is dismissed.
+     */
+    open fun show(dialog: Dialog?): Boolean {
+        requireNotNull(dialog) { "show() needs a Dialog" }
+        val activity = dialog.ownerActivity ?: findActivity(dialog.context)
+            ?: throw IllegalArgumentException("The dialog must belong to an Activity")
+        return showInternal(activity, dialog, null)
+    }
+
+    /**
+     * Shows the showcase in [activity], or over [dialog] if given. With [previous] (the item
+     * before this one in a sequence) it appears immediately and its highlight glides from there.
+     */
+    internal fun showInternal(activity: Activity, dialog: Dialog?, previous: MaterialShowcaseView?): Boolean {
         check(Looper.myLooper() == Looper.getMainLooper()) {
             "MaterialShowcaseView.show() must be called on the main thread"
         }
@@ -773,15 +874,116 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         toolTipShown = false
         displayed = false
 
-        (activity.window.decorView as ViewGroup).addView(this)
+        hostActivity = activity
+        if (dialog != null) {
+            attachOverDialog(dialog)
+        } else {
+            (activity.window.decorView as ViewGroup).addView(this)
+        }
         shouldRender = true
 
         if (tooltipAnchor != null) toolTip?.configureTarget(this, tooltipAnchor)
-        registerBackHandler(activity)
+        registerBackHandler(activity, dialog)
 
-        postDelayed(showRunnable, delayInMillis)
+        if (previous != null) startTransitionFrom(previous) else postDelayed(showRunnable, delayInMillis)
         updateDismissButton()
         return true
+    }
+
+    /**
+     * Adds this view in a full-screen panel window attached to [dialog]'s window. A dialog's
+     * window attaches on the frame after `show()`, so if it isn't attached yet we wait for it.
+     */
+    private fun attachOverDialog(dialog: Dialog) {
+        val window = dialog.window ?: throw IllegalStateException("The dialog has no window")
+        check(dialog.isShowing) { "Show the dialog before showing a showcase over it" }
+        val root = window.decorView
+
+        val container = FrameLayout(context)
+        container.addView(this, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        hostRoot = root
+        panel = container
+        if (root.isAttachedToWindow) {
+            addPanelWindow(window, root, container)
+        } else {
+            val pending = object : OnAttachStateChangeListener {
+                override fun onViewAttachedToWindow(v: View) {
+                    root.removeOnAttachStateChangeListener(this)
+                    pendingPanelAttach = null
+                    if (panel === container) addPanelWindow(window, root, container)
+                }
+
+                override fun onViewDetachedFromWindow(v: View) = Unit
+            }
+            pendingPanelAttach = pending
+            root.addOnAttachStateChangeListener(pending)
+        }
+    }
+
+    private var pendingPanelAttach: OnAttachStateChangeListener? = null
+
+    private fun addPanelWindow(window: android.view.Window, root: View, container: FrameLayout) {
+        val lp = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.TYPE_APPLICATION_PANEL,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            PixelFormat.TRANSLUCENT,
+        )
+        lp.token = root.windowToken
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) lp.setFitInsetsTypes(0)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
+        val windowManager = window.windowManager
+        panelWindowManager = windowManager
+        windowManager.addView(container, lp)
+        root.addOnAttachStateChangeListener(hostDetachListener)
+    }
+
+    /** Appear immediately, with the highlight gliding from [previous]'s and the text fading in. */
+    private fun startTransitionFrom(previous: MaterialShowcaseView) {
+        if (previous.hasTarget() && hasTarget()) {
+            val screen = IntArray(2).also { previous.getLocationOnScreen(it) }
+            val hole = previous.currentHolePosition()
+            transitionFromScreen = Point(screen[0] + hole.x, screen[1] + hole.y)
+            transitionStartScaleX = sizeRatio(previous.shape?.getWidth(), shape?.getWidth())
+            transitionStartScaleY = sizeRatio(previous.shape?.getHeight(), shape?.getHeight())
+        } else {
+            transitionFromScreen = null
+            transitionStartScaleX = 1f
+            transitionStartScaleY = 1f
+        }
+        transitionProgress = 0f
+        contentBox.alpha = 0f
+        visibility = VISIBLE
+        doOnLayout {
+            if (!isAttachedToWindow || dismissing) return@doOnLayout
+            transitionAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
+                duration = fadeDurationInMillis
+                interpolator = AccelerateDecelerateInterpolator()
+                addUpdateListener {
+                    transitionProgress = it.animatedValue as Float
+                    contentBox.alpha = transitionProgress
+                    invalidate()
+                }
+                doOnEndOrCancel {
+                    transitionProgress = 1f
+                    contentBox.alpha = 1f
+                    transitionFromScreen = null
+                    invalidate()
+                    if (isAttachedToWindow && !dismissing) onDisplayed()
+                }
+                start()
+            }
+        }
+    }
+
+    private fun sizeRatio(from: Int?, to: Int?): Float {
+        if (from == null || to == null || from <= 0 || to <= 0) return 1f
+        return (from.toFloat() / to).coerceIn(0.05f, 20f)
     }
 
     /** Dismisses the showcase (as if "GOT IT" was tapped). Safe to call more than once. */
@@ -802,6 +1004,8 @@ open class MaterialShowcaseView @JvmOverloads constructor(
     private fun dismiss() {
         dismissing = true
         removeCallbacks(showRunnable)
+        // In a sequence, a deliberate dismissal can hand straight over to the next item.
+        if (wasDismissed && onDismissRequested?.invoke(this) == true) return
         if (shouldAnimate && isAttachedToWindow && visibility == VISIBLE) {
             animateOut()
         } else {
@@ -835,7 +1039,21 @@ open class MaterialShowcaseView @JvmOverloads constructor(
 
     open fun removeFromWindow() {
         removeCallbacks(showRunnable)
-        (parent as? ViewGroup)?.removeView(this)
+        transitionAnimator?.cancel()
+        transitionAnimator = null
+        val container = panel
+        if (container != null) {
+            panel = null
+            hostRoot?.removeOnAttachStateChangeListener(hostDetachListener)
+            pendingPanelAttach?.let { hostRoot?.removeOnAttachStateChangeListener(it) }
+            pendingPanelAttach = null
+            if (container.isAttachedToWindow) panelWindowManager?.removeViewImmediate(container)
+            panelWindowManager = null
+            hostRoot = null
+            container.removeView(this)
+        } else {
+            (parent as? ViewGroup)?.removeView(this)
+        }
     }
 
     private fun onDisplayed() {
@@ -1096,11 +1314,25 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         @JvmStatic
         fun areShowcasesEnabled(): Boolean = showcasesEnabled
 
-        /** True if a showcase (including one in a running sequence) is currently on [activity]. */
+        /** Showcases currently attached to a window. */
+        private val showing: MutableSet<MaterialShowcaseView> =
+            java.util.Collections.newSetFromMap(java.util.WeakHashMap())
+
+        /**
+         * True if a showcase (including one in a running sequence, or one over a dialog) is
+         * currently on [activity].
+         */
         @JvmStatic
-        fun isShowing(activity: Activity?): Boolean {
-            val decor = activity?.window?.peekDecorView() as? ViewGroup ?: return false
-            return (0 until decor.childCount).any { decor.getChildAt(it) is MaterialShowcaseView }
+        fun isShowing(activity: Activity?): Boolean =
+            activity != null && showing.any { it.hostActivity === activity }
+
+        private fun findActivity(context: Context?): Activity? {
+            var c = context
+            while (c is ContextWrapper) {
+                if (c is Activity) return c
+                c = c.baseContext
+            }
+            return null
         }
 
         @JvmStatic
