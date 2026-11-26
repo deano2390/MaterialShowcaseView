@@ -1,0 +1,489 @@
+public class uk.co.deanwild.materialshowcaseview.CircularRevealAnimationFactory implements uk.co.deanwild.materialshowcaseview.IAnimationFactory {
+  public uk.co.deanwild.materialshowcaseview.CircularRevealAnimationFactory();
+  public void animateInView(android.view.View, android.graphics.Point, long, uk.co.deanwild.materialshowcaseview.IAnimationFactory$AnimationStartListener);
+  public void animateOutView(android.view.View, android.graphics.Point, long, uk.co.deanwild.materialshowcaseview.IAnimationFactory$AnimationEndListener);
+  public void animateTargetToPoint(uk.co.deanwild.materialshowcaseview.MaterialShowcaseView, android.graphics.Point);
+}
+
+public class uk.co.deanwild.materialshowcaseview.FadeAnimationFactory implements uk.co.deanwild.materialshowcaseview.IAnimationFactory {
+  public uk.co.deanwild.materialshowcaseview.FadeAnimationFactory();
+  public void animateInView(android.view.View, android.graphics.Point, long, uk.co.deanwild.materialshowcaseview.IAnimationFactory$AnimationStartListener);
+  public void animateOutView(android.view.View, android.graphics.Point, long, uk.co.deanwild.materialshowcaseview.IAnimationFactory$AnimationEndListener);
+  public void animateTargetToPoint(uk.co.deanwild.materialshowcaseview.MaterialShowcaseView, android.graphics.Point);
+}
+
+public class uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence implements uk.co.deanwild.materialshowcaseview.IDetachedListener {
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence(android.app.Activity);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence(android.app.Activity, java.lang.String);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence addSequenceItem(android.view.View, java.lang.String, java.lang.String);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence addSequenceItem(android.view.View, java.lang.String, java.lang.String, java.lang.String);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence addSequenceItem(uk.co.deanwild.materialshowcaseview.MaterialShowcaseView);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence singleUse(java.lang.String);
+  public void setOnItemShownListener(uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence$OnSequenceItemShownListener);
+  public void setOnItemDismissedListener(uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence$OnSequenceItemDismissedListener);
+  public boolean hasFired();
+  public void start();
+  public void onShowcaseDetached(uk.co.deanwild.materialshowcaseview.MaterialShowcaseView, boolean, boolean);
+  public void setConfig(uk.co.deanwild.materialshowcaseview.ShowcaseConfig);
+}
+
+public class uk.co.deanwild.materialshowcaseview.MaterialShowcaseView extends android.widget.FrameLayout implements android.view.View$OnTouchListener,android.view.View$OnClickListener {
+  public static final uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Companion Companion;
+  public static final int DEFAULT_SHAPE_PADDING;
+  public static final int DEFAULT_TOOLTIP_MARGIN;
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView(android.content.Context, android.util.AttributeSet, int, int);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView(android.content.Context, android.util.AttributeSet, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker);
+  public boolean onTouch(android.view.View, android.view.MotionEvent);
+  public void onClick(android.view.View);
+  public void setGravity(int);
+  public void setTarget(uk.co.deanwild.materialshowcaseview.target.Target);
+  public void addShowcaseListener(uk.co.deanwild.materialshowcaseview.IShowcaseListener);
+  public void removeShowcaseListener(uk.co.deanwild.materialshowcaseview.IShowcaseListener);
+  public void removeShowcaseListener(uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence);
+  public void setShape(uk.co.deanwild.materialshowcaseview.shape.Shape);
+  public void setAnimationFactory(uk.co.deanwild.materialshowcaseview.IAnimationFactory);
+  public void setConfig(uk.co.deanwild.materialshowcaseview.ShowcaseConfig);
+  public boolean hasFired();
+  public boolean show(android.app.Activity);
+  public void hide();
+  public void skip();
+  public void fadeIn();
+  public void animateOut();
+  public void removeFromWindow();
+  public void resetSingleUse();
+  public int getSoftButtonsBarSizePort();
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView(android.content.Context, android.util.AttributeSet, int);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView(android.content.Context, android.util.AttributeSet);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView(android.content.Context);
+  public static final void resetSingleUse(android.content.Context, java.lang.String);
+  public static final void resetAll(android.content.Context);
+}
+
+public class uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder {
+  public static final int CIRCLE_SHAPE;
+  public static final int RECTANGLE_SHAPE;
+  public static final int NO_SHAPE;
+  public static final int OVAL_SHAPE;
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder(android.app.Activity);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setGravity(int);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setTarget(android.view.View);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setSequence(java.lang.Boolean);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setDismissText(int);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setDismissText(java.lang.CharSequence);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setDismissStyle(android.graphics.Typeface);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setSkipText(int);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setSkipText(java.lang.CharSequence);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setSkipStyle(android.graphics.Typeface);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setContentText(int);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setContentText(java.lang.CharSequence);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setTitleText(int);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setTitleText(java.lang.CharSequence);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setToolTip(uk.co.deanwild.materialshowcaseview.ShowcaseTooltip);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setTargetTouchable(boolean);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setDismissOnTargetTouch(boolean);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setDismissOnTouch(boolean);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setMaskColour(int);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setTitleTextColor(int);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setContentTextColor(int);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setDismissTextColor(int);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setDelay(int);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setFadeDuration(int);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setListener(uk.co.deanwild.materialshowcaseview.IShowcaseListener);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder singleUse(java.lang.String);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setShape(uk.co.deanwild.materialshowcaseview.shape.Shape);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder withCircleShape();
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder withOvalShape();
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder withoutShape();
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setShapePadding(int);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setTooltipMargin(int);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder withRectangleShape();
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder withRectangleShape(boolean);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder renderOverNavigationBar();
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder useFadeAnimation();
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView build();
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView show();
+}
+
+public class uk.co.deanwild.materialshowcaseview.PrefsManager {
+  public static final uk.co.deanwild.materialshowcaseview.PrefsManager$Companion Companion;
+  public static final int SEQUENCE_NEVER_STARTED;
+  public static final int SEQUENCE_FINISHED;
+  public uk.co.deanwild.materialshowcaseview.PrefsManager(android.content.Context, java.lang.String);
+  public void resetShowcase();
+  public void close();
+  public static final void resetAll(android.content.Context);
+}
+
+public class uk.co.deanwild.materialshowcaseview.ShowcaseConfig {
+  public static final uk.co.deanwild.materialshowcaseview.ShowcaseConfig$Companion Companion;
+  public static final java.lang.String DEFAULT_MASK_COLOUR;
+  public uk.co.deanwild.materialshowcaseview.ShowcaseConfig();
+  public long getDelay();
+  public void setDelay(long);
+  public long getFadeDuration();
+  public void setFadeDuration(long);
+  public int getMaskColor();
+  public void setMaskColor(int);
+  public int getTitleTextColor();
+  public void setTitleTextColor(int);
+  public int getContentTextColor();
+  public void setContentTextColor(int);
+  public int getDismissTextColor();
+  public void setDismissTextColor(int);
+  public android.graphics.Typeface getDismissTextStyle();
+  public void setDismissTextStyle(android.graphics.Typeface);
+  public uk.co.deanwild.materialshowcaseview.shape.Shape getShape();
+  public void setShape(uk.co.deanwild.materialshowcaseview.shape.Shape);
+  public int getShapePadding();
+  public void setShapePadding(int);
+  public java.lang.Boolean getRenderOverNavigationBar();
+  public void setRenderOverNavigationBar(boolean);
+  public final long getDelay$compat();
+  public final void setDelay$compat(long);
+  public final long getFadeDuration$compat();
+  public final void setFadeDuration$compat(long);
+  public final int getMaskColor$compat();
+  public final void setMaskColor$compat(int);
+  public final int getTitleTextColor$compat();
+  public final void setTitleTextColor$compat(int);
+  public final int getContentTextColor$compat();
+  public final void setContentTextColor$compat(int);
+  public final int getDismissTextColor$compat();
+  public final void setDismissTextColor$compat(int);
+  public final android.graphics.Typeface getDismissTextStyle$compat();
+  public final void setDismissTextStyle$compat(android.graphics.Typeface);
+  public final uk.co.deanwild.materialshowcaseview.shape.Shape getShape$compat();
+  public final void setShape$compat(uk.co.deanwild.materialshowcaseview.shape.Shape);
+  public final int getShapePadding$compat();
+  public final void setShapePadding$compat(int);
+  public final java.lang.Boolean getRenderOverNavigationBar$compat();
+}
+
+public class uk.co.deanwild.materialshowcaseview.ShowcaseTooltip {
+  public static final uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$Companion Companion;
+  public void configureTarget(android.view.ViewGroup, android.view.View);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip position(uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$Position);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip customView(android.view.View);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip customView(int);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip arrowWidth(int);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip arrowHeight(int);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip arrowSourceMargin(int);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip arrowTargetMargin(int);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip align(uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$ALIGN);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$TooltipView show(int);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip color(int);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip color(android.graphics.Paint);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip onDisplay(uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$ListenerDisplay);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip padding(int, int, int, int);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip animation(uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$TooltipAnimation);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip text(java.lang.String);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip text(int);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip corner(int);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip textColor(int);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip textTypeFace(android.graphics.Typeface);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip textSize(int, float);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip setTextGravity(int);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip distanceWithView(int);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip border(int, float);
+  public static final uk.co.deanwild.materialshowcaseview.ShowcaseTooltip build(android.content.Context);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip(android.content.Context, kotlin.jvm.internal.DefaultConstructorMarker);
+}
+
+public class uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$FadeTooltipAnimation implements uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$TooltipAnimation {
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$FadeTooltipAnimation(long);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$FadeTooltipAnimation(long, int, kotlin.jvm.internal.DefaultConstructorMarker);
+  public void animateEnter(android.view.View, android.animation.Animator$AnimatorListener);
+  public void animateExit(android.view.View, android.animation.Animator$AnimatorListener);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$FadeTooltipAnimation();
+}
+
+public class uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$MyContext {
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$MyContext(android.app.Activity);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$MyContext(android.app.Fragment);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$MyContext(android.content.Context);
+  public android.content.Context getContext();
+  public android.app.Activity getActivity();
+  public android.view.Window getWindow();
+}
+
+public class uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$TooltipView extends android.widget.FrameLayout {
+  public static final int MARGIN_SCREEN_BORDER_TOOLTIP;
+  public static final float BUBBLE_SPACING;
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$TooltipView(android.content.Context);
+  public int getArrowHeight();
+  public void setArrowHeight(int);
+  public int getArrowWidth();
+  public void setArrowWidth(int);
+  public int getArrowSourceMargin();
+  public void setArrowSourceMargin(int);
+  public int getArrowTargetMargin();
+  public void setArrowTargetMargin(int);
+  public void setCustomView(android.view.View);
+  public void setColor(int);
+  public void setPaint(android.graphics.Paint);
+  public void setPosition(uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$Position);
+  public void setAlign(uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$ALIGN);
+  public void setText(java.lang.String);
+  public void setText(int);
+  public void setTextColor(int);
+  public void setTextTypeFace(android.graphics.Typeface);
+  public void setTextSize(int, float);
+  public void setTextGravity(int);
+  public void setCorner(int);
+  public void setListenerDisplay(uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$ListenerDisplay);
+  public void setTooltipAnimation(uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$TooltipAnimation);
+  public void setupPosition(android.graphics.Rect);
+  public boolean adjustSize(android.graphics.Rect, int);
+  public void setup(android.graphics.Rect, int);
+  public void removeNow();
+  public void closeNow();
+  public void setDistanceWithView(int);
+  public void setBorderPaint(android.graphics.Paint);
+  public final int getArrowHeight$compat();
+  public final void setArrowHeight$compat(int);
+  public final int getArrowWidth$compat();
+  public final void setArrowWidth$compat(int);
+  public final int getArrowSourceMargin$compat();
+  public final void setArrowSourceMargin$compat(int);
+  public final int getArrowTargetMargin$compat();
+  public final void setArrowTargetMargin$compat(int);
+}
+
+public class uk.co.deanwild.materialshowcaseview.shape.CircleShape implements uk.co.deanwild.materialshowcaseview.shape.Shape {
+  public static final uk.co.deanwild.materialshowcaseview.shape.CircleShape$Companion Companion;
+  public uk.co.deanwild.materialshowcaseview.shape.CircleShape(int);
+  public uk.co.deanwild.materialshowcaseview.shape.CircleShape(int, int, kotlin.jvm.internal.DefaultConstructorMarker);
+  public int getRadius();
+  public void setRadius(int);
+  public boolean isAdjustToTarget();
+  public void setAdjustToTarget(boolean);
+  public uk.co.deanwild.materialshowcaseview.shape.CircleShape(android.graphics.Rect);
+  public uk.co.deanwild.materialshowcaseview.shape.CircleShape(uk.co.deanwild.materialshowcaseview.target.Target);
+  public void draw(android.graphics.Canvas, android.graphics.Paint, int, int);
+  public void updateTarget(uk.co.deanwild.materialshowcaseview.target.Target);
+  public int getTotalRadius();
+  public void setPadding(int);
+  public int getWidth();
+  public int getHeight();
+  public final int getRadius$compat();
+  public final void setRadius$compat(int);
+  public final boolean isAdjustToTarget$compat();
+  public final void setAdjustToTarget$compat(boolean);
+  public uk.co.deanwild.materialshowcaseview.shape.CircleShape();
+  public static final int getPreferredRadius(android.graphics.Rect);
+}
+
+public class uk.co.deanwild.materialshowcaseview.shape.NoShape implements uk.co.deanwild.materialshowcaseview.shape.Shape {
+  public uk.co.deanwild.materialshowcaseview.shape.NoShape();
+  public void updateTarget(uk.co.deanwild.materialshowcaseview.target.Target);
+  public int getTotalRadius();
+  public void setPadding(int);
+  public void draw(android.graphics.Canvas, android.graphics.Paint, int, int);
+  public int getWidth();
+  public int getHeight();
+}
+
+public class uk.co.deanwild.materialshowcaseview.shape.OvalShape implements uk.co.deanwild.materialshowcaseview.shape.Shape {
+  public static final uk.co.deanwild.materialshowcaseview.shape.OvalShape$Companion Companion;
+  public uk.co.deanwild.materialshowcaseview.shape.OvalShape(int);
+  public uk.co.deanwild.materialshowcaseview.shape.OvalShape(int, int, kotlin.jvm.internal.DefaultConstructorMarker);
+  public int getRadius();
+  public void setRadius(int);
+  public boolean isAdjustToTarget();
+  public void setAdjustToTarget(boolean);
+  public uk.co.deanwild.materialshowcaseview.shape.OvalShape(android.graphics.Rect);
+  public uk.co.deanwild.materialshowcaseview.shape.OvalShape(uk.co.deanwild.materialshowcaseview.target.Target);
+  public void draw(android.graphics.Canvas, android.graphics.Paint, int, int);
+  public void updateTarget(uk.co.deanwild.materialshowcaseview.target.Target);
+  public int getTotalRadius();
+  public void setPadding(int);
+  public int getWidth();
+  public int getHeight();
+  public final int getRadius$compat();
+  public final void setRadius$compat(int);
+  public final boolean isAdjustToTarget$compat();
+  public final void setAdjustToTarget$compat(boolean);
+  public uk.co.deanwild.materialshowcaseview.shape.OvalShape();
+  public static final int getPreferredRadius(android.graphics.Rect);
+}
+
+public class uk.co.deanwild.materialshowcaseview.shape.RectangleShape implements uk.co.deanwild.materialshowcaseview.shape.Shape {
+  public static final int FULL_WIDTH;
+  public boolean isAdjustToTarget();
+  public void setAdjustToTarget(boolean);
+  public uk.co.deanwild.materialshowcaseview.shape.RectangleShape(int, int);
+  public uk.co.deanwild.materialshowcaseview.shape.RectangleShape(android.graphics.Rect);
+  public uk.co.deanwild.materialshowcaseview.shape.RectangleShape(android.graphics.Rect, boolean);
+  public void draw(android.graphics.Canvas, android.graphics.Paint, int, int);
+  public void updateTarget(uk.co.deanwild.materialshowcaseview.target.Target);
+  public int getTotalRadius();
+  public void setPadding(int);
+  public int getWidth();
+  public int getHeight();
+  public final boolean isAdjustToTarget$compat();
+  public final void setAdjustToTarget$compat(boolean);
+}
+
+public class uk.co.deanwild.materialshowcaseview.target.ViewTarget implements uk.co.deanwild.materialshowcaseview.target.Target {
+  public uk.co.deanwild.materialshowcaseview.target.ViewTarget(android.view.View);
+  public android.view.View getView();
+  public uk.co.deanwild.materialshowcaseview.target.ViewTarget(int, android.app.Activity);
+  public android.graphics.Point getPoint();
+  public android.graphics.Rect getBounds();
+  public final android.view.View getView$compat();
+}
+
+public final class uk.co.deanwild.materialshowcaseview.AnimationsKt {
+  public static final void doOnEndOrCancel(android.animation.Animator, kotlin.jvm.functions.Function0<kotlin.Unit>);
+  public static final void doOnStart(android.animation.Animator, kotlin.jvm.functions.Function0<kotlin.Unit>);
+  public static final float coveringRadius(android.view.View, android.graphics.Point);
+  public static final void animateShowcaseToPoint(uk.co.deanwild.materialshowcaseview.MaterialShowcaseView, android.graphics.Point);
+}
+
+public final class uk.co.deanwild.materialshowcaseview.AnimationsKt$doOnEndOrCancel$1 extends android.animation.AnimatorListenerAdapter {
+  public void onAnimationEnd(android.animation.Animator);
+  public void onAnimationCancel(android.animation.Animator);
+}
+
+public final class uk.co.deanwild.materialshowcaseview.AnimationsKt$doOnStart$1 extends android.animation.AnimatorListenerAdapter {
+  public void onAnimationStart(android.animation.Animator);
+}
+
+public final class uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Companion {
+  public final void resetSingleUse(android.content.Context, java.lang.String);
+  public final void resetAll(android.content.Context);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Companion(kotlin.jvm.internal.DefaultConstructorMarker);
+}
+
+public final class uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$announceAsButton$1 extends androidx.core.view.AccessibilityDelegateCompat {
+  public void onInitializeAccessibilityNodeInfo(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat);
+}
+
+public final class uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$showRunnable$lambda$0$$inlined$doOnLayout$1 implements android.view.View$OnLayoutChangeListener {
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$showRunnable$lambda$0$$inlined$doOnLayout$1(uk.co.deanwild.materialshowcaseview.MaterialShowcaseView);
+  public void onLayoutChange(android.view.View, int, int, int, int, int, int, int, int);
+}
+
+public final class uk.co.deanwild.materialshowcaseview.PrefsManager$Companion {
+  public final void resetAll(android.content.Context);
+  public uk.co.deanwild.materialshowcaseview.PrefsManager$Companion(kotlin.jvm.internal.DefaultConstructorMarker);
+}
+
+public final class uk.co.deanwild.materialshowcaseview.ShowcaseConfig$Companion {
+  public uk.co.deanwild.materialshowcaseview.ShowcaseConfig$Companion(kotlin.jvm.internal.DefaultConstructorMarker);
+}
+
+public final class uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$ALIGN extends java.lang.Enum<uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$ALIGN> {
+  public static final uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$ALIGN START;
+  public static final uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$ALIGN CENTER;
+  public static final uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$ALIGN END;
+  public static uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$ALIGN[] values();
+  public static uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$ALIGN valueOf(java.lang.String);
+  public static kotlin.enums.EnumEntries<uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$ALIGN> getEntries();
+}
+
+public final class uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$Companion {
+  public final uk.co.deanwild.materialshowcaseview.ShowcaseTooltip build(android.content.Context);
+  public uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$Companion(kotlin.jvm.internal.DefaultConstructorMarker);
+}
+
+public final class uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$Position extends java.lang.Enum<uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$Position> {
+  public static final uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$Position LEFT;
+  public static final uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$Position RIGHT;
+  public static final uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$Position TOP;
+  public static final uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$Position BOTTOM;
+  public static uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$Position[] values();
+  public static uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$Position valueOf(java.lang.String);
+  public static kotlin.enums.EnumEntries<uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$Position> getEntries();
+}
+
+public final class uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$TooltipView$WhenMappings {
+  public static final int[] $EnumSwitchMapping$0;
+  public static final int[] $EnumSwitchMapping$1;
+}
+
+public final class uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$TooltipView$setup$1 implements android.view.ViewTreeObserver$OnPreDrawListener {
+  public boolean onPreDraw();
+}
+
+public final class uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$TooltipView$startEnterAnimation$1 extends android.animation.AnimatorListenerAdapter {
+  public void onAnimationEnd(android.animation.Animator);
+}
+
+public final class uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$show$1$1 implements android.view.ViewTreeObserver$OnPreDrawListener {
+  public boolean onPreDraw();
+}
+
+public final class uk.co.deanwild.materialshowcaseview.shape.CircleShape$Companion {
+  public final int getPreferredRadius(android.graphics.Rect);
+  public uk.co.deanwild.materialshowcaseview.shape.CircleShape$Companion(kotlin.jvm.internal.DefaultConstructorMarker);
+}
+
+public final class uk.co.deanwild.materialshowcaseview.shape.OvalShape$Companion {
+  public final int getPreferredRadius(android.graphics.Rect);
+  public uk.co.deanwild.materialshowcaseview.shape.OvalShape$Companion(kotlin.jvm.internal.DefaultConstructorMarker);
+}
+
+public final class uk.co.deanwild.materialshowcaseview.target.Target$Companion {
+}
+
+public final class uk.co.deanwild.materialshowcaseview.target.Target$Companion$NONE$1 implements uk.co.deanwild.materialshowcaseview.target.Target {
+  public android.graphics.Point getPoint();
+  public android.graphics.Rect getBounds();
+}
+
+public interface uk.co.deanwild.materialshowcaseview.IAnimationFactory {
+  public abstract void animateInView(android.view.View, android.graphics.Point, long, uk.co.deanwild.materialshowcaseview.IAnimationFactory$AnimationStartListener);
+  public abstract void animateOutView(android.view.View, android.graphics.Point, long, uk.co.deanwild.materialshowcaseview.IAnimationFactory$AnimationEndListener);
+  public abstract void animateTargetToPoint(uk.co.deanwild.materialshowcaseview.MaterialShowcaseView, android.graphics.Point);
+}
+
+public interface uk.co.deanwild.materialshowcaseview.IAnimationFactory$AnimationEndListener {
+  public abstract void onAnimationEnd();
+}
+
+public interface uk.co.deanwild.materialshowcaseview.IAnimationFactory$AnimationStartListener {
+  public abstract void onAnimationStart();
+}
+
+public interface uk.co.deanwild.materialshowcaseview.IDetachedListener {
+  public abstract void onShowcaseDetached(uk.co.deanwild.materialshowcaseview.MaterialShowcaseView, boolean, boolean);
+}
+
+public interface uk.co.deanwild.materialshowcaseview.IShowcaseListener {
+  public abstract void onShowcaseDisplayed(uk.co.deanwild.materialshowcaseview.MaterialShowcaseView);
+  public abstract void onShowcaseDismissed(uk.co.deanwild.materialshowcaseview.MaterialShowcaseView);
+}
+
+public interface uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence$OnSequenceItemDismissedListener {
+  public abstract void onDismiss(uk.co.deanwild.materialshowcaseview.MaterialShowcaseView, int);
+}
+
+public interface uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence$OnSequenceItemShownListener {
+  public abstract void onShow(uk.co.deanwild.materialshowcaseview.MaterialShowcaseView, int);
+}
+
+public interface uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$ListenerDisplay {
+  public abstract void onDisplay(android.view.View);
+}
+
+public interface uk.co.deanwild.materialshowcaseview.ShowcaseTooltip$TooltipAnimation {
+  public abstract void animateEnter(android.view.View, android.animation.Animator$AnimatorListener);
+  public abstract void animateExit(android.view.View, android.animation.Animator$AnimatorListener);
+}
+
+public interface uk.co.deanwild.materialshowcaseview.shape.Shape {
+  public abstract void draw(android.graphics.Canvas, android.graphics.Paint, int, int);
+  public abstract int getWidth();
+  public abstract int getHeight();
+  public abstract void updateTarget(uk.co.deanwild.materialshowcaseview.target.Target);
+  public abstract int getTotalRadius();
+  public abstract void setPadding(int);
+}
+
+public interface uk.co.deanwild.materialshowcaseview.target.Target {
+  public static final uk.co.deanwild.materialshowcaseview.target.Target$Companion Companion;
+  public static final uk.co.deanwild.materialshowcaseview.target.Target NONE;
+  public abstract android.graphics.Point getPoint();
+  public abstract android.graphics.Rect getBounds();
+}
