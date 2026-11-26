@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.github.deano2390"
-version = "2.2.0"
+version = "2.3.0"
 
 android {
     namespace = "uk.co.deanwild.materialshowcaseview"

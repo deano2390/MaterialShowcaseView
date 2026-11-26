@@ -105,6 +105,9 @@ public class uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder {
   public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setDismissBackground(android.graphics.drawable.Drawable);
   public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setSkipBackground(android.graphics.drawable.Drawable);
   public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setShapeBorder(int, int);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setContentView(android.view.View);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setContentLayout(int);
+  public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setScrollTargetIntoView(boolean);
   public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setTitleStyle(android.graphics.Typeface);
   public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setContentStyle(android.graphics.Typeface);
   public uk.co.deanwild.materialshowcaseview.MaterialShowcaseView$Builder setTitleTextSize(int, float);
@@ -171,6 +174,8 @@ public class uk.co.deanwild.materialshowcaseview.ShowcaseConfig {
   public void setContentTextStyle(android.graphics.Typeface);
   public java.lang.Boolean getDismissOnBackPress();
   public void setDismissOnBackPress(java.lang.Boolean);
+  public java.lang.Boolean getScrollTargetIntoView();
+  public void setScrollTargetIntoView(java.lang.Boolean);
   public java.lang.Integer getDismissButtonColor();
   public void setDismissButtonColor(java.lang.Integer);
   public java.lang.Integer getSkipButtonColor();

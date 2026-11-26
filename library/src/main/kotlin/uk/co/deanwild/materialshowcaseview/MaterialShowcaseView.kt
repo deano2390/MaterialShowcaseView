@@ -81,7 +81,11 @@ open class MaterialShowcaseView @JvmOverloads constructor(
     private var shapePadding = DEFAULT_SHAPE_PADDING
     private var tooltipMargin = DEFAULT_TOOLTIP_MARGIN
 
-    private val contentBox: View
+    /** The block of text and buttons placed beside the target: built in, or the app's own. */
+    private var contentBox: View
+    private val builtInContent: View
+    private var hasCustomContent = false
+    private var scrollTargetIntoView = false
     private val titleTextView: TextView
     private val contentTextView: TextView
     private val dismissButton: TextView
@@ -163,6 +167,7 @@ open class MaterialShowcaseView @JvmOverloads constructor(
 
     private val showRunnable = Runnable {
         if (!isAttachedToWindow) return@Runnable
+        bringTargetOnScreen()
         if (shouldAnimate) {
             // Wait for the first layout so reveal animations know our size.
             doOnLayout { fadeIn() }
@@ -179,6 +184,7 @@ open class MaterialShowcaseView @JvmOverloads constructor(
 
         LayoutInflater.from(context).inflate(R.layout.showcase_content, this, true)
         contentBox = findViewById(R.id.content_box)
+        builtInContent = contentBox
         titleTextView = findViewById(R.id.tv_title)
         contentTextView = findViewById(R.id.tv_content)
         dismissButton = findViewById(R.id.tv_dismiss)
@@ -260,7 +266,10 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         ViewCompat.getRootWindowInsets(this)?.let { applyInsets(it) }
         hideSiblingsFromAccessibility()
         showing += this
-        ViewCompat.setAccessibilityPaneTitle(this, titleTextView.text.ifEmpty { contentTextView.text })
+        ViewCompat.setAccessibilityPaneTitle(
+            this,
+            if (hasCustomContent) contentBox.contentDescription else titleTextView.text.ifEmpty { contentTextView.text },
+        )
     }
 
     override fun onDetachedFromWindow() {
@@ -351,8 +360,8 @@ open class MaterialShowcaseView @JvmOverloads constructor(
     /** Dismiss / skip button clicked. */
     override fun onClick(v: View) {
         when (v.id) {
-            R.id.tv_dismiss -> hide()
-            R.id.tv_skip -> skip()
+            R.id.tv_dismiss, R.id.showcase_dismiss -> hide()
+            R.id.tv_skip, R.id.showcase_skip -> skip()
         }
     }
 
@@ -663,6 +672,43 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         setPaddingRelative(horizontal, vertical, horizontal, vertical)
     }
 
+    /**
+     * Replaces the built-in title, text and buttons with [content]. Views in it with the ids
+     * `showcase_dismiss` / `showcase_skip` dismiss / skip the showcase when clicked.
+     */
+    private fun setCustomContent(content: View?) {
+        (contentBox.parent as? ViewGroup)?.removeView(contentBox)
+        if (content == null) {
+            hasCustomContent = false
+            contentBox = builtInContent
+        } else {
+            hasCustomContent = true
+            (content.parent as? ViewGroup)?.removeView(content)
+            contentBox = content
+            content.findViewById<View>(R.id.showcase_dismiss)?.setOnClickListener(this)
+            content.findViewById<View>(R.id.showcase_skip)?.setOnClickListener(this)
+        }
+        val width = content?.layoutParams?.width ?: LayoutParams.MATCH_PARENT
+        addView(contentBox, LayoutParams(width, LayoutParams.WRAP_CONTENT))
+        updateLayout()
+    }
+
+    private fun setCustomContent(layoutRes: Int) =
+        setCustomContent(LayoutInflater.from(context).inflate(layoutRes, this, false))
+
+    private fun setScrollTargetIntoView(scroll: Boolean) {
+        scrollTargetIntoView = scroll
+    }
+
+    /** If asked to, scrolls the target's scrolling parents so the target is fully on screen. */
+    private fun bringTargetOnScreen() {
+        if (!scrollTargetIntoView) return
+        val view = (target as? ViewTarget)?.view ?: return
+        if (view.width == 0 && view.height == 0) return
+        view.requestRectangleOnScreen(Rect(0, 0, view.width, view.height), true)
+        updateLayout()
+    }
+
     private fun setDismissOnBackPress(dismissOnBackPress: Boolean) {
         this.dismissOnBackPress = dismissOnBackPress
         // Fallback for Activities without an OnBackPressedDispatcher: take key focus.
@@ -764,6 +810,7 @@ open class MaterialShowcaseView @JvmOverloads constructor(
         config.dismissButtonColor?.let { setDismissButtonColor(it) }
         config.skipButtonColor?.let { setSkipButtonColor(it) }
         config.shapeBorder?.let { setShapeBorder(it.colour, it.width) }
+        config.scrollTargetIntoView?.let { setScrollTargetIntoView(it) }
     }
 
     private fun updateDismissButton() {
@@ -945,6 +992,7 @@ open class MaterialShowcaseView @JvmOverloads constructor(
 
     /** Appear immediately, with the highlight gliding from [previous]'s and the text fading in. */
     private fun startTransitionFrom(previous: MaterialShowcaseView) {
+        bringTargetOnScreen()
         if (previous.hasTarget() && hasTarget()) {
             val screen = IntArray(2).also { previous.getLocationOnScreen(it) }
             val hole = previous.currentHolePosition()
@@ -1171,6 +1219,23 @@ open class MaterialShowcaseView @JvmOverloads constructor(
 
         /** Draws an outline of [width] pixels in [colour] around the highlighted shape. */
         open fun setShapeBorder(colour: Int, width: Int): Builder = apply { showcaseView.setShapeBorder(colour, width) }
+
+        /**
+         * Uses [content] in place of the built-in title, text and buttons. The showcase still
+         * positions it beside the target. Give a view the id `showcase_dismiss` or
+         * `showcase_skip` (`@id/showcase_dismiss` in XML) to make it dismiss or skip; or call
+         * `hide()` / `skip()` on the showcase yourself. Null restores the built-in content.
+         */
+        open fun setContentView(content: View?): Builder = apply { showcaseView.setCustomContent(content) }
+
+        /** Like [setContentView], inflating [layoutRes]. */
+        open fun setContentLayout(layoutRes: Int): Builder = apply { showcaseView.setCustomContent(layoutRes) }
+
+        /**
+         * Scroll the target's scrolling parents (ScrollView, NestedScrollView, RecyclerView...)
+         * so it is fully on screen before the showcase appears. False by default.
+         */
+        open fun setScrollTargetIntoView(scroll: Boolean): Builder = apply { showcaseView.setScrollTargetIntoView(scroll) }
 
         /** Typeface for the title. */
         open fun setTitleStyle(titleStyle: Typeface?): Builder = apply { showcaseView.setTitleStyle(titleStyle) }
